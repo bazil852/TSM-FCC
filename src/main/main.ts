@@ -25,6 +25,22 @@ class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
+// /Users/bazil/Documents/TSM-SIMULATOR/data_output.json
+const filePath = path.join(app.getPath('documents'), 'TSM-SIMULATOR/data_output.json');
+console.log(filePath);
+ipcMain.on('read-json', (event) => {
+  fs.readFile(filePath, 'utf-8', (err, data) => {
+    if (err) {
+      console.log("Failed to read file: ", err);
+      event.reply('read-json-response', { success: false, message: err.message });
+    } else {
+      console.log("File read successfully");
+      event.reply('read-json-response', { success: true, data: JSON.parse(data) });
+    }
+  });
+});
+
+
 
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
@@ -97,9 +113,6 @@ const createWindow = async () => {
     webPreferences: {
       contextIsolation: false,
       nodeIntegration: true,
-      // preload: app.isPackaged
-      //   ? path.join(__dirname, 'preload.js')
-      //   : path.join(__dirname, '../../.erb/dll/preload.js'),
     },
   });
 
@@ -114,6 +127,13 @@ const createWindow = async () => {
     } else {
       mainWindow.show();
     }
+
+    // Set up the interval to send the read trigger every 5 seconds
+    setInterval(() => {
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('trigger-json-read');
+      }
+    }, 500);
   });
 
   mainWindow.on('closed', () => {
@@ -123,16 +143,14 @@ const createWindow = async () => {
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
 
-  // Open urls in the user's browser
   mainWindow.webContents.setWindowOpenHandler((edata) => {
     shell.openExternal(edata.url);
     return { action: 'deny' };
   });
 
-  // Remove this if your app does not use auto updates
-  // eslint-disable-next-line
   new AppUpdater();
 };
+
 
 /**
  * Add event listeners...

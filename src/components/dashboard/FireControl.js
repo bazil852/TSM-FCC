@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 import '../../renderer/App.css';
 import redLight from '../../TSM-img/redLight.svg';
 import greenLight from '../../TSM-img/greenLight.svg';
@@ -19,6 +19,8 @@ import blackSliderKnob from '../../TSM-img/blackSliderKnob.svg';
 import blackSliderTrack from '../../TSM-img/blackSliderTrack.svg';
 import whiteLight from '../../TSM-img/whiteLight.svg';
 import directionBtn from '../../TSM-img/directionBtn.svg';
+const { ipcRenderer } = window.require('electron');
+
 
 export default function FireControl() {
   const [ammo, setAmmo] = useState('apfsds');
@@ -38,7 +40,100 @@ export default function FireControl() {
   const [direction, setDirection] = useState('');
   const [autoManual, setAutoManual] = useState('auto');
   const [clutch, setClutch] = useState('9');
+  const [M2_KM, setM2_KM] = useState(-1);
+  const [M2_HM, setM2_HM] = useState(-2);
+  const [M2_DM, setM2_DM] = useState(-3);
 
+  const [M1_PDR1, setM1_PDR1] = useState(-4);
+  const [M1_PDR2, setM1_PDR2] = useState(-5);
+
+  const [M1_AIR1, setM1_AIR1] = useState(-6);
+  const [M1_AIR2, setM1_AIR2] = useState(-7);
+
+  const [M1_WIND1, setM1_WIND1] = useState(-8);
+  const [M1_WIND2, setM1_WIND2] = useState(-9);
+
+  const [M1_MVC, setM1_MVC] = useState(-10);
+
+
+  useEffect(() => {
+    // Function to handle the incoming data
+    const handleReadJsonResponse = (event, response) => {
+      if (response.success) {
+        const {
+          ammo,
+          toggleFirstAndLast,
+          opMode,
+          RNGmode,
+          toggleMoveAndFix,
+          KM,
+          HM,
+          DM,
+          bigDial,
+          CPDandSCD,
+          M2_KM,
+          M2_HM,
+          M2_DM,
+          M1_AIR1,
+          M1_AIR2,
+          M1_PDR1,
+          M1_PDR2,
+          M1_WIND1,
+          M1_WIND2,
+          M1_MVC
+        } = response.data;
+        console.log("Master Response: ", response.data);
+  
+        setAmmo(ammo);
+        setToggleFirstAndLast(toggleFirstAndLast);
+        setOpMode(opMode);
+        setRNGMode(RNGmode);
+        setToggleMoveAndFix(toggleMoveAndFix);
+        setKM(KM);
+        setHM(HM);
+        setDM(DM);
+        setBigDial(bigDial);
+        setCPDandSCD(CPDandSCD);
+        setM2_KM(M2_KM);
+        setM2_HM(M2_HM);
+        setM2_DM(M2_DM);
+        setM1_PDR1(M1_PDR1);
+        setM1_PDR2(M1_PDR2);
+        setM1_AIR1(M1_AIR1);
+        setM1_AIR2(M1_AIR2);
+        setM1_WIND1(M1_WIND1);
+        setM1_WIND2(M1_WIND2);
+        setM1_MVC(M1_MVC);
+      } else {
+        console.error('Failed to read the state file:', response.message);
+      }
+    };
+  
+    // Set up the listener
+    ipcRenderer.on('read-json-response', handleReadJsonResponse);
+  
+    // Clean up
+    return () => {
+      ipcRenderer.removeListener('read-json-response', handleReadJsonResponse);
+    };
+  }, []);  // Dependencies array is empty to set up the listener once on mount
+  
+  useEffect(() => {
+    const triggerReadJson = () => {
+        ipcRenderer.send('read-json');
+    };
+
+    ipcRenderer.on('trigger-json-read', triggerReadJson);
+
+    // Cleanup
+    return () => {
+        ipcRenderer.removeListener('trigger-json-read', triggerReadJson);
+    };
+}, []);
+
+
+  
+  
   const initialSwitchStates = {
     HEAT: { AZ: Array(6).fill(false), EL: Array(6).fill(false) },
     HESH: { AZ: Array(6).fill(false), EL: Array(6).fill(false) },
@@ -106,98 +201,55 @@ export default function FireControl() {
         </div>
 
         <div className="dashboard_third_set_knob_switches">
-          <div className="dashboard_third_set_knob_switches_group">
+    <div className="dashboard_third_set_knob_switches_group">
+        {['apfsds', 'hesh', 'heat', 'mg', 'sp'].map((type) => (
             <div
-              className="dashboard_third_set_knob_switches_group_box"
-              onClick={() => setAmmo('apfsds')}
+                key={type}
+                className="dashboard_third_set_knob_switches_group_box"
+                onClick={() => setAmmo(type)}
             >
-              <div className="dashboard_third_set_knob_switches_group_box_heading">
-                APFSDS
-              </div>
-              <img src={redToggle} alt="knob-switch" />
+                <div className="dashboard_third_set_knob_switches_group_box_heading">
+                    {type.toUpperCase()}
+                </div>
+                <div style={{ position: 'relative' }}>
+                    <img src={redToggle} alt="knob-switch" />
+                    {ammo === type && <span className="luminous-indicator"></span>}
+                </div>
             </div>
+        ))}
+    </div>
 
-            <div
-              className="dashboard_third_set_knob_switches_group_box"
-              onClick={() => setAmmo('hesh')}
-            >
-              <div className="dashboard_third_set_knob_switches_group_box_heading">
-                HESH
-              </div>
-              <img src={redToggle} alt="knob-switch" />
-            </div>
-
-            <div
-              className="dashboard_third_set_knob_switches_group_box"
-              onClick={() => setAmmo('heat')}
-            >
-              <div className="dashboard_third_set_knob_switches_group_box_heading">
-                HEAT
-              </div>
-              <img src={redToggle} alt="knob-switch" />
-            </div>
-
-            <div
-              className="dashboard_third_set_knob_switches_group_box"
-              onClick={() => setAmmo('mg')}
-            >
-              <div className="dashboard_third_set_knob_switches_group_box_heading">
-                MG
-              </div>
-              <img src={redToggle} alt="knob-switch" />
-            </div>
-
-            <div
-              className="dashboard_third_set_knob_switches_group_box"
-              onClick={() => setAmmo('sp')}
-            >
-              <div className="dashboard_third_set_knob_switches_group_box_heading">
-                SP
-              </div>
-              <img src={redToggle} alt="knob-switch" />
-            </div>
-          </div>
-
-          <div className="dashboard_third_set_knob_container">
-            <div className="dashboard_third_set_knob_side_switches_box">
-              <img src={grrenToggle} alt="knob-switch" />
-              <div className="dashboard_third_set_knob_side_switches_heading">
+    <div className="dashboard_third_set_knob_container">
+        {/* Existing structure remains unchanged */}
+        {/* Example for visual consistency */}
+        <div className="dashboard_third_set_knob_side_switches_box">
+            <img src={grrenToggle} alt="knob-switch" />
+            <div className="dashboard_third_set_knob_side_switches_heading">
                 LASER
-              </div>
             </div>
-
-            <div className="dashboard_third_set_knob_container_main_knob_box">
-              <div
-                className="dashboard_third_set_knob_container_main_knob"
-                style={{
-                  transition: 'transform 0.4s ease-in-out',
-                  transform:
-                    ammo === 'apfsds'
-                      ? 'rotate(-50deg)'
-                      : ammo === 'hesh'
-                      ? 'rotate(-30deg)'
-                      : ammo === 'heat'
-                      ? 'rotate(0deg)'
-                      : ammo === 'mg'
-                      ? 'rotate(35deg)'
-                      : 'rotate(55deg)',
-                }}
-              >
-                <img src={knobOfFirstRow} alt="knob" />
-              </div>
-              <div className="dashboard_third_set_knob_container_main_knob_heading">
-                AMMO
-              </div>
-            </div>
-
-            <div className="dashboard_third_set_knob_side_switches_box">
-              <img src={grrenToggle} alt="knob-switch" />
-              <div className="dashboard_third_set_knob_side_switches_heading">
-                FAULT
-              </div>
-            </div>
-          </div>
         </div>
+
+        <div className="dashboard_third_set_knob_container_main_knob_box">
+            <div className="dashboard_third_set_knob_container_main_knob" style={{
+                transition: 'transform 0.4s ease-in-out',
+                transform: `rotate(${ammo === 'apfsds' ? '-50deg' : ammo === 'hesh' ? '-30deg' : ammo === 'heat' ? '0deg' : ammo === 'mg' ? '35deg' : '55deg'})`,
+            }}>
+                <img src={knobOfFirstRow} alt="knob" />
+            </div>
+            <div className="dashboard_third_set_knob_container_main_knob_heading">
+                AMMO
+            </div>
+        </div>
+
+        <div className="dashboard_third_set_knob_side_switches_box">
+            <img src={grrenToggle} alt="knob-switch" />
+            <div className="dashboard_third_set_knob_side_switches_heading">
+                FAULT
+            </div>
+        </div>
+    </div>
+</div>
+
 
         <div className="dashboard_fourth_set_joystick">
           <div
@@ -360,19 +412,23 @@ export default function FireControl() {
           >
             <div className="dashboard_eleventh_set_metal_slider_title">KM</div>
             <img
+              src={metalSliderKnob}
+              alt="metal-slider-knob"
+              className='metal_slider_knob_DM metal_slider_knob_bottom'
+
+            />
+            <img
               src={metalSlider}
               alt="metal-slider"
               className="metal_slider_KM"
             />
+            
             <img
               src={metalSliderKnob}
               alt="metal-slider-knob"
-              className={
-                !KM
-                  ? 'metal_slider_knob_KM metal_slider_knob_bottom'
-                  : 'metal_slider_knob_KM'
-              }
+              className='metal_slider_knob_DM'
             />
+            <div className="number-display">{M2_KM}</div>
           </div>
 
           <div
@@ -381,6 +437,12 @@ export default function FireControl() {
           >
             <div className="dashboard_eleventh_set_metal_slider_title">HM</div>
             <img
+              src={metalSliderKnob}
+              alt="metal-slider-knob"
+              className='metal_slider_knob_DM metal_slider_knob_bottom'
+
+            />
+            <img
               src={metalSlider}
               alt="metal-slider"
               className="metal_slider_HM"
@@ -388,19 +450,23 @@ export default function FireControl() {
             <img
               src={metalSliderKnob}
               alt="metal-slider-knob"
-              className={
-                !HM
-                  ? 'metal_slider_knob_HM metal_slider_knob_bottom'
-                  : 'metal_slider_knob_HM'
-              }
+              className='metal_slider_knob_DM'
             />
+            <div className="number-display">{M2_HM}</div>
           </div>
 
           <div
             className="dashboard_eleventh_set_metal_slider_box"
             onClick={() => setDM(!DM)}
           >
+          
             <div className="dashboard_eleventh_set_metal_slider_title">DM</div>
+            <img
+              src={metalSliderKnob}
+              alt="metal-slider-knob"
+              className='metal_slider_knob_DM metal_slider_knob_bottom'
+
+            />
             <img
               src={metalSlider}
               alt="metal-slider"
@@ -409,13 +475,11 @@ export default function FireControl() {
             <img
               src={metalSliderKnob}
               alt="metal-slider-knob"
-              className={
-                !DM
-                  ? 'metal_slider_knob_DM metal_slider_knob_bottom'
-                  : 'metal_slider_knob_DM'
-              }
+              className='metal_slider_knob_DM'
             />
+            <div className="number-display">{M2_DM}</div>
           </div>
+          
 
           <div className="dashboard_eleventh_set_metal_slider_heading">
             MRS. (M)
@@ -429,6 +493,11 @@ export default function FireControl() {
               onClick={() => toggleSlider('slider1')}
             >
               <img
+                src={metalSliderKnob}
+                alt="metal-slider-knob"
+                className='metal_slider_knob_PDR metal_slider_knob_bottom_12th_set'
+              />
+              <img
                 src={metalSlider}
                 alt="metal-slider"
                 className="metal_slider_PDR"
@@ -436,17 +505,19 @@ export default function FireControl() {
               <img
                 src={metalSliderKnob}
                 alt="metal-slider-knob"
-                className={
-                  !PDR.slider1
-                    ? 'metal_slider_knob_PDR metal_slider_knob_bottom_12th_set'
-                    : 'metal_slider_knob_PDR'
-                }
+                className='metal_slider_knob_PDR'
               />
+              <div className="number-display-12th">{M1_PDR1}</div>
             </div>
             <div
               className="dashboard_12th_set_metal_slider_box"
               onClick={() => toggleSlider('slider2')}
             >
+             <img
+                src={metalSliderKnob}
+                alt="metal-slider-knob"
+                className='metal_slider_knob_PDR_2'
+              /> 
               <img
                 src={metalSlider}
                 alt="metal-slider"
@@ -455,12 +526,9 @@ export default function FireControl() {
               <img
                 src={metalSliderKnob}
                 alt="metal-slider-knob"
-                className={
-                  !PDR.slider2
-                    ? 'metal_slider_knob_PDR_2 metal_slider_knob_bottom_12th_set'
-                    : 'metal_slider_knob_PDR_2'
-                }
+                className='metal_slider_knob_PDR_2 metal_slider_knob_bottom_12th_set'
               />
+              <div className="number-display-12th">{M1_PDR2}</div>
             </div>
             <div className="dashboard_12th_set_metal_slider_title_PDR">
               PDR. (C)
@@ -473,6 +541,11 @@ export default function FireControl() {
               onClick={() => toggleSliderAJR('slider1')}
             >
               <img
+                src={metalSliderKnob}
+                alt="metal-slider-knob"
+                className='metal_slider_knob_AJR metal_slider_knob_bottom_12th_set'
+              />
+              <img
                 src={metalSlider}
                 alt="metal-slider"
                 className="metal_slider_AJR"
@@ -480,17 +553,19 @@ export default function FireControl() {
               <img
                 src={metalSliderKnob}
                 alt="metal-slider-knob"
-                className={
-                  !AJR.slider1
-                    ? 'metal_slider_knob_AJR metal_slider_knob_bottom_12th_set'
-                    : 'metal_slider_knob_AJR'
-                }
+                className='metal_slider_knob_AJR'
               />
+              <div className="number-display-12th">{M1_AIR1}</div>
             </div>
             <div
               className="dashboard_12th_set_metal_slider_box"
               onClick={() => toggleSliderAJR('slider2')}
             >
+              <img
+                src={metalSliderKnob}
+                alt="metal-slider-knob"
+                className='metal_slider_knob_AJR_2'
+              />
               <img
                 src={metalSlider}
                 alt="metal-slider"
@@ -499,12 +574,9 @@ export default function FireControl() {
               <img
                 src={metalSliderKnob}
                 alt="metal-slider-knob"
-                className={
-                  !AJR.slider2
-                    ? 'metal_slider_knob_AJR_2 metal_slider_knob_bottom_12th_set'
-                    : 'metal_slider_knob_AJR_2'
-                }
+                className='metal_slider_knob_AJR_2 metal_slider_knob_bottom_12th_set'
               />
+              <div className="number-display-12th">{M1_AIR2}</div>
             </div>
             <div className="dashboard_12th_set_metal_slider_title_AJR">
               AJR. (C)
@@ -517,6 +589,11 @@ export default function FireControl() {
               onClick={() => toggleSliderWIND('slider1')}
             >
               <img
+                src={metalSliderKnob}
+                alt="metal-slider-knob"
+                className='metal_slider_knob_WIND'
+              />
+              <img
                 src={metalSlider}
                 alt="metal-slider"
                 className="metal_slider_WIND"
@@ -524,17 +601,19 @@ export default function FireControl() {
               <img
                 src={metalSliderKnob}
                 alt="metal-slider-knob"
-                className={
-                  !WIND.slider1
-                    ? 'metal_slider_knob_WIND metal_slider_knob_bottom_12th_set'
-                    : 'metal_slider_knob_WIND'
-                }
+                className='metal_slider_knob_WIND metal_slider_knob_bottom_12th_set'
               />
+              <div className="number-display-12th">{M1_WIND1}</div>
             </div>
             <div
               className="dashboard_12th_set_metal_slider_box"
               onClick={() => toggleSliderWIND('slider2')}
             >
+              <img
+                src={metalSliderKnob}
+                alt="metal-slider-knob"
+                className='metal_slider_knob_WIND_2'
+              />
               <img
                 src={metalSlider}
                 alt="metal-slider"
@@ -543,12 +622,9 @@ export default function FireControl() {
               <img
                 src={metalSliderKnob}
                 alt="metal-slider-knob"
-                className={
-                  !WIND.slider2
-                    ? 'metal_slider_knob_WIND_2 metal_slider_knob_bottom_12th_set'
-                    : 'metal_slider_knob_WIND_2'
-                }
+                className='metal_slider_knob_WIND_2 metal_slider_knob_bottom_12th_set'
               />
+              <div className="number-display-12th">{M1_WIND2}</div>
             </div>
             <div className="dashboard_12th_set_metal_slider_title_WIND">
               WIND (M/S)
@@ -561,6 +637,11 @@ export default function FireControl() {
               onClick={() => toggleSliderMVS('slider1')}
             >
               <img
+                src={metalSliderKnob}
+                alt="metal-slider-knob"
+                className='metal_slider_knob_MVS'
+              />
+              <img
                 src={metalSlider}
                 alt="metal-slider"
                 className="metal_slider_MVS"
@@ -568,17 +649,19 @@ export default function FireControl() {
               <img
                 src={metalSliderKnob}
                 alt="metal-slider-knob"
-                className={
-                  !MVS.slider1
-                    ? 'metal_slider_knob_MVS metal_slider_knob_bottom_12th_set'
-                    : 'metal_slider_knob_MVS'
-                }
+                className='metal_slider_knob_MVS metal_slider_knob_bottom_12th_set'
               />
+              <div className="number-display-12th">{M1_MVC}</div>
             </div>
             <div
               className="dashboard_12th_set_metal_slider_box"
               onClick={() => toggleSliderMVS('slider2')}
             >
+              <img
+                src={metalSliderKnob}
+                alt="metal-slider-knob"
+                className='metal_slider_knob_MVS_2'
+              />
               <img
                 src={metalSlider}
                 alt="metal-slider"
@@ -587,12 +670,9 @@ export default function FireControl() {
               <img
                 src={metalSliderKnob}
                 alt="metal-slider-knob"
-                className={
-                  !MVS.slider2
-                    ? 'metal_slider_knob_MVS_2 metal_slider_knob_bottom_12th_set'
-                    : 'metal_slider_knob_MVS_2'
-                }
+                className='metal_slider_knob_MVS_2 metal_slider_knob_bottom_12th_set'
               />
+              <div className="number-display-12th">8</div>
             </div>
             <div className="dashboard_12th_set_metal_slider_title_MVS">
               MVS (%)

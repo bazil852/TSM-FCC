@@ -1951,7 +1951,9 @@ input[type='number'] {
   flex-direction: column;
   align-items: center;
   cursor: pointer;
+  position:relative;
 }
+
 .dashboard_eleventh_set_metal_slider_heading {
   position: absolute;
   bottom: -23px;
@@ -1987,8 +1989,9 @@ input[type='number'] {
   height: 25px;
   width: 25px;
   top: 20%;
-  left: 75%;
+  left: 25%;
   transition: top 0.3s ease;
+  z-index: 2;
 }
 .metal_slider_knob_bottom {
   top: 67%;
@@ -2008,15 +2011,17 @@ input[type='number'] {
 }
 .dashboard_12th_set_metal_slider_box {
   cursor: pointer;
+  position: relative;
 }
 .metal_slider_knob_PDR {
   position: absolute;
   height: 20px;
   width: 20px;
   top: 12%;
-  left: 1.5%;
+  left: 14%;
   transition: top 0.3s ease;
 }
+
 .metal_slider_knob_PDR_2 {
   position: absolute;
   height: 20px;
@@ -2030,7 +2035,7 @@ input[type='number'] {
   height: 20px;
   width: 20px;
   top: 12%;
-  left: 27.8%;
+  left: 20.8%;
   transition: top 0.3s ease;
 }
 .metal_slider_knob_AJR_2 {
@@ -2038,7 +2043,7 @@ input[type='number'] {
   height: 20px;
   width: 20px;
   top: 12%;
-  left: 39.5%;
+  left: 20.5%;
   transition: top 0.3s ease;
 }
 .metal_slider_knob_WIND {
@@ -2046,7 +2051,7 @@ input[type='number'] {
   height: 20px;
   width: 20px;
   top: 12%;
-  left: 54%;
+  left: 20%;
   transition: top 0.3s ease;
 }
 .metal_slider_knob_WIND_2 {
@@ -2054,7 +2059,7 @@ input[type='number'] {
   height: 20px;
   width: 20px;
   top: 12%;
-  left: 65.5%;
+  left: 20%;
   transition: top 0.3s ease;
 }
 .metal_slider_knob_MVS {
@@ -2062,7 +2067,7 @@ input[type='number'] {
   height: 20px;
   width: 20px;
   top: 12%;
-  left: 80%;
+  left: 20%;
   transition: top 0.3s ease;
 }
 .metal_slider_knob_MVS_2 {
@@ -2070,7 +2075,7 @@ input[type='number'] {
   height: 20px;
   width: 20px;
   top: 12%;
-  left: 91.5%;
+  left: 20.5%;
   transition: top 0.3s ease;
 }
 .dashboard_12th_set_metal_slider_title_PDR {
@@ -2103,7 +2108,8 @@ input[type='number'] {
   white-space: nowrap;
 }
 .metal_slider_knob_bottom_12th_set {
-  top: 56%;
+  top: 66%;
+  z-index: 3;
 }
 .dashboard_thirteen_set_joystick {
   position: absolute;
@@ -3013,3 +3019,49 @@ input[type='number'] {
   height: 500px;
 }
 /* CUSTOM-MODAL-END */
+.number-display {
+  position: absolute;
+  top: 53%;  
+  left: 45%;
+  transform: translate(-50%, -50%);
+  width: 30px;
+  height: 30px;
+  background-color: white;
+  border: 2px solid black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px;
+  color: black;
+  z-index: 2;  
+}
+
+.number-display-12th {
+  position: absolute;
+  top: 50%;  
+  left: 50%; 
+  transform: translate(-50%, -50%);
+  width: 25px;  
+  height: 25px;  
+  background-color: white;
+  border: 2px solid black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 12px;  
+  color: black;
+  z-index: 2;  
+}
+.luminous-indicator {
+  position: absolute;
+  height: 15px;
+  width: 15px;
+  top: 50%;
+  left: 50%;
+  background-color: red; /* Use an appropriate bright red color */
+  border-radius: 50%; 
+  transform: translate(-50%, -50%); 
+  box-shadow: 0 0 8px 3px red; /* Adds a glow effect to make it more luminous */
+  z-index: 4;
+}
+
