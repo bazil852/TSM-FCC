@@ -54,56 +54,89 @@ export default function FireControl() {
   const [M1_WIND2, setM1_WIND2] = useState(-9);
 
   const [M1_MVC, setM1_MVC] = useState(-10);
+  // rated_pre
+  const [rated_pre, setRated_pre] = useState(false);
 
+  const mapSuffixToIndex = (suffix) => {
+    const mappings = {
+      "0.1": 0,
+      "0.2": 1,
+      "0.4": 2,
+      "0.8": 3,
+      "1.6": 4,
+      "+": 5
+    };
+    return mappings[suffix] ?? -1; // return -1 if suffix is not found (error handling)
+  };
 
   useEffect(() => {
-    // Function to handle the incoming data
     const handleReadJsonResponse = (event, response) => {
       if (response.success) {
+        // Destructuring new JSON response keys
+         const newStates = JSON.parse(JSON.stringify(initialSwitchStates));
+
+      Object.keys(response.data).forEach(key => {
+        const [typePrefix, row, valueSuffix] = key.split('_');
+        if (typePrefix === 'm3') {
+          const type = row.toUpperCase();  // 'APFSDS', 'HESH', 'HEAT'
+          const rowType = valueSuffix.slice(0, 2).toUpperCase();  // 'AZ', 'EL'
+          const suffix = valueSuffix.slice(3);  // e.g., '0.1', '0.2', '1.6', '+'
+          const index = mapSuffixToIndex(suffix);
+
+          if (newStates[type] && newStates[type][rowType] && index >= 0) {
+            newStates[type][rowType][index] = response.data[key];
+          }
+        }
+      });
+
+
+        console.log("m3: ",newStates);
+        const m1_scd_cpd = response.data['m1_scd/cpd'];
+        const m2_move_fix = response.data['m2_move/fix'];
+        const m2_first_last = response.data['m2_first/last'];
+        const m1_rated_pre = response.data['m1_rated/preset'];
+
         const {
-          ammo,
-          toggleFirstAndLast,
-          opMode,
-          RNGmode,
-          toggleMoveAndFix,
-          KM,
-          HM,
-          DM,
-          bigDial,
-          CPDandSCD,
-          M2_KM,
-          M2_HM,
-          M2_DM,
-          M1_AIR1,
-          M1_AIR2,
-          M1_PDR1,
-          M1_PDR2,
-          M1_WIND1,
-          M1_WIND2,
-          M1_MVC
+          m2_ammo,
+          m2_rngMode,
+          m2_opMode,
+          m2_mrs_km,
+          m2_mrs_hm,
+          m2_mrs_dm,
+          m1_pdr_1,
+          m1_pdr_0,
+          m1_air_1,
+          m1_air_0,
+          m1_wind_1,
+          m1_wind_0,
+          m1_mvc,
+          m1_dps,
+          
+          // Add other keys as needed
         } = response.data;
-        console.log("Master Response: ", response.data);
   
-        setAmmo(ammo);
-        setToggleFirstAndLast(toggleFirstAndLast);
-        setOpMode(opMode);
-        setRNGMode(RNGmode);
-        setToggleMoveAndFix(toggleMoveAndFix);
-        setKM(KM);
-        setHM(HM);
-        setDM(DM);
-        setBigDial(bigDial);
-        setCPDandSCD(CPDandSCD);
-        setM2_KM(M2_KM);
-        setM2_HM(M2_HM);
-        setM2_DM(M2_DM);
-        setM1_PDR1(M1_PDR1);
-        setM1_PDR2(M1_PDR2);
-        setM1_AIR1(M1_AIR1);
-        setM1_AIR2(M1_AIR2);
-        setM1_WIND1(M1_WIND1);
-        setM1_WIND2(M1_WIND2);
-        setM1_MVC(M1_MVC);
+        // Updating state variables
+        setAmmo(m2_ammo);
+        setOpMode(m2_opMode);
+        setRNGMode(m2_rngMode);
+        setToggleMoveAndFix(m2_move_fix);
+        setToggleFirstAndLast(m2_first_last);
+        setM2_KM(m2_mrs_km);
+        setM2_HM(m2_mrs_hm);
+        setM2_DM(m2_mrs_dm);
+        setM1_PDR1(m1_pdr_1);
+        setM1_PDR2(m1_pdr_0);  // Assuming m1_pdr_0 is intended to be M1_PDR2 based on old naming
+        setM1_AIR1(m1_air_1);
+        setM1_AIR2(m1_air_0);
+        setM1_WIND1(m1_wind_1);
+        setM1_WIND2(m1_wind_0);
+        setM1_MVC(m1_mvc);
+        setBigDial(m1_dps);
+        setCPDandSCD(m1_scd_cpd);
+        setRated_pre(m1_rated_pre);
+        setBlackSliderSwitchStates(newStates);
+  
+        // Add other states as needed
       } else {
         console.error('Failed to read the state file:', response.message);
       }
@@ -116,7 +149,7 @@ export default function FireControl() {
     return () => {
       ipcRenderer.removeListener('read-json-response', handleReadJsonResponse);
     };
-  }, []);  // Dependencies array is empty to set up the listener once on mount
+  }, []);
   
   useEffect(() => {
     const triggerReadJson = () => {
@@ -685,17 +718,17 @@ export default function FireControl() {
             className="dashboard_thirteen_set_joystick_text"
             onClick={() => setCPDandSCD('CPD')}
           >
-            CPD
+            RATED
           </div>
           <img
-            src={CPDandSCD === 'SCD' ? joystickDown : joystickUp}
+            src={rated_pre === 'rated' ? joystickDown : joystickUp}
             alt="joystick"
           />
           <div
             className="dashboard_thirteen_set_joystick_text"
             onClick={() => setCPDandSCD('SCD')}
           >
-            SCD
+            PRESET
           </div>
         </div>
 
@@ -759,21 +792,21 @@ export default function FireControl() {
             style={{
               transition: 'transform 0.4s ease-in-out',
               transform:
-                bigDial === 'CPU'
+                bigDial === 'cpu'
                   ? 'rotate(-188deg)'
-                  : bigDial === 'SA'
+                  : bigDial === 'sa'
                   ? 'rotate(-157deg)'
-                  : bigDial === 'PNT'
+                  : bigDial === 'pnt'
                   ? 'rotate(-127deg)'
-                  : bigDial === 'PDR'
+                  : bigDial === 'pdr/mvc'
                   ? 'rotate(-100deg)'
-                  : bigDial === 'AIR'
+                  : bigDial === 'air/ammo'
                   ? 'rotate(-47deg)'
-                  : bigDial === 'WIND'
+                  : bigDial === 'wind'
                   ? 'rotate(0deg)'
-                  : bigDial === 'OEC'
+                  : bigDial === 'oec'
                   ? 'rotate(30deg)'
-                  : bigDial === 'OAC'
+                  : bigDial === 'oac'
                   ? 'rotate(58deg)'
                   : 'rotate(90deg)',
             }}
@@ -790,7 +823,7 @@ export default function FireControl() {
             CPD
           </div>
           <img
-            src={CPDandSCD === 'SCD' ? joystickDown : joystickUp}
+            src={CPDandSCD === 'scd' ? joystickDown : joystickUp}
             alt="joystick"
           />
           <div
@@ -805,14 +838,15 @@ export default function FireControl() {
           <div className="dashboard_sixteenth_set_black_switches_container_title">
             OVRL CORRECTION MIL
           </div>
-          <div className="dashboard_sixteenth_set_black_switches_set_title heat">
-            HEAT
+          <div className="dashboard_sixteenth_set_black_switches_set_title apfsds">
+            APFSDS
           </div>
           <div className="dashboard_sixteenth_set_black_switches_set_title hesh">
             HESH
           </div>
-          <div className="dashboard_sixteenth_set_black_switches_set_title apfsds">
-            APFSDS
+          <div className="dashboard_sixteenth_set_black_switches_set_title heat">
+            HEAT
+
           </div>
           <div className="dashboard_sixteenth_set_black_switches_set_row_title_first ">
             <div className="dashboard_sixteenth_set_black_switches_set_row_text">

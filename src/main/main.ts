@@ -26,7 +26,9 @@ class AppUpdater {
 
 let mainWindow: BrowserWindow | null = null;
 // /Users/bazil/Documents/TSM-SIMULATOR/data_output.json
-const filePath = path.join(app.getPath('documents'), 'TSM-SIMULATOR/data_output.json');
+// const filePath = path.join(app.getPath('desktop'), 'Demo/TSM-FCC/data_output.json');
+// C:\Users\ESFORGE-03\Desktop\trmpDemo\data_output.json
+const filePath = path.join(app.getPath('desktop'), 'trmpDemo/data_output.json');
 console.log(filePath);
 ipcMain.on('read-json', (event) => {
   fs.readFile(filePath, 'utf-8', (err, data) => {
@@ -34,11 +36,18 @@ ipcMain.on('read-json', (event) => {
       console.log("Failed to read file: ", err);
       event.reply('read-json-response', { success: false, message: err.message });
     } else {
-      console.log("File read successfully");
-      event.reply('read-json-response', { success: true, data: JSON.parse(data) });
+      try {
+        const jsonData = JSON.parse(data);
+        console.log("File read successfully");
+        event.reply('read-json-response', { success: true, data: jsonData });
+      } catch (parseError) {
+        console.error("Error parsing JSON:", parseError);
+        event.reply('read-json-response', { success: false, message: parseError.message });
+      }
     }
   });
 });
+
 
 
 
