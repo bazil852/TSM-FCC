@@ -2,13 +2,18 @@ import { NavLink } from 'react-router-dom';
 import React, { useEffect, useRef } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import SwiperCore from 'swiper';
-import { Mousewheel, Pagination } from 'swiper/modules';
+import { Mousewheel, Pagination, Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import '../renderer/App.css';
-import mainMenu from '../TSM-img/main_menu.svg';
 import data from '../data.json';
 
-SwiperCore.use([Mousewheel, Pagination]);
+import image1 from '../TSM-img/1.jpeg';
+import image2 from '../TSM-img/2.jpeg';
+import image3 from '../TSM-img/3.jpeg';
+import image4 from '../TSM-img/4.jpeg';
+import image5 from '../TSM-img/5.jpeg';
+
+SwiperCore.use([Mousewheel, Pagination, Autoplay]);
 
 export default function MainMenu() {
   const buttonArray = data.buttonArray;
@@ -33,10 +38,31 @@ export default function MainMenu() {
   }, []);
 
   return (
-    <div
-      className="mainMenu_main_class"
-      style={{ backgroundImage: `url(${mainMenu})` }}
-    >
+    <div className="mainMenu_main_class">
+      <Swiper
+        ref={swiperRef}
+        slidesPerView={1}
+        loop={true}
+        autoplay={{ delay: 3000 }}  // Adjust delay as needed
+        className="backgroundSwiper"
+      >
+        <SwiperSlide style={{ backgroundImage: `url(${image1})` }}>
+          <div className="overlay"></div>
+        </SwiperSlide>
+        <SwiperSlide style={{ backgroundImage: `url(${image2})` }}>
+          <div className="overlay"></div>
+        </SwiperSlide>
+        <SwiperSlide style={{ backgroundImage: `url(${image3})` }}>
+          <div className="overlay"></div>
+        </SwiperSlide>
+        <SwiperSlide style={{ backgroundImage: `url(${image4})` }}>
+          <div className="overlay"></div>
+        </SwiperSlide>
+        <SwiperSlide style={{ backgroundImage: `url(${image5})` }}>
+          <div className="overlay"></div>
+        </SwiperSlide>
+      </Swiper>
+
       <div className="main_content">
         <div className="content_first_half">
           <div className="content_first_half_main_heading">

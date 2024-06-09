@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import '../renderer/App.css';
 import Footer from '../utility/Footer';
-import mainMenu from '../TSM-img/main_menu.svg';
+import mainMenu from '../TSM-img/1.jpeg';
 import backButton from '../TSM-img/back_button.svg';
 import plus from '../TSM-img/plus.svg';
 
@@ -41,6 +41,8 @@ export default function AddBatchUsers() {
       className="select_student_instructor_main_class"
       style={{ backgroundImage: `url(${mainMenu})` }}
     >
+      
+      
       <NavLink
         className="navigation_button_with_bigger_width_1"
         to="/simulation"
