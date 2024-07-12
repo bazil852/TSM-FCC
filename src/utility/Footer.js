@@ -19,11 +19,15 @@ export default function Footer() {
       data: dataArrayState,
       filename: 'tsm.json',
     });
+    console.log(dataArrayState)
+    ipcRenderer.send('save-map-data', dataArrayState);
+    navigate("/dashboard")
   };
 
   useEffect(() => {
     const handleSaveResponse = (event, response) => {
       if (response.success) {
+        
         console.log('File saved successfully:', response.message);
       } else {
         console.error('File save error:', response.message);
@@ -53,13 +57,13 @@ export default function Footer() {
           TUTORIALS
         </NavLink>
         <div id="footer_second_box_second_span">
-          <NavLink
+          <div
+            style={{cursor:"pointer"}}
             className="underline"
-            to="/dashboard"
-            // onClick={saveStateToJsonFile}
+            onClick={saveStateToJsonFile}
           >
             CONTINUE
-          </NavLink>
+          </div>
           {/* <button className="underline" >
             CONTINUE
           </button> */}

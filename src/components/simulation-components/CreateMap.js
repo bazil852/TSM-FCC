@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { setMapArea, setExerciseTime, setTerrain } from '../../redux/DataArray';
 import mainMenu from '../../TSM-img/main_menu.svg';
 import backButton from '../../TSM-img/back_button.svg';
@@ -8,11 +8,12 @@ import DropDown from '../../utility/DropDown';
 import SelectObjectCarousel from '../../utility/SelectObjectCarousel';
 import GridCanvas from './GridCanvas';
 import data from '../../data.json';
+import { ipcRenderer } from 'electron';
 
 export default function CreateMap() {
   const dispatch = useDispatch();
   const [mapArea, setMapAreas] = useState(50);
-
+  const navigate = useNavigate()
   const options = data.dropDownOptionsOfExcersieTime;
   const options1 = data.dropDownOptionsOfSelectTerrain;
 
@@ -38,11 +39,19 @@ export default function CreateMap() {
     dispatch(setTerrain(option));
   };
 
-  const handleSave = () => {
-    console.log('Save is clicked!', Player);
-    console.log('Save is clicked!', enemy);
-    console.log('Save is clicked!', objects);
-  };
+ const handleSave = () => {
+   
+   let mapData = {
+     Player,
+     enemy,
+     objects,
+    };
+   console.log('Saving Map to db', mapData)
+   
+   // Send the mapData to the main process
+
+   navigate(-1);
+ };
 
   return (
     <div

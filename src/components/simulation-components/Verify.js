@@ -3,10 +3,12 @@ import '../../renderer/App.css';
 import map1 from '../../TSM-img/map_1.svg';
 import map2 from '../../TSM-img/map_2.svg';
 import map3 from '../../TSM-img/map_3.svg';
+import { useSelector } from 'react-redux';
 
 export default function Verify() {
   const verifyPageArray = data.verifyPageArray;
-
+  const dataArrayState = useSelector((state) => state.dataArray);
+  console.log(dataArrayState)
   return (
     <div className="verify_main_class">
       {verifyPageArray.map((data, index) => {
@@ -21,7 +23,7 @@ export default function Verify() {
                 Instructor
               </div>
               <div className="verify_simulation_instructor_student_name">
-                {data.instrcutor}
+                {dataArrayState.ExerciseInfo.instructor.name}
               </div>
             </div>
             <div className="verify_simulation_instructor_student_container">
@@ -29,7 +31,7 @@ export default function Verify() {
                 Student
               </div>
               <div className="verify_simulation_instructor_student_name">
-                {data.student}
+                {dataArrayState.ExerciseInfo.student.name}
               </div>
             </div>
             <div className="verify_parameters_container">

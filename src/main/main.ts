@@ -57,12 +57,14 @@ ipcMain.on('read-json', (event) => {
 
 // my SQL CRUD Operations 
 ipcMain.handle('fetch-instructors', async () => {
-
-  console.log("fetching instructor")
+  console.log('fetching instructor');
 
   return new Promise((resolve, reject) => {
     connection.query('SELECT * FROM instructor', (err, results) => {
-      if (err) reject(err);
+      if (err) {
+        console.error('Error fetching instructors:', err);
+        return reject(err);
+      }
       resolve(results);
     });
   });
@@ -71,7 +73,22 @@ ipcMain.handle('fetch-instructors', async () => {
 ipcMain.handle('fetch-students', async () => {
   return new Promise((resolve, reject) => {
     connection.query('SELECT * FROM student', (err, results) => {
-      if (err) reject(err);
+      if (err) {
+        console.error('Error fetching students:', err);
+        return reject(err);
+      }
+      resolve(results);
+    });
+  });
+});
+
+ipcMain.handle('fetch-maps', async () => {
+  return new Promise((resolve, reject) => {
+    connection.query('SELECT * FROM map', (err, results) => {
+      if (err) {
+        console.error('Error fetching maps:', err);
+        return reject(err);
+      }
       resolve(results);
     });
   });
@@ -81,6 +98,7 @@ ipcMain.on('add-student', (event, student) => {
   const query = 'INSERT INTO student SET ?';
   connection.query(query, student, (err, results) => {
     if (err) {
+      console.error('Error adding student:', err);
       event.reply('add-student-response', {
         success: false,
         message: err.message,
@@ -95,6 +113,7 @@ ipcMain.on('add-instructor', (event, instructor) => {
   const query = 'INSERT INTO instructor SET ?';
   connection.query(query, instructor, (err, results) => {
     if (err) {
+      console.error('Error adding instructor:', err);
       event.reply('add-instructor-response', {
         success: false,
         message: err.message,
@@ -105,6 +124,21 @@ ipcMain.on('add-instructor', (event, instructor) => {
   });
 });
 
+ipcMain.on('save-map-data', (event, mapData) => {
+  console.log(mapData)
+  const query = 'INSERT INTO map SET ?';
+  connection.query(query, { data: JSON.stringify(mapData) }, (err, results) => {
+    if (err) {
+      console.error('Error saving map data:', err);
+      event.reply('save-map-data-response', {
+        success: false,
+        message: err.message,
+      });
+    } else {
+      event.reply('save-map-data-response', { success: true, data: results });
+    }
+  });
+});
 //
 
 
