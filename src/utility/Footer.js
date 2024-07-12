@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import '../renderer/App.css';
 
 const { ipcRenderer } = require('electron');
@@ -9,6 +9,7 @@ const { ipcRenderer } = require('electron');
 // const { ipcRenderer } = require('electron');
 
 export default function Footer() {
+  const navigate = useNavigate()
   const dataArrayState = useSelector((state) => state.dataArray);
   // Function to save the state to a JSON file
   const saveStateToJsonFile = () => {
@@ -40,9 +41,9 @@ export default function Footer() {
   return (
     <div className="footer">
       <div className="footer_first_box">
-        <NavLink className="underline" to="/">
+        <div style={{cursor:"pointer"}} onClick={() => navigate(-1)} className="underline" to="/">
           BACK
-        </NavLink>
+        </div>
         <NavLink className="underline" to="/help">
           HELP
         </NavLink>

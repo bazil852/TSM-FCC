@@ -46,7 +46,7 @@ export default function SelectMap() {
   };
 
   const mapDetail = data.mapNameAndAreaForSelectMapPage;
-
+  console.log(mapDetail)
   const selectedMapDetail = mapDetail[selectedSlide] || mapDetail[0];
 
   useEffect(() => {
@@ -70,15 +70,10 @@ export default function SelectMap() {
           <div className="map_details">{selectedMapDetail.area} SQ/M</div>
         </div>
         <div className="map_main_container">
-          <MapCarousel
-            cards={maps}
-            height="40vh"
-            width="100%"
-            margin="0 auto"
-            offset={2}
-            showArrows={false}
-            onSlideChange={handleSlideChange}
-          />
+          <div>Map table</div>
+          <div>
+            
+          </div>
         </div>
         <div className="select_map_button_group_main_class">
           <div className="select_map_button_group">

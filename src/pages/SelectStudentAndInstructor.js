@@ -1,24 +1,27 @@
-import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
 import '../renderer/App.css';
 import mainMenu from '../TSM-img/main_menu.svg';
 import backButton from '../TSM-img/back_button.svg';
 import Footer from '../utility/Footer';
+const { ipcRenderer } = require('electron');
 
 export default function SelectStudentAndInstructor() {
   const [toggle, setToggle] = useState(false);
   const [studentDetails, setStudentDetails] = useState({
-    student: '',
-    pNo: '',
+    name: '',
+    pno: '',
     rank: '',
     unit: '',
   });
   const [instructorDetails, setInstructorDetails] = useState({
-    instructor: '',
-    pNo: '',
+    name: '',
+    pno: '',
     rank: '',
     unit: '',
   });
+
+  const navigate = useNavigate();
 
   const handleInputChange = (field, value, isStudent) => {
     if (isStudent) {
@@ -28,17 +31,78 @@ export default function SelectStudentAndInstructor() {
     }
   };
 
+  const validateForm = (details) => {
+    return Object.values(details).every((value) => value.trim() !== '');
+  };
+
+  const addStudent = () => {
+    if (validateForm(studentDetails)) {
+      ipcRenderer.send('add-student', studentDetails);
+    } else {
+      alert('Please fill out all fields for the student.');
+    }
+  };
+
+  const addInstructor = () => {
+    if (validateForm(instructorDetails)) {
+      ipcRenderer.send('add-instructor', instructorDetails);
+    } else {
+      alert('Please fill out all fields for the instructor.');
+    }
+  };
+
+  useEffect(() => {
+    ipcRenderer.on('add-student-response', (event, response) => {
+      if (response.success) {
+        alert('Student added successfully!');
+        setStudentDetails({
+          name: '',
+          pno: '',
+          rank: '',
+          unit: '',
+        });
+        navigate(-1); // Go back to the previous page
+      } else {
+        alert('Failed to add student: ' + response.message);
+      }
+    });
+
+    ipcRenderer.on('add-instructor-response', (event, response) => {
+      if (response.success) {
+        alert('Instructor added successfully!');
+        setInstructorDetails({
+          name: '',
+          pno: '',
+          rank: '',
+          unit: '',
+        });
+        navigate(-1); // Go back to the previous page
+      } else {
+        alert('Failed to add instructor: ' + response.message);
+      }
+    });
+
+    return () => {
+      ipcRenderer.removeAllListeners('add-student-response');
+      ipcRenderer.removeAllListeners('add-instructor-response');
+    };
+  }, [navigate]);
+
   const studentTabStyle = {
     opacity: !toggle ? 1 : 0,
-    maxHeight: !toggle ? '100%' : '0',
+    maxHeight: !toggle ? '120%' : '0',
     overflow: 'hidden',
+    position: 'absolute',
+    zIndex: '10',
     transition: 'all 0.3s ease-in-out',
   };
 
   const instructorTabStyle = {
     opacity: toggle ? 1 : 0,
-    maxHeight: toggle ? '100%' : '0',
+    maxHeight: toggle ? '120%' : '0',
     overflow: 'hidden',
+    position: "absolute",
+    zIndex:"10",
     transition: 'all 0.3s ease-in-out',
   };
 
@@ -85,7 +149,10 @@ export default function SelectStudentAndInstructor() {
             </div>
           </div>
 
-          <div className="tabs_container">
+          <div
+            style={{ display: 'flex', justifyContent: 'center' }}
+            className="tabs_container"
+          >
             <div
               className="select_student_instructor__tab_content"
               style={studentTabStyle}
@@ -104,6 +171,19 @@ export default function SelectStudentAndInstructor() {
                   />
                 </div>
               ))}
+              <button
+                style={{
+                  cursor: 'pointer',
+                  borderRadius: '8px',
+                  fontSize: '25px',
+                  fontWeight: 'bold',
+                  padding: '15px',
+                  zIndex: '10',
+                }}
+                onClick={addStudent}
+              >
+                Add Student
+              </button>
             </div>
 
             <div
@@ -124,6 +204,19 @@ export default function SelectStudentAndInstructor() {
                   />
                 </div>
               ))}
+              <button
+                style={{
+                  cursor: 'pointer',
+                  borderRadius: '8px',
+                  fontSize: '25px',
+                  fontWeight: 'bold',
+                  padding: '15px',
+                  zIndex: '10',
+                }}
+                onClick={addInstructor}
+              >
+                Add Instructor
+              </button>
             </div>
           </div>
         </div>

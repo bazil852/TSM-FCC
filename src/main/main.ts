@@ -9,11 +9,13 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
+
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import connection from "../../database"
 const fs = require('fs');
 
 class AppUpdater {
@@ -51,6 +53,61 @@ ipcMain.on('read-json', (event) => {
 
 
 
+
+
+// my SQL CRUD Operations 
+ipcMain.handle('fetch-instructors', async () => {
+
+  console.log("fetching instructor")
+
+  return new Promise((resolve, reject) => {
+    connection.query('SELECT * FROM instructor', (err, results) => {
+      if (err) reject(err);
+      resolve(results);
+    });
+  });
+});
+
+ipcMain.handle('fetch-students', async () => {
+  return new Promise((resolve, reject) => {
+    connection.query('SELECT * FROM student', (err, results) => {
+      if (err) reject(err);
+      resolve(results);
+    });
+  });
+});
+
+ipcMain.on('add-student', (event, student) => {
+  const query = 'INSERT INTO student SET ?';
+  connection.query(query, student, (err, results) => {
+    if (err) {
+      event.reply('add-student-response', {
+        success: false,
+        message: err.message,
+      });
+    } else {
+      event.reply('add-student-response', { success: true, data: results });
+    }
+  });
+});
+
+ipcMain.on('add-instructor', (event, instructor) => {
+  const query = 'INSERT INTO instructor SET ?';
+  connection.query(query, instructor, (err, results) => {
+    if (err) {
+      event.reply('add-instructor-response', {
+        success: false,
+        message: err.message,
+      });
+    } else {
+      event.reply('add-instructor-response', { success: true, data: results });
+    }
+  });
+});
+
+//
+
+
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
   console.log(msgTemplate(arg));
@@ -58,12 +115,12 @@ ipcMain.on('ipc-example', async (event, arg) => {
 });
 ipcMain.on('save-json', (event, args) => {
   const { data, filename } = args;
-  const baseDirectory = 'C:\\Users\\ESFORGE-01\\Desktop\\TSM_II_Product\\Content\\JSON_Files';
+  const baseDirectory = 'E://TSM-JSON';
   const filePath = path.join(baseDirectory, filename);
     
   // const filePath = path.join(app.getPath('documents'), filename);
   console.log("filename: ",filePath);
-  fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8', (err) => {
+  fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8', (err:any) => {
     if (err) {
       // Send error back to renderer process
       console.log("Failed: ",err);

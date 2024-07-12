@@ -579,7 +579,7 @@ export default function GridCanvas({ stylingBox }) {
         mg762: 0,
       };
       const directionOfObject = direction[point.id] || 'West';
-
+      console.log(point)
       if (point.item.status === 'dangerous') {
         if (point.item.type === 'tank') {
           dispatch(
