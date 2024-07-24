@@ -31,25 +31,36 @@ import {
   setExerciseTime,
   setMapArea,
   setTerrain,
-  setOnlyOneOwnTank
+  setOnlyOneOwnTank,
+  updateTotalOwnTanks,
+  updateTotalEnemies
 } from '../../redux/DataArray';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 export default function SelectMap() {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
+  const enemy = useSelector((state) => state.dataArray.Enemy);
+  const dataArrayState = useSelector((state) => state.dataArray);
+  console.log(dataArrayState);
+
+  // Aggregate all enemy arrays into a single array to get the total count
+  const totalEnemies = Object.values(enemy).flat().length;
+
   const [selectedSlide, setSelectedSlide] = useState(0);
   const [show, setShown] = useState(false);
   const [openModal, setOpenModal] = useState(false);
-  const [allMaps, setmaps] = useState();
+  const [allMaps, setMaps] = useState();
+
   const fetchMaps = async () => {
     let data = await ipcRenderer.invoke('fetch-maps');
     console.log(data);
-    setmaps(data);
+    setMaps(data);
   };
 
   useEffect(() => {
     fetchMaps();
   }, []);
+
   const mapData = [
     {
       id: 1,
@@ -73,6 +84,7 @@ export default function SelectMap() {
       phone: '456-789-0123',
     },
   ];
+
   const props3 = useSpring({
     transform: show ? 'scale(1.03)' : 'scale(1)',
   });
@@ -94,9 +106,11 @@ export default function SelectMap() {
   const handleSlideChange = (newIndex) => {
     setSelectedSlide(newIndex);
   };
+
   const openMapDetailModel = () => {
     setOpenModal(!openModal);
   };
+
   const handleClickOutside = (event) => {
     if (event.target.className.includes('map_detail_model_main_class')) {
       setOpenModal(false);
@@ -120,63 +134,91 @@ export default function SelectMap() {
   }, [openModal]);
 
   const selectMap = (itemData) => {
+    const defaultAmmo = {
+      Heat: 40,
+      APFSDS: 40,
+      HE: 40,
+      MG: 40,
+    };
     console.log('selecting Map');
     console.log(itemData);
     dispatch(setTerrain(itemData.data.ExerciseInfo.terrain));
     dispatch(setExerciseTime(itemData.data.ExerciseInfo.exerciseTime));
     dispatch(setMapArea(itemData.data.ExerciseInfo.mapArea));
     dispatch(setOnlyOneOwnTank(itemData.data.onlyOneOwnTank));
-    // itemData.data.Enemy.map((data) => dispatch(addEnemy(data)));
-    // dispatch(addOwnTank(itemData.data.Player));
-    itemData.data.Items.House.length > 0
-      ? itemData.data.Items.House.map((data) => dispatch(addHouse(data)))
-      : null;
-    itemData.data.Items.Hospital.length > 0
-      ? itemData.data.Items.Hospital.map((data) => dispatch(addHospital(data)))
-      : null;
-    itemData.data.Items.Jhompri.length > 0
-      ? itemData.data.Items.Jhompri.map((data) => dispatch(addJhompri(data)))
-      : null;
-    itemData.data.Items.RailwayStation.length > 0
-      ? itemData.data.Items.RailwayStation.map((data) =>
-          dispatch(addRailwayStation(data)),
-        )
-      : null;
-    itemData.data.Items.Rocks.length > 0
-      ? itemData.data.Items.Rocks.map((data) => dispatch(addRocks(data)))
-      : null;
-    itemData.data.Items.Shack.length > 0
-      ? itemData.data.Items.Shack.map((data) => dispatch(addShack(data)))
-      : null;
-    itemData.data.Items.Shop.length > 0
-      ? itemData.data.Items.Shop.map((data) => dispatch(addShop(data)))
-      : null;
-    itemData.data.Items.SmallHouse.length > 0
-      ? itemData.data.Items.SmallHouse.map((data) =>
-          dispatch(addSmallHouse(data)),
-        )
-      : null;
-    itemData.data.Items.Store.length > 0
-      ? itemData.data.Items.Store.map((data) => dispatch(addStore(data)))
-      : null;
-    itemData.data.Items.Trees.length > 0
-      ? itemData.data.Items.Trees.map((data) => dispatch(addTrees(data)))
-      : null;
-    itemData.data.Items.VillageHut.length > 0
-      ? itemData.data.Items.VillageHut.map((data) =>
-          dispatch(addVillageHut(data)),
-        )
-      : null;
-    itemData.data.Items.WareHouse.length > 0
-      ? itemData.data.Items.WareHouse.map((data) =>
-          dispatch(addWareHouse(data)),
-        )
-      : null;
-    itemData.data.Items.WaterTankTower.length > 0
-      ? itemData.data.Items.WaterTankTower.map((data) =>
-          dispatch(addWaterTankTower(data)),
-        )
-      : null;
+
+    Object.keys(itemData.data.Enemy).forEach((enemyType) => {
+      itemData.data.Enemy[enemyType].forEach((enemy) => {
+        console.log(enemy);
+        const enemyPayload = {
+          ...enemy,
+          enemyName: enemyType,
+          path: enemy.Path,
+          spawning_point: {
+            x: enemy.SpawnLocation.pointx,
+            y: enemy.SpawnLocation.pointy,
+          },
+        };
+        console.log(enemyPayload);
+        dispatch(addEnemyCar(enemyPayload));
+      });
+    });
+
+    // Object.keys(itemData.data.Enemy).forEach((enemyType) => {
+    //   itemData.data.Enemy[enemyType].forEach((enemy) => {
+    //     console.log(enemy);
+    //     const enemyWithDefaultAmmo = {
+    //       ...enemy,
+    //       Ammo: enemy.Ammo || defaultAmmo,
+    //     };
+    //     console.log(enemyWithDefaultAmmo);
+    //     dispatch(addEnemyCar(enemyWithDefaultAmmo));
+    //   });
+    // });
+    const playerAmmo = itemData.data.Player.Ammo || defaultAmmo;
+    const playerWithLowercaseAmmo = {
+      ...itemData.data.Player,
+      initialAmmo: {
+        heat: playerAmmo.Heat,
+        apfsds: playerAmmo.APFSDS,
+        he: playerAmmo.HE,
+        mg762: playerAmmo.MG,
+      },
+      spawning_point: {
+        x: itemData.data.Player.SpawnLocation.pointx,
+        y: itemData.data.Player.SpawnLocation.pointy,
+      },
+      path: itemData.data.Player.Path,
+    };
+    console.log(playerWithLowercaseAmmo);
+
+    dispatch(addOwnTank(playerWithLowercaseAmmo));
+    dispatch(updateTotalOwnTanks(itemData.data.totalOwnTanks));
+    dispatch(updateTotalEnemies(itemData.data.totalEnemies));
+
+    itemData.data.Items.House.forEach((data) => dispatch(addHouse(data)));
+    itemData.data.Items.Hospital.forEach((data) => dispatch(addHospital(data)));
+    itemData.data.Items.Jhompri.forEach((data) => dispatch(addJhompri(data)));
+    itemData.data.Items.RailwayStation.forEach((data) =>
+      dispatch(addRailwayStation(data)),
+    );
+    itemData.data.Items.Rocks.forEach((data) => dispatch(addRocks(data)));
+    itemData.data.Items.Shack.forEach((data) => dispatch(addShack(data)));
+    itemData.data.Items.Shop.forEach((data) => dispatch(addShop(data)));
+    itemData.data.Items.SmallHouse.forEach((data) =>
+      dispatch(addSmallHouse(data)),
+    );
+    itemData.data.Items.Store.forEach((data) => dispatch(addStore(data)));
+    itemData.data.Items.Trees.forEach((data) => dispatch(addTrees(data)));
+    itemData.data.Items.VillageHut.forEach((data) =>
+      dispatch(addVillageHut(data)),
+    );
+    itemData.data.Items.WareHouse.forEach((data) =>
+      dispatch(addWareHouse(data)),
+    );
+    itemData.data.Items.WaterTankTower.forEach((data) =>
+      dispatch(addWaterTankTower(data)),
+    );
   };
 
   return (
@@ -237,7 +279,7 @@ export default function SelectMap() {
         <div className="select_map_button_group_main_class">
           <div className="select_map_button_group">
             <NavLink to={'/create_map'} className="select_map_button">
-              CREATE NEW
+              {totalEnemies ? 'Update Map' : 'Create New Map'}
             </NavLink>
             {/* <div
               className="select_map_button"

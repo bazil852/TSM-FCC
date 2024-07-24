@@ -34,7 +34,9 @@ export default function DropDown({ options, selected, onOptionSelect }) {
   }, [isActive]);
 
   return (
-    <div
+    <button
+      type='button'
+      style={{cursor:"pointer"}}
       className="custom_drop_down_main_class"
       ref={dropdownRef}
       onClick={toggleDropdown}
@@ -65,6 +67,6 @@ export default function DropDown({ options, selected, onOptionSelect }) {
           />
         </div>
       </div>
-    </div>
+    </button>
   );
 }

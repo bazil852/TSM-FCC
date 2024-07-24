@@ -124,6 +124,21 @@ ipcMain.on('add-instructor', (event, instructor) => {
   });
 });
 
+
+// Json read Write
+
+ipcMain.handle('read-json', async (event, filePath) => {
+  try {
+    const data = fs.readFileSync(filePath, 'utf-8');
+    // console.log(data)
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error reading file:', error);
+    throw error;
+  }
+});
+
+
 ipcMain.on('save-map-data', (event, mapData) => {
   console.log(mapData)
   const query = 'INSERT INTO map SET ?';

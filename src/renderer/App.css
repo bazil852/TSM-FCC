@@ -466,11 +466,15 @@ input[type='number'] {
   color: #ffffff;
 }
 .map_main_container {
-  width: 90%;
-  height: 50vh;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: start;
+  align-items: start;
+  overflow-y: auto;
+  width: 90%;
+  border-radius: 10px;
+  height: 60vh;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 .map_image img {
   width: 600px;
@@ -632,6 +636,17 @@ input[type='number'] {
   margin-top: 1rem;
   padding: 0rem 2rem;
 }
+.initial_ammo_main_class{
+  position: absolute;
+  display: flex;
+  height: 90vh;
+  width: 100%;
+  top: 10px;
+  z-index: 10;
+  backdrop-filter: blur;
+  justify-content: center;
+  align-items: center;
+}
 .verify_note {
   height: 80px;
   background-color: #e2d6ce;
@@ -669,7 +684,10 @@ input[type='number'] {
   text-decoration: none;
 }
 .parameters_create_map_main_container {
+  margin-left: -80px;
+  /* margin-left: -315px; */
   width: 100%;
+  height: 84vh;
   margin-top: 2rem;
   overflow-y: auto;
 }
@@ -685,7 +703,7 @@ input[type='number'] {
   font-size: 2rem;
   font-weight: 600;
   color: #ffffff;
-  margin-left: 12rem;
+  margin-left: 17rem;
 }
 .map_area_main_class,
 .select_exercise_time_dropdown,
@@ -882,7 +900,7 @@ input[type='number'] {
   width: 60%;
   height: 27vh;
   top: 5rem;
-  right: -20rem;
+  right: -17rem;
   padding: 1rem 2rem;
   overflow: hidden;
 }
@@ -2883,11 +2901,15 @@ input[type='number'] {
 }
 /* FOOTER-END */
 
+.grid_canvas{
+  background-image: url("../../assets/DesertMap.png");
+  z-index: 1;
+}
 /* CUSTOM-DRAG-DROP-GRID-START */
 .grid_canvas_main_container {
   background-color: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(2px);
-  margin: auto;
+  margin-left: 25px;
   margin-top: 1rem;
   display: flex;
   justify-content: space-between;
@@ -2896,6 +2918,7 @@ input[type='number'] {
   transition: width 0.5s ease-in-out;
 }
 .grid_canvas_remove_btn {
+  margin-top: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2904,8 +2927,9 @@ input[type='number'] {
   font-size: 1rem;
   border: 1px solid white;
   height: 25px;
-  width: 70px;
+  width: 130px;
   cursor: pointer;
+  border-radius: 5px;
   text-decoration: none;
   background: transparent;
 }
@@ -2914,6 +2938,16 @@ input[type='number'] {
   backdrop-filter: blur(10px);
 }
 .grid_canvas_object_details {
+  background-color: #27353f;
+  margin-left: 15px;
+  margin-top: 20px;
+  border-radius: 10px;
+  padding: 15px 10px 15px 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  
   transition: all 0.4s ease-in-out;
 }
 .grid_canvas_object_details_stats {
@@ -2930,8 +2964,8 @@ input[type='number'] {
   height: 50px;
   width: 380px;
   position: absolute;
-  left: 560px;
-  top: -100px;
+  left: 60px;
+  top: 100px;
   background-color: rgba(0, 0, 0, 0.7);
   transition: all 0.2s ease-in-out;
 }

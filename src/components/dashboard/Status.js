@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState,useEffect } from 'react';
 import '../../renderer/App.css';
+import { ipcRenderer } from 'electron';
 
 export default function Status() {
   const studentStatus = [
@@ -29,6 +30,54 @@ export default function Status() {
       'MG Balancer': 50,
     },
   ];
+
+  const [studentStatusNew, setStudentStatus] = useState({});
+  const [simulationStatusNew, setSimulationStatus] = useState({});
+
+  // Function to fetch data from the JSON files
+ const fetchData = async () => {
+   try {
+     const playerData = await ipcRenderer.invoke(
+       'read-json',
+       'E://TSM-FCC-main//JSON_Files//PlayerData.json',
+     );
+     const simulationData = await ipcRenderer.invoke(
+       'read-json',
+       'E:/TSM-FCC-main/JSON_Files/tsm.json',
+     );
+    //  const studentData = await window.electron.readJSON(
+    //    'E:/TSM-FCC-main/JSON_Files/PlayerData.json',
+    //  );
+    //  const simulationData = await window.electron.readJSON(
+    //    'E:/TSM-FCC-main/JSON_Files/tsm.json',
+    //  );
+     console.log(playerData.Player);
+     console.log(simulationData)
+     setStudentStatus(playerData);
+     setSimulationStatus(simulationData);
+   } catch (error) {
+     console.error('Error fetching data:', error);
+   }
+ };
+
+ // Fetch data when the component mounts
+ useEffect(() => {
+   fetchData(); // Initial fetch
+   const intervalId = setInterval(fetchData, 5000); // Fetch every 5 seconds
+
+   return () => clearInterval(intervalId); // Cleanup interval on component unmount
+ }, []);
+  
+  
+  useEffect(() => {
+
+    if (simulationStatusNew) {
+      
+    }
+
+  }, [simulationStatusNew]);
+  
+  
 
   const allStatus = [studentStatus, simulationStatus, ammoStatus];
 

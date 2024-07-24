@@ -69,71 +69,76 @@ export default function CreateMap() {
         <button onClick={handleSave}>SAVE</button>
       </div>
 
-      <div className="create_map_grid_container">
-        <GridCanvas stylingBox={1} />
-      </div>
+      <div style={{display:"flex"}}>
+        <div className="create_map_grid_container">
+          <GridCanvas stylingBox={1} />
+        </div>
 
-      <div className="parameters_create_map_main_container">
-        <div className="parameter_create_map_content_section">
-          <div className="parameter_heading_create_map">PARAMETERS</div>
+        <div className="parameters_create_map_main_container">
+          <div className="parameter_create_map_content_section">
+            <div className="parameter_heading_create_map">PARAMETERS</div>
 
-          <div className="map_area_main_class">
-            <span>MAP AREA</span>
-            <div className="progress_bar_and_value_main_container">
-              <div className="progress_bar_container">
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={mapArea}
-                  className="progress_bar"
-                  onChange={handleMapAreaChange}
-                />
+            <div className="map_area_main_class">
+              <span>MAP AREA</span>
+              <div className="progress_bar_and_value_main_container">
+                <div className="progress_bar_container">
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={mapArea}
+                    className="progress_bar"
+                    onChange={handleMapAreaChange}
+                  />
+                </div>
+                <div className="progress_bar_value_box">
+                  <input
+                    type="number"
+                    value={mapArea}
+                    onChange={handleMapAreaChange}
+                  />
+                  sq/m
+                </div>
               </div>
-              <div className="progress_bar_value_box">
-                <input
-                  type="number"
-                  value={mapArea}
-                  onChange={handleMapAreaChange}
-                />
-                sq/m
-              </div>
+            </div>
+
+            <div
+              className="select_exercise_time_dropdown"
+              style={{ zIndex: 3 }}
+            >
+              <span>EXERCISE TIME</span>
+              <DropDown
+                options={options}
+                selected={exerciseTime}
+                onOptionSelect={handleExerciseTime}
+              />
+            </div>
+            <div className="select_terrain_dropdown" style={{ zIndex: 2 }}>
+              <span>SELECT TERRAIN</span>
+              <DropDown
+                options={options1}
+                selected={terrain}
+                onOptionSelect={handleTerrain}
+              />
             </div>
           </div>
 
-          <div className="select_exercise_time_dropdown" style={{ zIndex: 3 }}>
-            <span>EXERCISE TIME</span>
-            <DropDown
-              options={options}
-              selected={exerciseTime}
-              onOptionSelect={handleExerciseTime}
-            />
-          </div>
-          <div className="select_terrain_dropdown" style={{ zIndex: 2 }}>
-            <span>SELECT TERRAIN</span>
-            <DropDown
-              options={options1}
-              selected={terrain}
-              onOptionSelect={handleTerrain}
-            />
-          </div>
-        </div>
-
-        <div className="select_objects_main_container">
-          <div className="select_enemy">
-            <SelectObjectCarousel carouselObjectType={1} />
-          </div>
-          <div className="select_enemy_object">
-            <SelectObjectCarousel carouselObjectType={2} />
-          </div>
-          <div className="select_buildings">
-            <SelectObjectCarousel carouselObjectType={3} />
-          </div>
-          <div className="select_natural_objects">
-            <SelectObjectCarousel carouselObjectType={4} />
-          </div>
-          <div className="select_your_tank">
-            <SelectObjectCarousel carouselObjectType={5} />
+          <div className="select_objects_main_container">
+            <div className="select_enemy">
+              <SelectObjectCarousel carouselObjectType={1} />
+            </div>
+            <div className="select_enemy_object">
+              <SelectObjectCarousel carouselObjectType={2} />
+            </div>
+            <div className="select_buildings">
+              <SelectObjectCarousel carouselObjectType={3} />
+            </div>
+            <div className="select_natural_objects">
+              <SelectObjectCarousel carouselObjectType={4} />
+            </div>
+            <div className="select_your_tank">
+              <SelectObjectCarousel carouselObjectType={5} />
+            </div>
           </div>
         </div>
       </div>

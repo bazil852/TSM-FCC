@@ -197,6 +197,7 @@ export default function SelectStudentAndInstructor() {
                 >
                   <span>{key.toUpperCase()}</span>
                   <input
+                    type='text'
                     value={instructorDetails[key]}
                     onChange={(e) =>
                       handleInputChange(key, e.target.value, false)

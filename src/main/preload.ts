@@ -24,6 +24,10 @@ const electronHandler = {
   },
 };
 
+contextBridge.exposeInMainWorld('electron', {
+  readJSON: (filePath: any) => ipcRenderer.invoke('read-json', filePath),
+});
+
 contextBridge.exposeInMainWorld('electron', electronHandler);
 
 export type ElectronHandler = typeof electronHandler;

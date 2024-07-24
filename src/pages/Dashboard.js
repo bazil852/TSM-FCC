@@ -3,7 +3,7 @@ import AdjustSimulation from '../components/dashboard/AdjustSimulation';
 import Control from '../components/dashboard/Control';
 import FireControl from '../components/dashboard/FireControl';
 import Status from '../components/dashboard/Status';
-import GridCanvas from '../components/simulation-components/GridCanvas';
+import GridCanvasSimulator from '../components/simulation-components/GridCanvasSimulation';
 import '../renderer/App.css';
 import mainMenu from '../TSM-img/main_menu.svg';
 import dropDown from '../TSM-img/dropDown.svg';
@@ -27,7 +27,7 @@ export default function Dashboard() {
       <FireControl />
 
       <div className="grid_dashboard">
-        <GridCanvas stylingBox={2} />
+        <GridCanvasSimulator stylingBox={2} />
       </div>
 
       <div className="adjust_simulation_main_container">

@@ -90,10 +90,10 @@ export const DataArraySlice = createSlice({
     addEnemy: (state, action) => {
       const {
         enemyName,
-        path,
+        path = [],
         unitId,
-        initialAmmo,
-        spawning_point,
+        initialAmmo = {},
+        spawning_point = {},
         initialDirection,
       } = action.payload;
 
@@ -111,10 +111,10 @@ export const DataArraySlice = createSlice({
           pointy: point.y,
         }));
         state.Enemy[enemyName][enemyIndex].Ammo = {
-          Heat: initialAmmo.heat,
-          APFSDS: initialAmmo.apfsds,
-          HE: initialAmmo.he,
-          MG: initialAmmo.mg762,
+          Heat: initialAmmo.Heat || 40,
+          APFSDS: initialAmmo.APFSDS || 40,
+          HE: initialAmmo.HE || 40,
+          MG: initialAmmo.MG || 40,
         };
         state.Enemy[enemyName][enemyIndex].initialDirection = initialDirection;
       } else {
@@ -122,10 +122,10 @@ export const DataArraySlice = createSlice({
           unitId: unitId,
           initialDirection: initialDirection,
           Ammo: {
-            Heat: initialAmmo.heat,
-            APFSDS: initialAmmo.apfsds,
-            HE: initialAmmo.he,
-            MG: initialAmmo.mg762,
+            Heat: initialAmmo.Heat || 40,
+            APFSDS: initialAmmo.APFSDS || 40,
+            HE: initialAmmo.HE || 40,
+            MG: initialAmmo.MG || 40,
           },
           SpawnLocation: {
             pointx: spawning_point.x,

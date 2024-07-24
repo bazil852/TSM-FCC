@@ -85,10 +85,10 @@ export default function GridCanvas({ stylingBox }) {
 
   const initialAmmosTitleArray = data.initialAmmoTitleArray;
 
-  const [apfsds, setApfsdsAmmo] = useState(0);
-  const [he, setHeAmmo] = useState(0);
-  const [heat, setHeatAmmo] = useState(0);
-  const [mg762, setMg762Ammo] = useState(0);
+  const [apfsds, setApfsdsAmmo] = useState(40);
+  const [he, setHeAmmo] = useState(40);
+  const [heat, setHeatAmmo] = useState(40);
+  const [mg762, setMg762Ammo] = useState(1000);
 
   const handleAmmoChange = (tankId, ammoType, value) => {
     setTankAmmos((prevAmmos) => ({
@@ -176,7 +176,7 @@ export default function GridCanvas({ stylingBox }) {
   const inputArray = ['INITIAL QTY. :', apfsds, he, heat, mg762];
 
   const createGridPattern = () => {
-    const gridSize = 10000;
+    const gridSize = 30;
     return `repeating-linear-gradient(
               to right,
               lightgrey,
@@ -546,10 +546,10 @@ export default function GridCanvas({ stylingBox }) {
   const closeInitialAmmo = () => {
     setShowInitialAmmo(false);
     setManuallyClosed(true);
-    setApfsdsAmmo(0);
-    setHeAmmo(0);
-    setHeatAmmo(0);
-    setMg762Ammo(0);
+    setApfsdsAmmo(40);
+    setHeAmmo(40);
+    setHeatAmmo(40);
+    setMg762Ammo(1000);
   };
 
   useEffect(() => {
@@ -783,6 +783,8 @@ export default function GridCanvas({ stylingBox }) {
     setShowInitialAmmo(hasTanks && !manuallyClosed);
   }, [items, manuallyClosed]);
 
+  console.log(showInitialAmmo);
+
   return (
     <div>
       <div
@@ -790,48 +792,14 @@ export default function GridCanvas({ stylingBox }) {
         style={{
           width:
             stylingBox === 1 && hasObjects
-              ? '91%'
+              ? '100%%'
               : stylingBox === 1 && !hasObjects
-              ? '79.8%'
-              : '63.6%',
+              ? '100%'
+              : '100%',
           borderRadius: stylingBox === 1 ? '5px' : '0px',
           position: stylingBox === 2 ? 'absolute' : 'relative',
         }}
       >
-        <div
-          className="grid_canvas_object_details"
-          style={{
-            display: stylingBox === 2 ? 'none' : '',
-            width: hasObjects ? '200px' : '0px',
-            opacity: hasObjects ? 1 : 0,
-          }}
-        >
-          {hasObjects && (
-            <>
-              <button onClick={handleDelete} className="grid_canvas_remove_btn">
-                DELETE
-              </button>
-
-              {/* <div className="item_position">
-                <h3> Item Position: </h3>
-                <div>
-                  {draggingItem
-                    ? `X : ${normalizePathX(
-                        draggingItem.x.toFixed(2),
-                      )}, Y : ${draggingItem.y.toFixed(0)}`
-                    : 'None'}
-                </div>
-              </div> */}
-            </>
-          )}
-          {totalEnemies > 0 && (
-            <div className="grid_canvas_object_details_stats">
-              <h3>Total Enemies: {totalEnemies}</h3>
-              <p>Enemy Tanks: {enemyTanks}</p>
-              <p>Enemy APCs: {enemyAPCs}</p>
-            </div>
-          )}
-        </div>
         <TransformWrapper>
           <TransformComponent>
             <svg
@@ -871,9 +839,12 @@ export default function GridCanvas({ stylingBox }) {
               onMouseMove={getMousePosition}
               style={{
                 background: createGridPattern(),
-                backgroundSize: `${30 * zoom}px ${30 * zoom}px`,
+                // backgroundImage: "(url(`../../assets/DesertMap.png`)",
+                backgroundRepeat: 'no-repeat',
+                zIndex: '-1',
+                backgroundSize: `${500 * zoom}px ${51.7 * zoom}vh`,
                 height: '51.7vh',
-                width: '1500px',
+                width: '500px',
                 border: '1px solid rgba(255, 255, 255, 0.578)',
                 position: 'relative',
                 cursor: 'grab',
@@ -1008,8 +979,9 @@ export default function GridCanvas({ stylingBox }) {
         <div
           className="initial_ammo_grid_canvas"
           style={{
-            height: showInitialAmmo ? '250px' : '0px',
+            height: showInitialAmmo ? '0px' : '0px',
             opacity: showInitialAmmo ? 1 : 0,
+            display: showInitialAmmo ? 'block' : 'none',
             transition: 'all 0.3s ease-in-out',
           }}
         >
@@ -1076,6 +1048,29 @@ export default function GridCanvas({ stylingBox }) {
           </div>
         </div>
       )}
+      <div
+          className="grid_canvas_object_details"
+          style={{
+            display: stylingBox === 2 ? 'none' : '',
+            width: hasObjects ? '100%' : '0px',
+            opacity: hasObjects ? 1 : 0,
+          }}
+        >
+          {totalEnemies > 0 && (
+            <div className="grid_canvas_object_details_stats">
+              <h3>Total Enemies: {totalEnemies}</h3>
+              <p>Enemy Tanks: {enemyTanks}</p>
+              <p>Enemy APCs: {enemyAPCs}</p>
+            </div>
+          )}
+          {hasObjects && (
+            <>
+              <button onClick={handleDelete} className="grid_canvas_remove_btn">
+                DELETE
+              </button>
+            </>
+          )}
+        </div>
     </div>
   );
 }
