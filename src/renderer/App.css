@@ -465,6 +465,12 @@ input[type='number'] {
   font-weight: 600;
   color: #ffffff;
 }
+.react-transform-wrapper{
+  border: 1px solid black;
+  height: 500px !important;
+  width: 500px !important;
+  overflow: auto;
+}
 .map_main_container {
   display: flex;
   justify-content: start;
@@ -2961,6 +2967,7 @@ input[type='number'] {
   justify-content: center;
   display: flex;
   align-items: center;
+  position: sticky;
   height: 50px;
   width: 380px;
   position: absolute;

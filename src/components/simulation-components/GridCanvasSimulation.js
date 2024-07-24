@@ -103,7 +103,7 @@ export default function GridCanvas({ stylingBox }) {
   const [he, setHeAmmo] = useState(40);
   const [heat, setHeatAmmo] = useState(40);
   const [mg762, setMg762Ammo] = useState(1000);
-  const scalingFactor = 0.001;
+  const scalingFactor = 0.002;
   const handleAmmoChange = (tankId, ammoType, value) => {
     setTankAmmos((prevAmmos) => ({
       ...prevAmmos,
@@ -338,7 +338,7 @@ export default function GridCanvas({ stylingBox }) {
   const inputArray = ['INITIAL QTY. :', apfsds, he, heat, mg762];
 
   const createGridPattern = () => {
-    const gridSize = 30;
+    const gridSize = 100;
     return `repeating-linear-gradient(
               to right,
               lightgrey,
@@ -621,9 +621,9 @@ export default function GridCanvas({ stylingBox }) {
                 // backgroundImage: "(url(`../../assets/DesertMap.png`)",
                 backgroundRepeat: 'no-repeat',
                 zIndex: '-1',
-                backgroundSize: `${500 * zoom}px ${51.7 * zoom}vh`,
-                height: '51.7vh',
-                width: '500px',
+                backgroundSize: `${1200 * zoom}px ${1200 * zoom}px`,
+                height: '1000px',
+                width: '1200px',
                 border: '1px solid rgba(255, 255, 255, 0.578)',
                 position: 'relative',
                 cursor: 'grab',
