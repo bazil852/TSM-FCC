@@ -101,7 +101,6 @@ export default function SelectObjectCarousel({ carouselObjectType }) {
 
   const handleDispatchItem = () => {
     const selectedItem = chosenArray[0]?.objects[selectedSlide];
-
     if (selectedItem?.type === 'myTank') {
       if (ownTanksCount === 0) {
         dispatch(addItem(selectedItem));
@@ -111,6 +110,8 @@ export default function SelectObjectCarousel({ carouselObjectType }) {
         console.log('THERE CAN ONLY BE ONE OWN TANK!!');
       }
     } else if (selectedItem) {
+      console.log(selectedItem);
+      console.log("enemy")
       dispatch(addItem(selectedItem));
     }
   };

@@ -13,6 +13,7 @@ export default function Footer() {
   const dataArrayState = useSelector((state) => state.dataArray);
   // Function to save the state to a JSON file
   const saveStateToJsonFile = () => {
+    console.log(dataArrayState)
     // Send the data to the main process
     console.log('Workings');
     ipcRenderer.send('save-json', {

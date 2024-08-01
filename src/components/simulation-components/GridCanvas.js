@@ -2,8 +2,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import data from '../../data.json';
-import {
+import terainSvg from '../../../assets/terrain.svg';
+import DataArray, {
   addEnemy,
+  setMapArea,
   addOwnTank,
   updateTotalEnemies,
   updateTotalOwnTanks,
@@ -26,6 +28,7 @@ import {
   addJhompri,
   addRailwayStation,
   addRocks,
+  setWindDirection,
   deleteHouse,
   deleteTrees,
   deleteShop,
@@ -40,7 +43,7 @@ import {
   deleteJhompri,
   deleteRocks,
 } from '../../redux/DataArray';
-import { removeItem } from '../../redux/CarouselSelectedItemSlice';
+import { removeItem ,addItem} from '../../redux/CarouselSelectedItemSlice';
 import gridTank from '../../TSM-img/gridTank.svg';
 import gridTank2 from '../../TSM-img/gridTank2.svg';
 import gridTank3 from '../../TSM-img/gridTank3.svg';
@@ -82,9 +85,10 @@ export default function GridCanvas({ stylingBox }) {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [manuallyClosed, setManuallyClosed] = useState(false);
   const [showInitialAmmo, setShowInitialAmmo] = useState(false);
-
+  const [fetchOnce,setFetchOnce] = useState(true)
+  const simulationData = useSelector((state) => state.dataArray);
   const initialAmmosTitleArray = data.initialAmmoTitleArray;
-
+  console.log(selectedItems);
   const [apfsds, setApfsdsAmmo] = useState(40);
   const [he, setHeAmmo] = useState(40);
   const [heat, setHeatAmmo] = useState(40);
@@ -99,6 +103,125 @@ export default function GridCanvas({ stylingBox }) {
       },
     }));
   };
+
+ const setMapValues = async () => {
+  try {
+    // Prepare player data
+    const playerPath = simulationData.Player.Path.map((point) => ({
+      x: normalizetoSmall(point.pointx),
+      y: normalizetoSmall(point.pointy),
+    }));
+    const playerLastPoint = playerPath[playerPath.length - 1];
+
+    const playerData = {
+      id: simulationData.Player.id,
+      name: 'Player Tank',
+      x: playerLastPoint.x,
+      y: playerLastPoint.y,
+      status: 'own-tank',
+      details: simulationData.Player.Ammo,
+      path: playerPath,
+      type: 'tank',
+      src: gridTank,
+    };
+
+    // Prepare enemy data
+    const enemyData = Object.keys(simulationData.Enemy).flatMap((enemyName) =>
+      simulationData.Enemy[enemyName].map((enemy) => {
+        const enemyPath = enemy.Path.map((point) => ({
+          x: normalizetoSmall(point.pointx),
+          y: normalizetoSmall(point.pointy),
+        }));
+        const enemyLastPoint = enemyPath[enemyPath.length - 1];
+
+        return {
+          id: enemy.unitId,
+          name: enemyName,
+          x: enemyLastPoint.x,
+          y: enemyLastPoint.y,
+          status: 'dangerous',
+          details: enemy.Ammo,
+          path: enemyPath,
+          type: 'tank',
+          src: gridTank, // Assuming all enemies are tanks, adjust src as needed
+        };
+      })
+    );
+
+    // Prepare items data
+    const prepareItemData = (itemsArray, type, src) => {
+      return itemsArray.map((item) => ({
+        id: item.id,
+        x: normalizetoSmall(item.pointx),
+        y: normalizetoSmall(item.pointy),
+        status: 'neutral',
+        details: {},
+        type,
+        src,
+      }));
+    };
+
+    const houseData = prepareItemData(simulationData.Items.House, 'house', house);
+    const treesData = prepareItemData(simulationData.Items.Trees, 'trees', '');
+    const shackData = prepareItemData(simulationData.Items.Shack, 'shack', shack);
+    const hospitalData = prepareItemData(simulationData.Items.Hospital, 'hospital', hospital);
+    const jhompriData = prepareItemData(simulationData.Items.Jhompri, 'jhompri', jhompri);
+    const rocksData = prepareItemData(simulationData.Items.Rocks, 'rocks', rocks);
+
+    // Combine all items
+    const allItems = [
+      playerData,
+      ...enemyData,
+      ...houseData,
+      ...treesData,
+      ...shackData,
+      ...hospitalData,
+      ...jhompriData,
+      ...rocksData,
+    ];
+
+    console.log(allItems);
+    setItems(allItems);
+
+    // Set object start points with last point as startPoint
+    setObjectStartPoints(
+      allItems.map((item) => ({
+        id: item.id,
+        item,
+        startPoint: { x: item.path[item.path.length - 1].x, y: item.path[item.path.length - 1].y },
+        path: item.path.map(u => ({ x: u.x, y: u.y }))
+      }))
+    );
+
+    // Extract paths for all units and set in paths state
+    const pathsData = {};
+    pathsData[playerData.id] = playerPath;
+
+    Object.keys(simulationData.Enemy).forEach((enemyName) => {
+      simulationData.Enemy[enemyName].forEach((enemy) => {
+        pathsData[enemy.unitId] = enemy.Path.map((point) => ({
+          x: normalizetoSmall(point.pointx),
+          y: normalizetoSmall(point.pointy),
+        }));
+      });
+    });
+
+    console.log(pathsData);
+    setFetchOnce(false);
+    setPaths(pathsData);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+  // console.log(items)
+
+  useEffect(() => {
+    if (!simulationData.newMapCreated && fetchOnce) {
+      console.log(simulationData);
+      setMapValues();
+    }
+  }, [simulationData]);
 
   const handleDirectionChange = (tankId, newDirection) => {
     setDirection((prevDirections) => {
@@ -252,22 +375,26 @@ export default function GridCanvas({ stylingBox }) {
     return { x: boundedX, y: boundedY };
   };
 
-  const normalizePathX = (x) => {
-    const scaleX = 40000 / 1500;
-    const centerX = 1500 / 2;
+  const scaleFactorToLargeSpace = 500000 / 800;
 
-    const normalizedX = (x - centerX) * scaleX;
+  const normalizePathX = (x) => {
+    const scaleFactorToLargeSpace = 500000 / 800;
+
+    const normalizedX = x * scaleFactorToLargeSpace;
 
     return normalizedX;
   };
 
   const normalizePathY = (y) => {
-    const scaleY = 40000 / 510;
-    const centerY = 510 / 2;
+    const scaleFactorToLargeSpace = 500000 / 800;
 
-    const normalizedY = (y - centerY) * scaleY * -1;
-
+    const normalizedY = y * scaleFactorToLargeSpace;
     return normalizedY;
+  };
+
+  const normalizetoSmall = (value) => {
+    const scaleFactorToGridSpace = 800 / 500000;
+    return value * scaleFactorToGridSpace;
   };
 
   const getMousePosition = (e) => {
@@ -579,7 +706,8 @@ export default function GridCanvas({ stylingBox }) {
         mg762: 0,
       };
       const directionOfObject = direction[point.id] || 'West';
-      console.log(point)
+      // console.log(point);
+      // console.log(normalizePathX(point.path[0].x));
       if (point.item.status === 'dangerous') {
         if (point.item.type === 'tank') {
           dispatch(
@@ -783,7 +911,7 @@ export default function GridCanvas({ stylingBox }) {
     setShowInitialAmmo(hasTanks && !manuallyClosed);
   }, [items, manuallyClosed]);
 
-  console.log(showInitialAmmo);
+  // console.log(objectStartPoints);
 
   return (
     <div>
@@ -810,6 +938,7 @@ export default function GridCanvas({ stylingBox }) {
                 left: 0,
                 width: '100%',
                 height: '100%',
+                zIndex: '10',
                 pointerEvents: 'none',
               }}
             >
@@ -838,15 +967,14 @@ export default function GridCanvas({ stylingBox }) {
               className="grid_canvas"
               onMouseMove={getMousePosition}
               style={{
-                background: createGridPattern(),
-                // backgroundImage: "(url(`../../assets/DesertMap.png`)",
+                background: `${createGridPattern()}, url(${terainSvg})`,
+                backgroundRepeat: 'no-repeat, no-repeat',
                 backgroundRepeat: 'no-repeat',
-                zIndex: '-1',
-                backgroundSize: `${500 * zoom}px ${51.7 * zoom}vh`,
-                height: '51.7vh',
-                width: '500px',
+                backgroundSize: `${800 * zoom}px ${800 * zoom}px`,
+                height: '800px',
+                width: '800px',
                 border: '1px solid rgba(255, 255, 255, 0.578)',
-                position: 'relative',
+                // position: 'relative',
                 cursor: 'grab',
               }}
             >
@@ -1049,28 +1177,28 @@ export default function GridCanvas({ stylingBox }) {
         </div>
       )}
       <div
-          className="grid_canvas_object_details"
-          style={{
-            display: stylingBox === 2 ? 'none' : '',
-            width: hasObjects ? '100%' : '0px',
-            opacity: hasObjects ? 1 : 0,
-          }}
-        >
-          {totalEnemies > 0 && (
-            <div className="grid_canvas_object_details_stats">
-              <h3>Total Enemies: {totalEnemies}</h3>
-              <p>Enemy Tanks: {enemyTanks}</p>
-              <p>Enemy APCs: {enemyAPCs}</p>
-            </div>
-          )}
-          {hasObjects && (
-            <>
-              <button onClick={handleDelete} className="grid_canvas_remove_btn">
-                DELETE
-              </button>
-            </>
-          )}
-        </div>
+        className="grid_canvas_object_details"
+        style={{
+          display: stylingBox === 2 ? 'none' : '',
+          width: hasObjects ? '100%' : '0px',
+          opacity: hasObjects ? 1 : 0,
+        }}
+      >
+        {totalEnemies > 0 && (
+          <div className="grid_canvas_object_details_stats">
+            <h3>Total Enemies: {totalEnemies}</h3>
+            <p>Enemy Tanks: {enemyTanks}</p>
+            <p>Enemy APCs: {enemyAPCs}</p>
+          </div>
+        )}
+        {hasObjects && (
+          <>
+            <button onClick={handleDelete} className="grid_canvas_remove_btn">
+              DELETE
+            </button>
+          </>
+        )}
+      </div>
     </div>
   );
 }

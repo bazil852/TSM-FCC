@@ -11,7 +11,6 @@ export default function MapCarousel(props) {
   const [showArrows, setShowArrows] = useState(false);
   const [goToSlide, setGoToSlide] = useState(null);
   const [cards] = useState(table);
-  console.log(cards)
   useEffect(() => {
     setOffsetRadius(props.offset);
     setShowArrows(props.showArrows);

@@ -33,7 +33,8 @@ import {
   setTerrain,
   setOnlyOneOwnTank,
   updateTotalOwnTanks,
-  updateTotalEnemies
+  updateTotalEnemies,
+  setNewMapCreated,
 } from '../../redux/DataArray';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -134,13 +135,13 @@ export default function SelectMap() {
   }, [openModal]);
 
   const selectMap = (itemData) => {
+    dispatch(setNewMapCreated(false));
     const defaultAmmo = {
       Heat: 40,
       APFSDS: 40,
       HE: 40,
-      MG: 40,
+      MG: 1000,
     };
-    console.log('selecting Map');
     console.log(itemData);
     dispatch(setTerrain(itemData.data.ExerciseInfo.terrain));
     dispatch(setExerciseTime(itemData.data.ExerciseInfo.exerciseTime));
@@ -153,7 +154,10 @@ export default function SelectMap() {
         const enemyPayload = {
           ...enemy,
           enemyName: enemyType,
-          path: enemy.Path,
+          path: enemy.Path.map((data) => ({
+            x: data.pointx,
+            y: data.pointy,
+          })),
           spawning_point: {
             x: enemy.SpawnLocation.pointx,
             y: enemy.SpawnLocation.pointy,
@@ -163,18 +167,6 @@ export default function SelectMap() {
         dispatch(addEnemyCar(enemyPayload));
       });
     });
-
-    // Object.keys(itemData.data.Enemy).forEach((enemyType) => {
-    //   itemData.data.Enemy[enemyType].forEach((enemy) => {
-    //     console.log(enemy);
-    //     const enemyWithDefaultAmmo = {
-    //       ...enemy,
-    //       Ammo: enemy.Ammo || defaultAmmo,
-    //     };
-    //     console.log(enemyWithDefaultAmmo);
-    //     dispatch(addEnemyCar(enemyWithDefaultAmmo));
-    //   });
-    // });
     const playerAmmo = itemData.data.Player.Ammo || defaultAmmo;
     const playerWithLowercaseAmmo = {
       ...itemData.data.Player,
@@ -188,15 +180,29 @@ export default function SelectMap() {
         x: itemData.data.Player.SpawnLocation.pointx,
         y: itemData.data.Player.SpawnLocation.pointy,
       },
-      path: itemData.data.Player.Path,
+      path: itemData.data.Player.Path.map((data) => ({
+        x: data.pointx,
+        y: data.pointy,
+      })),
     };
+
     console.log(playerWithLowercaseAmmo);
 
     dispatch(addOwnTank(playerWithLowercaseAmmo));
     dispatch(updateTotalOwnTanks(itemData.data.totalOwnTanks));
     dispatch(updateTotalEnemies(itemData.data.totalEnemies));
+    itemData.data.Items.House.map((house) => {
+      console.log(house);
+      const housePayload = {
+        ...house,
+        spawning_point: {
+          x: house.pointx,
+          y: house.pointy,
+        },
+      };
+      dispatch(addHouse(housePayload));
+    });
 
-    itemData.data.Items.House.forEach((data) => dispatch(addHouse(data)));
     itemData.data.Items.Hospital.forEach((data) => dispatch(addHospital(data)));
     itemData.data.Items.Jhompri.forEach((data) => dispatch(addJhompri(data)));
     itemData.data.Items.RailwayStation.forEach((data) =>
@@ -279,7 +285,7 @@ export default function SelectMap() {
         <div className="select_map_button_group_main_class">
           <div className="select_map_button_group">
             <NavLink to={'/create_map'} className="select_map_button">
-              {totalEnemies ? 'Update Map' : 'Create New Map'}
+              {dataArrayState.newMapCreated ? 'Create New Map' : 'Update Map'}
             </NavLink>
             {/* <div
               className="select_map_button"

@@ -154,7 +154,7 @@ export default function GridCanvas({ stylingBox }) {
         y: simulationData.Player.SpawnLocation.pointy,
         status: 'own-tank',
         details: simulationData.Player.Ammo,
-        path:simulationData.Player.Path,
+        path: simulationData.Player.Path,
         type: 'tank',
         src: gridTank,
       };
@@ -168,7 +168,7 @@ export default function GridCanvas({ stylingBox }) {
           y: enemy.SpawnLocation.pointy,
           status: 'dangerous',
           details: enemy.Ammo,
-          path:enemy.Path,
+          path: enemy.Path,
           type: 'tank',
           src: gridTank, // Assuming all enemies are tanks, adjust src as needed
         })),
@@ -510,7 +510,7 @@ export default function GridCanvas({ stylingBox }) {
 
   const drawPath = (path) => {
     if (!path || path.length < 2) return '';
-    console.log(path)
+    console.log(path);
     let d = `M ${path[0].pointx * scalingFactor} ${
       path[0].pointy * scalingFactor
     } `;
@@ -605,7 +605,7 @@ export default function GridCanvas({ stylingBox }) {
                       key={object.id}
                       d={drawPath(object.path)}
                       stroke={pathColor}
-                      // fill="none"
+                      fill="none"
                       strokeWidth={4}
                     />
                   );

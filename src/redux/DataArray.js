@@ -4,6 +4,7 @@ export const DataArraySlice = createSlice({
   name: 'dataArray',
   initialState: {
     onlyOneOwnTank: false,
+    newMapCreated: true, 
     ExerciseInfo: {
       mapArea: 0,
       exerciseTime: '',
@@ -47,6 +48,10 @@ export const DataArraySlice = createSlice({
   reducers: {
     setOnlyOneOwnTank: (state, action) => {
       state.onlyOneOwnTank = action.payload;
+    },
+    setNewMapCreated: (state, action) => {
+      // New reducer to update newMapCreated
+      state.newMapCreated = action.payload;
     },
     setStudent: (state, action) => {
       state.ExerciseInfo.student = action.payload;
@@ -510,6 +515,7 @@ export const DataArraySlice = createSlice({
 
 export const {
   setOnlyOneOwnTank,
+  setNewMapCreated, // Export the new action
   setStudent,
   setInstructor,
   setWeather,
