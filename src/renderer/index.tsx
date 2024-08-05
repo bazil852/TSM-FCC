@@ -20,7 +20,7 @@ root.render(
   </Provider>,
 );
 
-window.electron.ipcRenderer.once('ipc-example', (arg) => {
+window?.electron?.ipcRenderer.once('ipc-example', (arg) => {
   console.log(arg);
 });
-window.electron.ipcRenderer.sendMessage('ipc-example', ['ping']);
+window?.electron?.ipcRenderer.sendMessage('ipc-example', ['ping']);

@@ -8,7 +8,8 @@ import data from '../data.json';
 
 export default function Report() {
   const reportData = data.reportData;
-
+   const dataArrayState = useSelector((state) => state.dataArray);
+   console.log(dataArrayState)
   return (
     <div
       className="report_main_class"

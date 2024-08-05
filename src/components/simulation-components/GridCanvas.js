@@ -5,7 +5,6 @@ import data from '../../data.json';
 import terainSvg from '../../../assets/terrain.svg';
 import DataArray, {
   addEnemy,
-  setMapArea,
   addOwnTank,
   updateTotalEnemies,
   updateTotalOwnTanks,
@@ -77,7 +76,7 @@ export default function GridCanvas({ stylingBox }) {
   const [draggingItem, setDraggingItem] = useState(null);
   const [paths, setPaths] = useState({});
   const [objectStartPoints, setObjectStartPoints] = useState([]);
-  const selectedItems = useSelector((state) => state.selectedItem);
+  const selectedItems = useSelector((state) => state.selectedItem).items
   const [selectedObjectId, setSelectedObjectId] = useState(null);
   const [latestTankId, setLatestTankId] = useState(null);
   const [tankAmmos, setTankAmmos] = useState({});
@@ -1044,9 +1043,10 @@ export default function GridCanvas({ stylingBox }) {
                 </div>
               </div>
 
-              {items.map((item) => (
+              {items.map((item,index) => (
                 <React.Fragment key={item.id}>
                   <div
+                    key={index}
                     onMouseDown={(e) => handleItemMouseDown(item.id, e)}
                     style={{
                       left: (item.x + pan.x) * zoom,

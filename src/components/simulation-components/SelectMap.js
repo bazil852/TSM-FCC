@@ -29,7 +29,6 @@ import {
   addWareHouse,
   addWaterTankTower,
   setExerciseTime,
-  setMapArea,
   setTerrain,
   setOnlyOneOwnTank,
   updateTotalOwnTanks,
@@ -37,15 +36,12 @@ import {
   setNewMapCreated,
 } from '../../redux/DataArray';
 import { useDispatch, useSelector } from 'react-redux';
+import { setSelectedMapID } from '../../redux/CarouselSelectedItemSlice';
 
 export default function SelectMap() {
   const dispatch = useDispatch();
-  const enemy = useSelector((state) => state.dataArray.Enemy);
   const dataArrayState = useSelector((state) => state.dataArray);
   console.log(dataArrayState);
-
-  // Aggregate all enemy arrays into a single array to get the total count
-  const totalEnemies = Object.values(enemy).flat().length;
 
   const [selectedSlide, setSelectedSlide] = useState(0);
   const [show, setShown] = useState(false);
@@ -85,6 +81,8 @@ export default function SelectMap() {
       phone: '456-789-0123',
     },
   ];
+
+  
 
   const props3 = useSpring({
     transform: show ? 'scale(1.03)' : 'scale(1)',
@@ -135,6 +133,7 @@ export default function SelectMap() {
   }, [openModal]);
 
   const selectMap = (itemData) => {
+    
     dispatch(setNewMapCreated(false));
     const defaultAmmo = {
       Heat: 40,
@@ -143,9 +142,10 @@ export default function SelectMap() {
       MG: 1000,
     };
     console.log(itemData);
+    dispatch(setSelectedMapID(itemData.idmap));
     dispatch(setTerrain(itemData.data.ExerciseInfo.terrain));
     dispatch(setExerciseTime(itemData.data.ExerciseInfo.exerciseTime));
-    dispatch(setMapArea(itemData.data.ExerciseInfo.mapArea));
+    // dispatch(setMapArea(itemData.data.ExerciseInfo.mapArea));
     dispatch(setOnlyOneOwnTank(itemData.data.onlyOneOwnTank));
 
     Object.keys(itemData.data.Enemy).forEach((enemyType) => {

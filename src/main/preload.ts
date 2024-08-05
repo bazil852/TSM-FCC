@@ -1,8 +1,11 @@
-// Disable no-unused-vars, broken for spread args
-/* eslint no-unused-vars: off */
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
-export type Channels = 'ipc-example';
+export type Channels =
+  | 'ipc-example'
+  | 'read-json'
+  | 'save-json'
+  | 'save-map-data'
+  | 'update-map-data';
 
 const electronHandler = {
   ipcRenderer: {
@@ -13,7 +16,6 @@ const electronHandler = {
       const subscription = (_event: IpcRendererEvent, ...args: unknown[]) =>
         func(...args);
       ipcRenderer.on(channel, subscription);
-
       return () => {
         ipcRenderer.removeListener(channel, subscription);
       };
@@ -21,12 +23,11 @@ const electronHandler = {
     once(channel: Channels, func: (...args: unknown[]) => void) {
       ipcRenderer.once(channel, (_event, ...args) => func(...args));
     },
+    invoke(channel: Channels, ...args: unknown[]) {
+      return ipcRenderer.invoke(channel, ...args);
+    },
   },
 };
-
-contextBridge.exposeInMainWorld('electron', {
-  readJSON: (filePath: any) => ipcRenderer.invoke('read-json', filePath),
-});
 
 contextBridge.exposeInMainWorld('electron', electronHandler);
 

@@ -1085,6 +1085,31 @@ input[type='number'] {
   font-size: 1.5rem;
   padding: 0rem 1rem;
 }
+.select_map_name {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 832px;
+ 
+  height: 70px;
+  background-color: transparent;
+  border-radius: 10px;
+  padding: 0rem 4rem;
+}
+.select_map_name input {
+  background-color: #00000088;
+  width: 450px;
+  height: 50px;
+   margin-left: 133px !important;
+  border-radius: 10px;
+  position: relative;
+  border: none;
+  outline: none;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 1.5rem;
+  padding: 0rem 1rem;
+}
 .add_batch_user_navigate {
   display: flex;
   align-items: center;

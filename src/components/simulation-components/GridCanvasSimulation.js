@@ -41,7 +41,6 @@ import {
   deleteRailwayStation,
   deleteJhompri,
   deleteRocks,
-  setMapArea,
   setExerciseTime,
   setTerrain,
   setStudent,
@@ -88,7 +87,7 @@ export default function GridCanvas({ stylingBox }) {
   const [draggingItem, setDraggingItem] = useState(null);
   const [paths, setPaths] = useState({});
   const [objectStartPoints, setObjectStartPoints] = useState([]);
-  const selectedItems = useSelector((state) => state.selectedItem);
+  const selectedItems = useSelector((state) => state.selectedItem).items
   const [selectedObjectId, setSelectedObjectId] = useState(null);
   const [latestTankId, setLatestTankId] = useState(null);
   const [tankAmmos, setTankAmmos] = useState({});
@@ -125,7 +124,7 @@ export default function GridCanvas({ stylingBox }) {
 
       // Dispatch actions to update Redux state
       dispatch(setOnlyOneOwnTank(simulationData.onlyOneOwnTank));
-      dispatch(setMapArea(simulationData.ExerciseInfo.mapArea));
+      // dispatch(setMapArea(simulationData.ExerciseInfo.mapName));
       dispatch(setExerciseTime(simulationData.ExerciseInfo.exerciseTime));
       dispatch(setTerrain(simulationData.ExerciseInfo.terrain));
       dispatch(setStudent(simulationData.ExerciseInfo.student));

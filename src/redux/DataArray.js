@@ -4,9 +4,9 @@ export const DataArraySlice = createSlice({
   name: 'dataArray',
   initialState: {
     onlyOneOwnTank: false,
-    newMapCreated: true, 
+    newMapCreated: true,
     ExerciseInfo: {
-      mapArea: 0,
+      mapName: '', // Changed mapArea to mapName
       exerciseTime: '',
       terrain: '',
       totalEnemyTanks: 0,
@@ -83,8 +83,9 @@ export const DataArraySlice = createSlice({
     setDifficulty: (state, action) => {
       state.ExerciseInfo.difficulty = action.payload;
     },
-    setMapArea: (state, action) => {
-      state.ExerciseInfo.mapArea = action.payload;
+    setMapName: (state, action) => {
+      // Changed setMapArea to setMapName
+      state.ExerciseInfo.mapName = action.payload;
     },
     setExerciseTime: (state, action) => {
       state.ExerciseInfo.exerciseTime = action.payload;
@@ -523,7 +524,7 @@ export const {
   setWindSpeed,
   setWindDirection,
   setDifficulty,
-  setMapArea,
+  setMapName, // Changed setMapArea to setMapName
   setExerciseTime,
   setTerrain,
   addEnemy,

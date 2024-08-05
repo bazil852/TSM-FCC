@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { setMapArea, setExerciseTime, setTerrain } from '../../redux/DataArray';
+import { setExerciseTime, setTerrain, setMapName } from '../../redux/DataArray';
 import mainMenu from '../../TSM-img/main_menu.svg';
 import backButton from '../../TSM-img/back_button.svg';
 import DropDown from '../../utility/DropDown';
@@ -12,8 +12,8 @@ import { ipcRenderer } from 'electron';
 
 export default function CreateMap() {
   const dispatch = useDispatch();
-  const [mapArea, setMapAreas] = useState(50);
-  const navigate = useNavigate()
+  const [mapName, setMapNm] = useState('');
+  const navigate = useNavigate();
   const options = data.dropDownOptionsOfExcersieTime;
   const options1 = data.dropDownOptionsOfSelectTerrain;
 
@@ -24,10 +24,10 @@ export default function CreateMap() {
   const [exerciseTime, setExerciseTimes] = useState(options[0]);
   const [terrain, setTerain] = useState(options1[0]);
 
-  const handleMapAreaChange = (event) => {
-    const value = Number(event.target.value);
-    setMapAreas(value);
-    dispatch(setMapArea(value));
+  const handleMapNameChange = (value) => {
+    console.log(value);
+    setMapNm(value);
+    dispatch(setMapName(value));
   };
 
   const handleExerciseTime = (option) => {
@@ -39,19 +39,18 @@ export default function CreateMap() {
     dispatch(setTerrain(option));
   };
 
- const handleSave = () => {
-   
-   let mapData = {
-     Player,
-     enemy,
-     objects,
+  const handleSave = () => {
+    let mapData = {
+      Player,
+      enemy,
+      objects,
     };
-   console.log('Saving Map to db', mapData)
-   
-   // Send the mapData to the main process
+    console.log('Saving Map to db', mapData);
 
-   navigate(-1);
- };
+    // Send the mapData to the main process
+
+    navigate(-1);
+  };
 
   return (
     <div
@@ -69,7 +68,7 @@ export default function CreateMap() {
         <button onClick={handleSave}>SAVE</button>
       </div>
 
-      <div style={{display:"flex"}}>
+      <div style={{ display: 'flex' }}>
         <div className="create_map_grid_container">
           <GridCanvas stylingBox={1} />
         </div>
@@ -78,27 +77,17 @@ export default function CreateMap() {
           <div className="parameter_create_map_content_section">
             <div className="parameter_heading_create_map">PARAMETERS</div>
 
-            <div className="map_area_main_class">
-              <span>MAP AREA</span>
-              <div className="progress_bar_and_value_main_container">
-                <div className="progress_bar_container">
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={mapArea}
-                    className="progress_bar"
-                    onChange={handleMapAreaChange}
-                  />
-                </div>
-                <div className="progress_bar_value_box">
-                  <input
-                    type="number"
-                    value={mapArea}
-                    onChange={handleMapAreaChange}
-                  />
-                  sq/m
-                </div>
+            <div className="select_exercise_time_dropdown">
+              <div className="select_map_name">
+                <span>Map Name</span>
+                <input
+                  type="text"
+                  value={mapName}
+                  onChange={(e) => {
+                    console.log(e);
+                    handleMapNameChange(e.target.value);
+                  }}
+                />
               </div>
             </div>
 

@@ -26,12 +26,29 @@ export default function Verify() {
                 {dataArrayState.ExerciseInfo.instructor.name}
               </div>
             </div>
-            <div className="verify_simulation_instructor_student_container">
+            <div
+              style={{ width: '120px' }}
+              className="verify_simulation_instructor_student_container"
+            >
               <div className="verify_simulation_instructor_student_heading">
                 Student
               </div>
-              <div className="verify_simulation_instructor_student_name">
+              <div
+                style={{ width: '120px' }}
+                className="verify_simulation_instructor_student_name"
+              >
                 {dataArrayState.ExerciseInfo.student.name}
+              </div>
+            </div>
+            <div className="verify_simulation_instructor_student_container">
+              <div
+                style={{ width: '120px' }}
+                className="verify_simulation_instructor_student_heading"
+              >
+                Map Name
+              </div>
+              <div className="verify_simulation_instructor_student_name">
+                {dataArrayState.ExerciseInfo.mapName}
               </div>
             </div>
             <div className="verify_parameters_container">
@@ -54,18 +71,86 @@ export default function Verify() {
                 <div className="map_details_main_container">
                   <div>SPECIFICATIONS</div>
                   <div className="map_detail_modal_specs">
-                    {data.mapSpecs?.map((spec, index) => {
-                      return (
-                        <div className="specification_detail" key={index}>
-                          <div className="sepcification_detail_name">
-                            {spec.specName}
-                          </div>
-                          <div className="sepcification_detail_value">
-                            {spec.specValue}
-                          </div>
-                        </div>
-                      );
-                    })}
+                    <div className="specification_detail" key={index}>
+                      <div className="sepcification_detail_name">Diffcult</div>
+                      <div className="sepcification_detail_value">
+                        {dataArrayState.ExerciseInfo.difficulty}
+                      </div>
+                    </div>
+                    {/* <div className="specification_detail" key={index}>
+                      <div className="sepcification_detail_name">
+                        Exercise Time
+                      </div>
+                      <div className="sepcification_detail_value">
+                        {dataArrayState.ExerciseInfo.exerciseTime}
+                      </div>
+                    </div> */}
+                    <div className="specification_detail" key={index}>
+                      <div className="sepcification_detail_name">Teerain</div>
+                      <div className="sepcification_detail_value">
+                        {dataArrayState.ExerciseInfo.terrain}
+                      </div>
+                    </div>
+                    <div className="specification_detail" key={index}>
+                      <div className="sepcification_detail_name">
+                        Enemy Tanks
+                      </div>
+                      <div className="sepcification_detail_value">
+                        {dataArrayState.ExerciseInfo.totalEnemyTanks}
+                      </div>
+                    </div>
+                    <div className="specification_detail" key={index}>
+                      <div className="sepcification_detail_name">
+                        Enemy APCS
+                      </div>
+                      <div className="sepcification_detail_value">
+                        {dataArrayState.ExerciseInfo.totalEnemyAPCs}
+                      </div>
+                    </div>
+                    <div className="specification_detail" key={index}>
+                      <div className="sepcification_detail_name">Own Tanks</div>
+                      <div className="sepcification_detail_value">
+                        {dataArrayState.totalOwnTanks}
+                      </div>
+                    </div>
+                    <div className="specification_detail" key={index}>
+                      <div className="sepcification_detail_name">
+                        Temperature
+                      </div>
+                      <div className="sepcification_detail_value">
+                        {dataArrayState.WeatherConditions.temperature}
+                      </div>
+                    </div>
+                    <div className="specification_detail" key={index}>
+                      <div className="sepcification_detail_name">
+                        Wind Speed
+                      </div>
+                      <div className="sepcification_detail_value">
+                        {dataArrayState.WeatherConditions.WindSpeed}
+                      </div>
+                    </div>
+                    {/* <div className="specification_detail" key={index}>
+                      <div className="sepcification_detail_name">
+                        Wind Direction
+                      </div>
+                      <div className="sepcification_detail_value">
+                        {dataArrayState.WeatherConditions.WindDirection}
+                      </div>
+                    </div>
+                    <div className="specification_detail" key={index}>
+                      <div className="sepcification_detail_name">Visibilty</div>
+                      <div className="sepcification_detail_value">
+                        {dataArrayState.WeatherConditions.Visibilty}
+                      </div>
+                    </div> */}
+                    <div className="specification_detail" key={index}>
+                      <div className="sepcification_detail_name">
+                        Weather Condition
+                      </div>
+                      <div className="sepcification_detail_value">
+                        {dataArrayState.WeatherConditions.WeatherCondition}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

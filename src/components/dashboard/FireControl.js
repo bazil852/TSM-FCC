@@ -19,7 +19,7 @@ import blackSliderKnob from '../../TSM-img/blackSliderKnob.svg';
 import blackSliderTrack from '../../TSM-img/blackSliderTrack.svg';
 import whiteLight from '../../TSM-img/whiteLight.svg';
 import directionBtn from '../../TSM-img/directionBtn.svg';
-const { ipcRenderer } = window.require('electron');
+const { ipcRenderer } = require('electron');
 
 
 export default function FireControl() {
