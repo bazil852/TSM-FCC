@@ -5,6 +5,7 @@ export const CarouselSelectedItemSlice = createSlice({
   initialState: {
     items: [],
     selectedMapID: null, // Initialize selectedMapID
+    selectedStartIndex: 0, // Initialize selectedMapID
   },
   reducers: {
     addItem: (state, action) => {
@@ -17,9 +18,12 @@ export const CarouselSelectedItemSlice = createSlice({
     setSelectedMapID: (state, action) => {
       state.selectedMapID = action.payload;
     },
+    setSelectedStartIndex: (state, action) => {
+      state.selectedStartIndex = action.payload;
+    },
   },
 });
 
-export const { addItem, removeItem, setSelectedMapID } =
+export const { addItem, removeItem, setSelectedMapID, setSelectedStartIndex } =
   CarouselSelectedItemSlice.actions;
 export default CarouselSelectedItemSlice.reducer;

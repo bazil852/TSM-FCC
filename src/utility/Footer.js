@@ -15,16 +15,16 @@ export default function Footer() {
     console.log('Workings');
 
     if (dataArrayState.newMapCreated) {
-      ipcRenderer.sendMessage('save-map-data', dataArrayState);
+      ipcRenderer.send('save-map-data', dataArrayState);
     } else {
       console.log(selectedMap.selectedMapID);
-      ipcRenderer.sendMessage('update-map-data', {
+      ipcRenderer.send('update-map-data', {
         idmap: selectedMap.selectedMapID,
         mapData: dataArrayState,
       });
     }
 
-    ipcRenderer.sendMessage('save-json', {
+    ipcRenderer.send('save-json', {
       data: dataArrayState,
       filename: 'tsm.json',
     });

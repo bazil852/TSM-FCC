@@ -2,7 +2,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import data from '../../data.json';
-import terainSvg from '../../../assets/terrain.svg';
+import dessertTerainSvg from '../../../assets/terrain.svg';
+import semiDessetTerainSvg from '../../../assets/images.jpeg';
+import denseTerainSvg from '../../../assets/terrain.svg';
 import DataArray, {
   addEnemy,
   addOwnTank,
@@ -87,7 +89,6 @@ export default function GridCanvas({ stylingBox }) {
   const [fetchOnce,setFetchOnce] = useState(true)
   const simulationData = useSelector((state) => state.dataArray);
   const initialAmmosTitleArray = data.initialAmmoTitleArray;
-  console.log(selectedItems);
   const [apfsds, setApfsdsAmmo] = useState(40);
   const [he, setHeAmmo] = useState(40);
   const [heat, setHeatAmmo] = useState(40);
@@ -910,8 +911,6 @@ export default function GridCanvas({ stylingBox }) {
     setShowInitialAmmo(hasTanks && !manuallyClosed);
   }, [items, manuallyClosed]);
 
-  // console.log(objectStartPoints);
-
   return (
     <div>
       <div
@@ -966,7 +965,13 @@ export default function GridCanvas({ stylingBox }) {
               className="grid_canvas"
               onMouseMove={getMousePosition}
               style={{
-                background: `${createGridPattern()}, url(${terainSvg})`,
+                background: `${createGridPattern()}, url(${
+                  simulationData.ExerciseInfo.terrain == 'Dessert'
+                    ? dessertTerainSvg
+                    : simulationData.ExerciseInfo.terrain == 'Semi Dessert'
+                    ? semiDessetTerainSvg
+                    : denseTerainSvg
+                })`,
                 backgroundRepeat: 'no-repeat, no-repeat',
                 backgroundRepeat: 'no-repeat',
                 backgroundSize: `${800 * zoom}px ${800 * zoom}px`,
@@ -1043,8 +1048,8 @@ export default function GridCanvas({ stylingBox }) {
                 </div>
               </div>
 
-              {items.map((item,index) => (
-                <React.Fragment key={item.id}>
+              {items.map((item, index) => (
+                <React.Fragment key={index}>
                   <div
                     key={index}
                     onMouseDown={(e) => handleItemMouseDown(item.id, e)}

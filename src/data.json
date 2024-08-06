@@ -5,7 +5,7 @@
   "dropDownOptionsOfSelectWeatherCondition": ["RAIN", "SUNNY", "CLOUDY"],
   "dropDownOptionsOfSelectDifficulty": ["EASY", "MEDIUM", "DIFFICULT"],
   "dropDownOptionsOfExcersieTime": ["Option 1", "Option 2", "Option 3"],
-  "dropDownOptionsOfSelectTerrain": ["Option 4", "Option 5", "Option 6"],
+  "dropDownOptionsOfSelectTerrain": ["Dessert", "Semi Dessert", "Dense"],
   "initialAmmoTitleArray": ["AMMO TYPE :", "APFSDS", "HE", "HEAT", "7.62 (MG)"],
   "mapNameAndAreaForSelectMapPage": [
     { "name": "MUDDY FOREST", "area": 2000 },
