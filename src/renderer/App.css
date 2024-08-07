@@ -465,10 +465,10 @@ input[type='number'] {
   font-weight: 600;
   color: #ffffff;
 }
-.react-transform-wrapper{
+.react-transform-wrapper {
   border: 1px solid black;
-  height: 800px !important;
-  width: 800px !important;
+  /* height: 1000px !important;
+  width: 1000px !important; */
   overflow: auto;
 }
 .map_main_container {
@@ -642,7 +642,7 @@ input[type='number'] {
   margin-top: 1rem;
   padding: 0rem 2rem;
 }
-.initial_ammo_main_class{
+.initial_ammo_main_class {
   position: absolute;
   display: flex;
   height: 90vh;
@@ -1090,7 +1090,7 @@ input[type='number'] {
   align-items: center;
   justify-content: space-between;
   width: 832px;
- 
+
   height: 70px;
   background-color: transparent;
   border-radius: 10px;
@@ -1100,7 +1100,7 @@ input[type='number'] {
   background-color: #00000088;
   width: 450px;
   height: 50px;
-   margin-left: 133px !important;
+  margin-left: 133px !important;
   border-radius: 10px;
   position: relative;
   border: none;
@@ -1585,6 +1585,7 @@ input[type='number'] {
 .adjust_simulation_main_container,
 .control_main_container {
   margin-top: 55vh;
+  z-index: 1;
 }
 .dashboard_fire_control_container {
   overflow-y: auto;
@@ -1615,6 +1616,15 @@ input[type='number'] {
   top: 55%;
   left: -25px;
   cursor: pointer;
+  z-index: 900;
+  transition: all 0.5s ease-in-out;
+}
+.status_toggle_btn_control {
+  position: absolute;
+  bottom: 0px;
+  left: 70%;
+  cursor: pointer;
+  z-index: 10;
   transition: all 0.5s ease-in-out;
 }
 .control_main_class {
@@ -2025,7 +2035,7 @@ input[type='number'] {
   flex-direction: column;
   align-items: center;
   cursor: pointer;
-  position:relative;
+  position: relative;
 }
 
 .dashboard_eleventh_set_metal_slider_heading {
@@ -2558,6 +2568,12 @@ input[type='number'] {
   left: 0px;
   transition: all 0.5s ease-in-out;
 }
+.top_bar_main_container_controls {
+  position: absolute;
+  z-index: 100;
+  left: 50%;
+  transition: all 0.5s ease-in-out;
+}
 .topBar_main_class {
   width: 1450px;
   background-color: #000000e8;
@@ -2932,7 +2948,7 @@ input[type='number'] {
 }
 /* FOOTER-END */
 
-.grid_canvas{
+.grid_canvas {
   position: relative;
   /* background-image: url("../../assets/terrain.svg"); */
   z-index: 1;
@@ -2983,7 +2999,7 @@ input[type='number'] {
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  
+
   transition: all 0.4s ease-in-out;
 }
 .grid_canvas_object_details_stats {
@@ -3117,7 +3133,7 @@ input[type='number'] {
 /* CUSTOM-MODAL-END */
 .number-display {
   position: absolute;
-  top: 53%;  
+  top: 53%;
   left: 45%;
   transform: translate(-50%, -50%);
   width: 30px;
@@ -3129,24 +3145,24 @@ input[type='number'] {
   align-items: center;
   font-size: 14px;
   color: black;
-  z-index: 2;  
+  z-index: 2;
 }
 
 .number-display-12th {
   position: absolute;
-  top: 50%;  
-  left: 50%; 
+  top: 50%;
+  left: 50%;
   transform: translate(-50%, -50%);
-  width: 25px;  
-  height: 25px;  
+  width: 25px;
+  height: 25px;
   background-color: white;
   border: 2px solid black;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 12px;  
+  font-size: 12px;
   color: black;
-  z-index: 2;  
+  z-index: 2;
 }
 .luminous-indicator {
   position: absolute;
@@ -3155,14 +3171,13 @@ input[type='number'] {
   top: 50%;
   left: 50%;
   background-color: red; /* Use an appropriate bright red color */
-  border-radius: 50%; 
-  transform: translate(-50%, -50%); 
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
   box-shadow: 0 0 8px 3px red; /* Adds a glow effect to make it more luminous */
   z-index: 4;
 }
 
-
- /* Map Styling */
+/* Map Styling */
 .table-container {
   width: 100%;
   border-radius: 10px;
@@ -3178,14 +3193,14 @@ input[type='number'] {
   border-collapse: collapse;
 }
 
-.simple-table th, .simple-table td {
+.simple-table th,
+.simple-table td {
   padding: 12px;
   text-align: left;
   border-bottom: 1px solid #ddd;
 }
 
 .simple-table th {
- 
   background-color: #f2f2f2;
 }
 

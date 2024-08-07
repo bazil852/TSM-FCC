@@ -28,6 +28,7 @@ export default function Footer() {
       data: dataArrayState,
       filename: 'tsm.json',
     });
+    navigate("/dashboard")
   };
 
   useEffect(() => {

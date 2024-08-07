@@ -926,7 +926,7 @@ export default function GridCanvas({ stylingBox }) {
           position: stylingBox === 2 ? 'absolute' : 'relative',
         }}
       >
-        <TransformWrapper>
+        <TransformWrapper >
           <TransformComponent>
             <svg
               className="path-overlay"
@@ -940,7 +940,7 @@ export default function GridCanvas({ stylingBox }) {
                 pointerEvents: 'none',
               }}
             >
-              {objectStartPoints.map((object) => {
+              {objectStartPoints.map((object,index) => {
                 const item = items.find((i) => i.id === object.id);
                 const pathColor =
                   item && item.status === 'own-tank'
@@ -951,7 +951,7 @@ export default function GridCanvas({ stylingBox }) {
 
                 return (
                   <path
-                    key={object.id}
+                    key={index}
                     d={drawPath(object.path)}
                     stroke={pathColor}
                     fill="none"

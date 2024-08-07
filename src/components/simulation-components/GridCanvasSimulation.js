@@ -3,7 +3,9 @@ import { useSelector, useDispatch } from 'react-redux';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import data from '../../data.json';
 import { ipcRenderer } from 'electron';
-
+import dessertTerainSvg from '../../../assets/terrain.svg';
+import semiDessetTerainSvg from '../../../assets/images.jpeg';
+import denseTerainSvg from '../../../assets/terrain.svg';
 import {
   addEnemy,
   addOwnTank,
@@ -87,7 +89,7 @@ export default function GridCanvas({ stylingBox }) {
   const [draggingItem, setDraggingItem] = useState(null);
   const [paths, setPaths] = useState({});
   const [objectStartPoints, setObjectStartPoints] = useState([]);
-  const selectedItems = useSelector((state) => state.selectedItem).items
+  const selectedItems = useSelector((state) => state.selectedItem).items;
   const [selectedObjectId, setSelectedObjectId] = useState(null);
   const [latestTankId, setLatestTankId] = useState(null);
   const [tankAmmos, setTankAmmos] = useState({});
@@ -95,6 +97,7 @@ export default function GridCanvas({ stylingBox }) {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [manuallyClosed, setManuallyClosed] = useState(false);
   const [showInitialAmmo, setShowInitialAmmo] = useState(false);
+  const simulationData = useSelector((state) => state.dataArray);
 
   const initialAmmosTitleArray = data.initialAmmoTitleArray;
 
@@ -102,7 +105,7 @@ export default function GridCanvas({ stylingBox }) {
   const [he, setHeAmmo] = useState(40);
   const [heat, setHeatAmmo] = useState(40);
   const [mg762, setMg762Ammo] = useState(1000);
-  const scalingFactor = 0.002;
+
   const handleAmmoChange = (tankId, ammoType, value) => {
     setTankAmmos((prevAmmos) => ({
       ...prevAmmos,
@@ -112,19 +115,20 @@ export default function GridCanvas({ stylingBox }) {
       },
     }));
   };
+  // const [simulationData, setSimulationData] = useState();
 
   // Function to fetch data from the JSON files
   const fetchData = async () => {
     try {
-      const simulationData = await ipcRenderer.invoke(
-        'read-json',
-        'E:/TSM-FCC-main/JSON_Files/tsm.json',
-      );
+      // const simulationData = await ipcRenderer.invoke(
+      //   'read-json',
+      //   'E:/TSM-FCC-main/JSON_Files/tsm.json',
+      // );
       console.log(simulationData);
+      // setSimulationData(simulationData);
 
       // Dispatch actions to update Redux state
       dispatch(setOnlyOneOwnTank(simulationData.onlyOneOwnTank));
-      // dispatch(setMapArea(simulationData.ExerciseInfo.mapName));
       dispatch(setExerciseTime(simulationData.ExerciseInfo.exerciseTime));
       dispatch(setTerrain(simulationData.ExerciseInfo.terrain));
       dispatch(setStudent(simulationData.ExerciseInfo.student));
@@ -146,39 +150,53 @@ export default function GridCanvas({ stylingBox }) {
       );
 
       // Prepare player data
+      const playerPath = simulationData.Player.Path.map((point) => ({
+        x: normalizetoSmall(point.pointx),
+        y: normalizetoSmall(point.pointy),
+      }));
+      const playerLastPoint = playerPath[playerPath.length - 1];
+
       const playerData = {
         id: simulationData.Player.id,
         name: 'Player Tank',
-        x: simulationData.Player.SpawnLocation.pointx,
-        y: simulationData.Player.SpawnLocation.pointy,
+        x: playerLastPoint.x,
+        y: playerLastPoint.y,
         status: 'own-tank',
         details: simulationData.Player.Ammo,
-        path: simulationData.Player.Path,
+        path: playerPath,
         type: 'tank',
         src: gridTank,
       };
 
       // Prepare enemy data
       const enemyData = Object.keys(simulationData.Enemy).flatMap((enemyName) =>
-        simulationData.Enemy[enemyName].map((enemy) => ({
-          id: enemy.unitId,
-          name: enemyName,
-          x: enemy.SpawnLocation.pointx,
-          y: enemy.SpawnLocation.pointy,
-          status: 'dangerous',
-          details: enemy.Ammo,
-          path: enemy.Path,
-          type: 'tank',
-          src: gridTank, // Assuming all enemies are tanks, adjust src as needed
-        })),
+        simulationData.Enemy[enemyName].map((enemy) => {
+          const enemyPath = enemy.Path.map((point) => ({
+            x: normalizetoSmall(point.pointx),
+            y: normalizetoSmall(point.pointy),
+          }));
+          const enemyLastPoint = enemyPath[enemyPath.length - 1];
+
+          return {
+            id: enemy.unitId,
+            name: enemyName,
+            x: enemyLastPoint.x,
+            y: enemyLastPoint.y,
+            status: 'dangerous',
+            details: enemy.Ammo,
+            path: enemyPath,
+            type: 'tank',
+            src: gridTank,
+          };
+        }),
       );
 
       // Prepare items data
       const prepareItemData = (itemsArray, type, src) => {
         return itemsArray.map((item) => ({
           id: item.id,
-          x: item.pointx,
-          y: item.pointy,
+          x: normalizetoSmall(item.pointx),
+          y: normalizetoSmall(item.pointy),
           status: 'neutral',
           details: {},
           type,
@@ -195,7 +213,7 @@ export default function GridCanvas({ stylingBox }) {
         simulationData.Items.Trees,
         'trees',
         '',
-      ); // Add appropriate src
+      );
       const shackData = prepareItemData(
         simulationData.Items.Shack,
         'shack',
@@ -228,27 +246,50 @@ export default function GridCanvas({ stylingBox }) {
         ...jhompriData,
         ...rocksData,
       ];
+
       console.log(allItems);
       setItems(allItems);
 
+      // Set object start points with last point as startPoint
+      setObjectStartPoints(
+        allItems.map((item) => {
+          if (item.path) {
+            return {
+              id: item.id,
+              item,
+              startPoint: {
+                x: item.path[item.path.length - 1].x,
+                y: item.path[item.path.length - 1].y,
+              },
+              path: item?.path?.map((u) => ({ x: u.x, y: u.y })),
+            };
+          } else {
+            return {
+              id: item.id,
+              item,
+              startPoint: {
+                x: item.x,
+                y: item.y,
+              },
+            };
+          }
+        }),
+      );
+
       // Extract paths for all units and set in paths state
       const pathsData = {};
-      pathsData[playerData.id] = simulationData.Player.Path.map((point) => ({
-        x: point.pointx * scalingFactor,
-        y: point.pointy * scalingFactor,
-      }));
+      pathsData[playerData.id] = playerPath;
 
       Object.keys(simulationData.Enemy).forEach((enemyName) => {
         simulationData.Enemy[enemyName].forEach((enemy) => {
           pathsData[enemy.unitId] = enemy.Path.map((point) => ({
-            x: point.pointx * scalingFactor,
-            y: point.pointy * scalingFactor,
+            x: normalizetoSmall(point.pointx),
+            y: normalizetoSmall(point.pointy),
           }));
         });
       });
 
       console.log(pathsData);
-
       setPaths(pathsData);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -261,6 +302,7 @@ export default function GridCanvas({ stylingBox }) {
 
     return () => clearInterval(intervalId); // Cleanup interval on component unmount
   }, []);
+
   const handleDirectionChange = (tankId, newDirection) => {
     setDirection((prevDirections) => {
       return { ...prevDirections, [tankId]: newDirection };
@@ -337,7 +379,7 @@ export default function GridCanvas({ stylingBox }) {
   const inputArray = ['INITIAL QTY. :', apfsds, he, heat, mg762];
 
   const createGridPattern = () => {
-    const gridSize = 100;
+    const gridSize = 40;
     return `repeating-linear-gradient(
               to right,
               lightgrey,
@@ -414,24 +456,20 @@ export default function GridCanvas({ stylingBox }) {
   };
 
   const normalizePathX = (x) => {
-    const gridWidth = getGridWidth();
-    const centerX = gridWidth / 2;
-    const scaleX = 40000 / gridWidth;
-
-    const normalizedX = (x - centerX) * scaleX;
-
+    const scaleFactorToLargeSpace = 500000 / 1000;
+    const normalizedX = x * scaleFactorToLargeSpace;
     return normalizedX;
   };
 
   const normalizePathY = (y) => {
-    const gridHeight = getGridHeight();
-    const centerY = gridHeight / 2;
-    const scaleY = 40000 / gridHeight;
-
-    // Flipping the Y axis if needed
-    const normalizedY = (y - centerY) * scaleY * -1;
-
+    const scaleFactorToLargeSpace = 500000 / 1000;
+    const normalizedY = y * scaleFactorToLargeSpace;
     return normalizedY;
+  };
+
+  const normalizetoSmall = (value) => {
+    const scaleFactorToGridSpace = 1000 / 500000;
+    return value * scaleFactorToGridSpace;
   };
 
   const getMousePosition = (e) => {
@@ -442,83 +480,12 @@ export default function GridCanvas({ stylingBox }) {
     setMousePosition({ x, y });
   };
 
-  // useEffect(() => {
-  //   if (selectedItems.length > items.length) {
-  //     let addedTank = false;
-
-  //     const newItems = selectedItems
-  //       .slice(items.length)
-  //       .map((selectedItem, index) => {
-  //         if (selectedItem.type === 'tank' || selectedItem.type === 'myTank') {
-  //           addedTank = true;
-  //         }
-  //         return {
-  //           id: selectedItem.id || Date.now() + index,
-  //           name: selectedItem.name,
-  //           x: Math.random() * (getGridWidth() - 50),
-  //           y: Math.random() * (getGridHeight() - 50),
-  //           status: selectedItem.status,
-  //           details: selectedItem.details,
-  //           type: selectedItem.type,
-  //           src:
-  //             selectedItem.type === 'tank'
-  //               ? gridTank2
-  //               : selectedItem.type === 'car'
-  //               ? gridAPV
-  //               : selectedItem.type === 'jhompri'
-  //               ? jhompri
-  //               : selectedItem.type === 'forrest'
-  //               ? gridForrest
-  //               : selectedItem.type === 'myTank'
-  //               ? gridTank3
-  //               : selectedItem.type === 'house'
-  //               ? house
-  //               : selectedItem.type === 'hospital'
-  //               ? hospital
-  //               : selectedItem.type === 'railwayStation'
-  //               ? railwayStation
-  //               : selectedItem.type === 'shack'
-  //               ? shack
-  //               : selectedItem.type === 'shop'
-  //               ? shop
-  //               : selectedItem.type === 'smallHouse'
-  //               ? smallHouse
-  //               : selectedItem.type === 'store'
-  //               ? store
-  //               : selectedItem.type === 'villageHut'
-  //               ? villageHut
-  //               : selectedItem.type === 'wareHouse'
-  //               ? wareHouse
-  //               : selectedItem.type === 'waterTankTower'
-  //               ? waterTankTower
-  //               : selectedItem.type === 'rocks'
-  //               ? rocks
-  //               : waterTankTower,
-  //         };
-  //       });
-
-  //     if (newItems.length > 0) {
-  //       setItems((prevItems) => [...prevItems, ...newItems]);
-  //     }
-  //     if (addedTank) {
-  //       setManuallyClosed(false);
-  //     }
-  //     console.log('object', objectStartPoints);
-  //   }
-  // }, [selectedItems]);
-
   const drawPath = (path) => {
     if (!path || path.length < 2) return '';
-    console.log(path);
-    let d = `M ${path[0].pointx * scalingFactor} ${
-      path[0].pointy * scalingFactor
-    } `;
+    let d = `M ${path[0].x} ${path[0].y} `;
     for (let i = 1; i < path.length; i++) {
-      d += `L ${path[i].pointx * scalingFactor} ${
-        path[i].pointy * scalingFactor
-      } `;
+      d += `L ${path[i].x} ${path[i].y} `;
     }
-    console.log(d);
     return d;
   };
 
@@ -567,12 +534,13 @@ export default function GridCanvas({ stylingBox }) {
       <div
         className="grid_canvas_main_container"
         style={{
+          height:"1030px",
           width:
             stylingBox === 1 && hasObjects
-              ? '100%%'
+              ? '1030px'
               : stylingBox === 1 && !hasObjects
-              ? '100%'
-              : '100%',
+              ? '1030px'
+              : '1030px',
           borderRadius: stylingBox === 1 ? '5px' : '0px',
           position: stylingBox === 2 ? 'absolute' : 'relative',
         }}
@@ -611,146 +579,152 @@ export default function GridCanvas({ stylingBox }) {
                 }
               })}
             </svg>
-            <div
-              ref={gridRef}
-              className="grid_canvas"
-              onMouseMove={getMousePosition}
-              style={{
-                background: createGridPattern(),
-                // backgroundImage: "(url(`../../assets/DesertMap.png`)",
-                backgroundRepeat: 'no-repeat',
-                zIndex: '-1',
-                backgroundSize: `${1200 * zoom}px ${1200 * zoom}px`,
-                height: '1000px',
-                width: '1200px',
-                border: '1px solid rgba(255, 255, 255, 0.578)',
-                position: 'relative',
-                cursor: 'grab',
-              }}
-            >
-              <div className="item_position">
-                <div className="item_position_clip_path_1"></div>
-                <div className="item_position_clip_path_2"></div>
-                <div>X : {normalizePathX(mousePosition.x).toFixed(0)}</div>
-                <div>Y : {normalizePathY(mousePosition.y).toFixed(0)}</div>
-                <div style={{ width: '160px' }}>1 BLOCK : 800M</div>
-              </div>
-
+            {simulationData && (
               <div
-                className="compass_img_main_container"
+                ref={gridRef}
+                className="grid_canvas"
+                onMouseMove={getMousePosition}
                 style={{
-                  opacity: stylingBox === 1 && hasObjects ? '1' : '0',
-                  transition: 'opacity 0.9s ease-in-out',
+                  background: `${createGridPattern()}, url(${
+                    simulationData.ExerciseInfo.terrain == 'Dessert'
+                      ? dessertTerainSvg
+                      : simulationData.ExerciseInfo.terrain == 'Semi Dessert'
+                      ? semiDessetTerainSvg
+                      : denseTerainSvg
+                  })`,
+                  backgroundRepeat: 'no-repeat',
+                  zIndex: '-1',
+                  backgroundSize: `${1000 * zoom}px ${1000 * zoom}px`,
+                  height: '1000px',
+                  width: '1000px',
+                  border: '1px solid rgba(255, 255, 255, 0.578)',
+                  position: 'relative',
+                  cursor: 'grab',
                 }}
               >
-                <div className="compass_img_content">
-                  <div
-                    className="compass_direction west"
-                    onClick={() =>
-                      handleDirectionChange(selectedObjectId, 'West')
-                    }
-                  >
-                    W
-                  </div>
-                  <div
-                    className="compass_direction north"
-                    onClick={() =>
-                      handleDirectionChange(selectedObjectId, 'North')
-                    }
-                  >
-                    N
-                  </div>
-                  <div
-                    className="compass_direction south"
-                    onClick={() =>
-                      handleDirectionChange(selectedObjectId, 'South')
-                    }
-                  >
-                    S
-                  </div>
-                  <div
-                    className="compass_direction east"
-                    onClick={() =>
-                      handleDirectionChange(selectedObjectId, 'East')
-                    }
-                  >
-                    E
-                  </div>
-                  <img
-                    src={compass}
-                    alt="compass"
-                    style={{
-                      rotate:
-                        direction[selectedObjectId] === 'North'
-                          ? '0deg'
-                          : direction[selectedObjectId] === 'South'
-                          ? '180deg'
-                          : direction[selectedObjectId] === 'East'
-                          ? '90deg'
-                          : '-90deg',
-                      transition: 'all 0.3s ease',
-                    }}
-                  />
+                <div className="item_position" style={{marginLeft:"100px"}}>
+                  <div className="item_position_clip_path_1"></div>
+                  <div className="item_position_clip_path_2"></div>
+                  <div>X : {normalizePathX(mousePosition.x).toFixed(0)}</div>
+                  <div>Y : {normalizePathY(mousePosition.y).toFixed(0)}</div>
+                  <div style={{ width: '200px' }}>1 BLOCK : 1000M</div>
                 </div>
-              </div>
 
-              {items.map((item) => (
-                <React.Fragment key={item.id}>
-                  <div
-                    className="Testing-grid"
-                    // onMouseDown={(e) => handleItemMouseDown(item.id, e)}
-                    style={{
-                      left: (item.x * scalingFactor + pan.x) * zoom,
-                      top: (item.y * scalingFactor + pan.y) * zoom,
-                      transform: `translate(-50%, -50%) scale(${zoom})`,
-                      backgroundImage: `url(${item.src})`,
-                      position: 'absolute',
-                      width: '30px',
-                      height: '30px',
-                      cursor: 'pointer',
-                      backgroundSize: 'contain',
-                      backgroundRepeat: 'no-repeat',
-                      rotate:
-                        item.status !== 'not-dangerous' &&
-                        (direction[item.id] === 'North'
-                          ? '90deg'
-                          : direction[item.id] === 'South'
-                          ? '-90deg'
-                          : direction[item.id] === 'East'
-                          ? '180deg'
-                          : ''),
-                      transition: 'rotate 0.3s ease',
-                    }}
-                  />
-                  {objectStartPoints.find((point) => point.id === item.id) && (
+                <div
+                  className="compass_img_main_container"
+                  style={{
+                    transition: 'opacity 0.9s ease-in-out',
+                  }}
+                >
+                  <div className="compass_img_content">
                     <div
+                      className="compass_direction west"
+                      onClick={() =>
+                        handleDirectionChange(selectedObjectId, 'West')
+                      }
+                    >
+                      W
+                    </div>
+                    <div
+                      className="compass_direction north"
+                      onClick={() =>
+                        handleDirectionChange(selectedObjectId, 'North')
+                      }
+                    >
+                      N
+                    </div>
+                    <div
+                      className="compass_direction south"
+                      onClick={() =>
+                        handleDirectionChange(selectedObjectId, 'South')
+                      }
+                    >
+                      S
+                    </div>
+                    <div
+                      className="compass_direction east"
+                      onClick={() =>
+                        handleDirectionChange(selectedObjectId, 'East')
+                      }
+                    >
+                      E
+                    </div>
+                    <img
+                      src={compass}
+                      alt="compass"
                       style={{
-                        left:
-                          (objectStartPoints.find(
-                            (point) => point.id === item.id,
-                          ).startPoint.x +
-                            pan.x) *
-                          zoom,
-                        top:
-                          (objectStartPoints.find(
-                            (point) => point.id === item.id,
-                          ).startPoint.y +
-                            pan.y) *
-                          zoom,
-                        transform: `translate(-50%, -50%) scale(${zoom})`,
-                        backgroundImage: `url(${
-                          item.status === 'not-dangerous' ? 'none' : startSign
-                        })`,
-                        position: 'absolute',
-                        width: '20px',
-                        height: '20px',
-                        backgroundSize: 'cover',
+                        rotate:
+                          direction[selectedObjectId] === 'North'
+                            ? '0deg'
+                            : direction[selectedObjectId] === 'South'
+                            ? '180deg'
+                            : direction[selectedObjectId] === 'East'
+                            ? '90deg'
+                            : '-90deg',
+                        transition: 'all 0.3s ease',
                       }}
                     />
-                  )}
-                </React.Fragment>
-              ))}
-            </div>
+                  </div>
+                </div>
+
+                {items.map((item) => (
+                  <React.Fragment key={item.id}>
+                    <div
+                      className="Testing-grid"
+                      // onMouseDown={(e) => handleItemMouseDown(item.id, e)}
+                      style={{
+                        left: (item.x + pan.x) * zoom,
+                        top: (item.y + pan.y) * zoom,
+                        transform: `translate(-50%, -50%) scale(${zoom})`,
+                        backgroundImage: `url(${item.src})`,
+                        position: 'absolute',
+                        width: '30px',
+                        height: '30px',
+                        cursor: 'pointer',
+                        backgroundSize: 'contain',
+                        backgroundRepeat: 'no-repeat',
+                        rotate:
+                          item.status !== 'not-dangerous' &&
+                          (direction[item.id] === 'North'
+                            ? '90deg'
+                            : direction[item.id] === 'South'
+                            ? '-90deg'
+                            : direction[item.id] === 'East'
+                            ? '180deg'
+                            : ''),
+                        transition: 'rotate 0.3s ease',
+                      }}
+                    />
+                    {objectStartPoints.find(
+                      (point) => point.id === item.id,
+                    ) && (
+                      <div
+                        style={{
+                          left:
+                            (objectStartPoints.find(
+                              (point) => point.id === item.id,
+                            ).startPoint.x +
+                              pan.x) *
+                            zoom,
+                          top:
+                            (objectStartPoints.find(
+                              (point) => point.id === item.id,
+                            ).startPoint.y +
+                              pan.y) *
+                            zoom,
+                          transform: `translate(-50%, -50%) scale(${zoom})`,
+                          
+                          position: 'absolute',
+                          width: '20px',
+                          height: '20px',
+                          backgroundSize: 'cover',
+                        }}
+                      />
+                    )}
+                  </React.Fragment>
+                ))}
+              </div>
+            )}
           </TransformComponent>
         </TransformWrapper>
       </div>

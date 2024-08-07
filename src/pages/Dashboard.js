@@ -11,7 +11,8 @@ import TopBar from '../components/dashboard/TopBar';
 
 export default function Dashboard() {
   const [toggleStatus, setToggleStatus] = useState(false);
-
+  const [toggleControl, setToggleControl] = useState(false);
+  console.log(toggleControl);
   return (
     <div
       className="dashboard_main_class"
@@ -29,15 +30,24 @@ export default function Dashboard() {
       <div className="grid_dashboard">
         <GridCanvasSimulator stylingBox={2} />
       </div>
-
-      <div className="adjust_simulation_main_container">
-        <AdjustSimulation />
+      <div
+        className="status_toggle_btn_control"
+        onClick={() => setToggleControl(!toggleControl)}
+        style={{ rotate: !toggleControl ? '180deg' : '360deg' }}
+      >
+        <img src={dropDown} alt="arrow" />
       </div>
-
-      <div className="control_main_container">
-        <Control />
+      <div
+        // className="top_bar_main_container_controls"
+        style={{ display: toggleControl ? 'flex' : 'none' }}
+      >
+        <div className="adjust_simulation_main_container">
+          <AdjustSimulation />
+        </div>
+        <div className="control_main_container">
+          <Control />
+        </div>
       </div>
-
       <div
         className="status_main_container"
         style={{ right: toggleStatus ? '0px' : '-470px' }}

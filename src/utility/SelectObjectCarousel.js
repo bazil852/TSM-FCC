@@ -146,7 +146,7 @@ export default function SelectObjectCarousel({ carouselObjectType }) {
     <div className="select_object_main_class">
       {chosenArray.map((object, index) => {
         return (
-          <>
+          <div key={index}>
             <div className="select_object_type_name" key={index}>
               {object.title}
             </div>
@@ -202,7 +202,7 @@ export default function SelectObjectCarousel({ carouselObjectType }) {
                 </div>
               </animated.div>
             </div>
-          </>
+          </div>
         );
       })}
     </div>
