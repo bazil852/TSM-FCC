@@ -15,8 +15,10 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import dotenv from "dotenv"
 import connection from "../../database" 
 const fs = require('fs');
+dotenv.config()
 
 class AppUpdater {
   constructor() {
@@ -80,6 +82,18 @@ ipcMain.handle('fetch-students', async () => {
       resolve(results);
     });
   });
+});
+
+
+ipcMain.handle('write-json', async (event, { filePath, data }) => {
+  try {
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+    console.log('File written successfully');
+    return { success: true };
+  } catch (err:any) {
+    console.log('Failed to write file: ', err);
+    throw new Error(err.message);
+  }
 });
 
 ipcMain.handle('fetch-maps', async () => {

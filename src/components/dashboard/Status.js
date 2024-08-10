@@ -37,14 +37,19 @@ export default function Status() {
   // Function to fetch data from the JSON files
  const fetchData = async () => {
    try {
-     const playerData = await ipcRenderer.invoke(
+      const playerData = await ipcRenderer.invoke(
+        'read-json',
+        process.env.PLAYER_DATA_PATH,
+      );
+      const simulationData = await ipcRenderer.invoke(
+        'read-json',
+        process.env.SIMULATION_DATA_PATH,
+      );
+     const spData = await ipcRenderer.invoke(
        'read-json',
-       'E://TSM-FCC-main//JSON_Files//PlayerData.json',
+       process.env.SP_DATA_PATH,
      );
-     const simulationData = await ipcRenderer.invoke(
-       'read-json',
-       'E:/TSM-FCC-main/JSON_Files/tsm.json',
-     );
+     console.log(spData)
     //  const studentData = await window.electron.readJSON(
     //    'E:/TSM-FCC-main/JSON_Files/PlayerData.json',
     //  );

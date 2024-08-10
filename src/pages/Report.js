@@ -5,6 +5,7 @@ import backButton from '../TSM-img/back_button.svg';
 import Footer from '../utility/Footer';
 import ReportGraph from '../utility/ReportGraph';
 import data from '../data.json';
+import { useSelector } from 'react-redux';
 
 export default function Report() {
   const reportData = data.reportData;
