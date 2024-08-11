@@ -97,7 +97,7 @@ export default function GridCanvas({ stylingBox }) {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [manuallyClosed, setManuallyClosed] = useState(false);
   const [showInitialAmmo, setShowInitialAmmo] = useState(false);
-  const simulationData = useSelector((state) => state.dataArray);
+  // const simulationData = useSelector((state) => state.dataArray);
 
   const initialAmmosTitleArray = data.initialAmmoTitleArray;
 
@@ -115,17 +115,17 @@ export default function GridCanvas({ stylingBox }) {
       },
     }));
   };
-  // const [simulationData, setSimulationData] = useState();
+  const [simulationData, setSimulationData] = useState();
 
   // Function to fetch data from the JSON files
   const fetchData = async () => {
     try {
-      // const simulationData = await ipcRenderer.invoke(
-      //   'read-json',
-      //   'E:/TSM-FCC-main/JSON_Files/tsm.json',
-      // );
-      console.log(simulationData);
-      // setSimulationData(simulationData);
+      const simulationData = await ipcRenderer.invoke(
+        'read-json',
+        process.env.SIMULATION_DATA_PATH,
+      );
+      // console.log(simulationData);
+      setSimulationData(simulationData);
 
       // Dispatch actions to update Redux state
       dispatch(setOnlyOneOwnTank(simulationData.onlyOneOwnTank));

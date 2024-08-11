@@ -201,8 +201,8 @@ ipcMain.on('ipc-example', async (event, arg) => {
 });
 ipcMain.on('save-json', (event, args) => {
   const { data, filename } = args;
-  const baseDirectory = 'E://TSM-JSON';
-  const filePath = path.join(baseDirectory, filename);
+  
+  const filePath = filename;
     
   // const filePath = path.join(app.getPath('documents'), filename);
   console.log("filename: ",filePath);

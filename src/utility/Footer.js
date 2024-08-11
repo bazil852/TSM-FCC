@@ -26,7 +26,7 @@ export default function Footer() {
 
     ipcRenderer.send('save-json', {
       data: dataArrayState,
-      filename: 'tsm.json',
+      filename: process.env.SIMULATION_DATA_PATH,
     });
     navigate("/dashboard")
   };

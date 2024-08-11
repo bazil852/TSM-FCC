@@ -45,15 +45,27 @@ export default function TopBar() {
     return () => clearInterval(intervalId); // Cleanup interval on component unmount
   }, []);
 
-  // Handlers for button clicks
+  // Handlers for button clicks with delayed state updates
   const handleRespawn = () => {
     const updatedStatus = { ...spStatus, respawn: true };
     updateSpStatus(updatedStatus);
+
+    // Set respawn to false after 2 seconds
+    setTimeout(() => {
+      const resetRespawnStatus = { ...spStatus, respawn: false };
+      updateSpStatus(resetRespawnStatus);
+    }, 2000);
   };
 
-  const handleStart = () => {
-    const updatedStatus = { ...spStatus, start: true };
+  const handleEndSimulation = () => {
+    const updatedStatus = { ...spStatus, end: true};
     updateSpStatus(updatedStatus);
+
+    // Set start to false after 2 seconds
+    setTimeout(() => {
+      const resetStartStatus = { ...spStatus, start: false , pause:false ,respawn:false };
+      updateSpStatus(resetStartStatus);
+    }, 2000);
   };
 
   const handlePauseSimulation = () => {
@@ -61,8 +73,8 @@ export default function TopBar() {
     updateSpStatus(updatedStatus);
   };
 
-  const handleEndSimulation = () => {
-    const updatedStatus = { ...spStatus, end: true };
+  const handleStart = () => {
+    const updatedStatus = { ...spStatus, start: true };
     updateSpStatus(updatedStatus);
   };
 
