@@ -124,7 +124,7 @@ export default function GridCanvas({ stylingBox }) {
         'read-json',
         process.env.SIMULATION_DATA_PATH,
       );
-      // console.log(simulationData);
+      console.log(simulationData);
       setSimulationData(simulationData);
 
       // Dispatch actions to update Redux state

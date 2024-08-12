@@ -104,6 +104,9 @@ export default function GridCanvas({ stylingBox }) {
     }));
   };
 
+  console.log(simulationData);
+
+
  const setMapValues = async () => {
   try {
     // Prepare player data
@@ -680,40 +683,78 @@ export default function GridCanvas({ stylingBox }) {
   };
 
   useEffect(() => {
-    dispatch(
-      updateTotalEnemies(
-        items.filter((item) => item.status === 'dangerous').length,
-      ),
-    );
-    dispatch(
-      updateTotalOwnTanks(
-        items.filter((item) => item.status === 'own-tank').length,
-      ),
-    );
-    dispatch(
-      updateTotalEnemyTanks(
-        items.filter((item) => item.type === 'tank').length,
-      ),
-    );
-    dispatch(
-      updateTotalEnemyAPCs(items.filter((item) => item.type === 'car').length),
-    );
-    objectStartPoints.forEach((point) => {
-      const ammoForThisTank = tankAmmos[point.id] || {
-        apfsds: 0,
-        he: 0,
-        heat: 0,
-        mg762: 0,
-      };
-      const directionOfObject = direction[point.id] || 'West';
-      // console.log(point);
-      // console.log(normalizePathX(point.path[0].x));
-      if (point.item.status === 'dangerous') {
-        if (point.item.type === 'tank') {
+
+    try {
+      
+    
+      dispatch(
+        updateTotalEnemies(
+          items.filter((item) => item.status === 'dangerous').length,
+        ),
+      );
+      dispatch(
+        updateTotalOwnTanks(
+          items.filter((item) => item.status === 'own-tank').length,
+        ),
+      );
+      dispatch(
+        updateTotalEnemyTanks(
+          items.filter((item) => item.type === 'tank').length,
+        ),
+      );
+      dispatch(
+        updateTotalEnemyAPCs(items.filter((item) => item.type === 'car').length),
+      );
+      objectStartPoints.forEach((point) => {
+        const ammoForThisTank = tankAmmos[point.id] || {
+          apfsds: 0,
+          he: 0,
+          heat: 0,
+          mg762: 0,
+        };
+        const directionOfObject = direction[point.id] || 'West';
+        console.log(point);
+        // console.log(normalizePathX(point.path[0].x));
+        if (point.item.status === 'dangerous') {
+          if (point.item.type === 'tank') {
+            dispatch(
+              addEnemy({
+                unitId: point.id,
+                enemyName: point.item.name,
+                initialDirection: directionOfObject,
+                path: point.path?.map((point) => ({
+                  x: normalizePathX(point.x),
+                  y: normalizePathY(point.y),
+                })),
+                initialAmmo: ammoForThisTank,
+                spawning_point: {
+                  x: normalizePathX(point.startPoint.x),
+                  y: normalizePathY(point.startPoint.y),
+                },
+              }),
+            );
+          } else if (point.item.type === 'car') {
+            dispatch(
+              addEnemyCar({
+                unitId: point.id,
+                enemyName: point.item.name,
+                initialDirection: directionOfObject,
+                path: point.path?.map((point) => ({
+                  x: normalizePathX(point.x),
+                  y: normalizePathY(point.y),
+                })),
+                spawning_point: {
+                  x: normalizePathX(point.startPoint.x),
+                  y: normalizePathY(point.startPoint.y),
+                },
+              }),
+            );
+          }
+        } else if (point.item.status === 'own-tank') {
           dispatch(
-            addEnemy({
+            addOwnTank({
               unitId: point.id,
-              enemyName: point.item.name,
+              tankName: point.item.name,
               initialDirection: directionOfObject,
               path: point.path?.map((point) => ({
                 x: normalizePathX(point.x),
@@ -726,16 +767,130 @@ export default function GridCanvas({ stylingBox }) {
               },
             }),
           );
-        } else if (point.item.type === 'car') {
+        } else if (point.item.type === 'house') {
           dispatch(
-            addEnemyCar({
+            addHouse({
               unitId: point.id,
-              enemyName: point.item.name,
-              initialDirection: directionOfObject,
-              path: point.path?.map((point) => ({
-                x: normalizePathX(point.x),
-                y: normalizePathY(point.y),
-              })),
+              spawning_point: {
+                x: normalizePathX(point.startPoint.x),
+                y: normalizePathY(point.startPoint.y),
+              },
+            }),
+          );
+        } else if (point.item.type === 'jhompri') {
+          dispatch(
+            addJhompri({
+              unitId: point.id,
+              spawning_point: {
+                x: normalizePathX(point.startPoint.x),
+                y: normalizePathY(point.startPoint.y),
+              },
+            }),
+          );
+        } else if (point.item.type === 'hospital') {
+          dispatch(
+            addHospital({
+              unitId: point.id,
+              spawning_point: {
+                x: normalizePathX(point.startPoint.x),
+                y: normalizePathY(point.startPoint.y),
+              },
+            }),
+          );
+        } else if (point.item.type === 'railwayStation') {
+          dispatch(
+            addRailwayStation({
+              unitId: point.id,
+              spawning_point: {
+                x: normalizePathX(point.startPoint.x),
+                y: normalizePathY(point.startPoint.y),
+              },
+            }),
+          );
+        } else if (point.item.type === 'shack') {
+          dispatch(
+            addShack({
+              unitId: point.id,
+              spawning_point: {
+                x: normalizePathX(point.startPoint.x),
+                y: normalizePathY(point.startPoint.y),
+              },
+            }),
+          );
+        } else if (point.item.type === 'shop') {
+          dispatch(
+            addShop({
+              unitId: point.id,
+              spawning_point: {
+                x: normalizePathX(point.startPoint.x),
+                y: normalizePathY(point.startPoint.y),
+              },
+            }),
+          );
+        } else if (point.item.type === 'smallHouse') {
+          dispatch(
+            addSmallHouse({
+              unitId: point.id,
+              spawning_point: {
+                x: normalizePathX(point.startPoint.x),
+                y: normalizePathY(point.startPoint.y),
+              },
+            }),
+          );
+        } else if (point.item.type === 'store') {
+          dispatch(
+            addStore({
+              unitId: point.id,
+              spawning_point: {
+                x: normalizePathX(point.startPoint.x),
+                y: normalizePathY(point.startPoint.y),
+              },
+            }),
+          );
+        } else if (point.item.type === 'villageHut') {
+          dispatch(
+            addVillageHut({
+              unitId: point.id,
+              spawning_point: {
+                x: normalizePathX(point.startPoint.x),
+                y: normalizePathY(point.startPoint.y),
+              },
+            }),
+          );
+        } else if (point.item.type === 'wareHouse') {
+          dispatch(
+            addWareHouse({
+              unitId: point.id,
+              spawning_point: {
+                x: normalizePathX(point.startPoint.x),
+                y: normalizePathY(point.startPoint.y),
+              },
+            }),
+          );
+        } else if (point.item.type === 'waterTankTower') {
+          dispatch(
+            addWaterTankTower({
+              unitId: point.id,
+              spawning_point: {
+                x: normalizePathX(point.startPoint.x),
+                y: normalizePathY(point.startPoint.y),
+              },
+            }),
+          );
+        } else if (point.item.type === 'rocks') {
+          dispatch(
+            addRocks({
+              unitId: point.id,
+              spawning_point: {
+                x: normalizePathX(point.startPoint.x),
+                y: normalizePathY(point.startPoint.y),
+              },
+            }),
+          );
+        } else if (point.item.type === 'forrest') {
+          dispatch(
+            addTrees({
+              unitId: point.id,
               spawning_point: {
                 x: normalizePathX(point.startPoint.x),
                 y: normalizePathY(point.startPoint.y),
@@ -743,155 +898,10 @@ export default function GridCanvas({ stylingBox }) {
             }),
           );
         }
-      } else if (point.item.status === 'own-tank') {
-        dispatch(
-          addOwnTank({
-            unitId: point.id,
-            tankName: point.item.name,
-            initialDirection: directionOfObject,
-            path: point.path?.map((point) => ({
-              x: normalizePathX(point.x),
-              y: normalizePathY(point.y),
-            })),
-            initialAmmo: ammoForThisTank,
-            spawning_point: {
-              x: normalizePathX(point.startPoint.x),
-              y: normalizePathY(point.startPoint.y),
-            },
-          }),
-        );
-      } else if (point.item.type === 'house') {
-        dispatch(
-          addHouse({
-            unitId: point.id,
-            spawning_point: {
-              x: normalizePathX(point.startPoint.x),
-              y: normalizePathY(point.startPoint.y),
-            },
-          }),
-        );
-      } else if (point.item.type === 'jhompri') {
-        dispatch(
-          addJhompri({
-            unitId: point.id,
-            spawning_point: {
-              x: normalizePathX(point.startPoint.x),
-              y: normalizePathY(point.startPoint.y),
-            },
-          }),
-        );
-      } else if (point.item.type === 'hospital') {
-        dispatch(
-          addHospital({
-            unitId: point.id,
-            spawning_point: {
-              x: normalizePathX(point.startPoint.x),
-              y: normalizePathY(point.startPoint.y),
-            },
-          }),
-        );
-      } else if (point.item.type === 'railwayStation') {
-        dispatch(
-          addRailwayStation({
-            unitId: point.id,
-            spawning_point: {
-              x: normalizePathX(point.startPoint.x),
-              y: normalizePathY(point.startPoint.y),
-            },
-          }),
-        );
-      } else if (point.item.type === 'shack') {
-        dispatch(
-          addShack({
-            unitId: point.id,
-            spawning_point: {
-              x: normalizePathX(point.startPoint.x),
-              y: normalizePathY(point.startPoint.y),
-            },
-          }),
-        );
-      } else if (point.item.type === 'shop') {
-        dispatch(
-          addShop({
-            unitId: point.id,
-            spawning_point: {
-              x: normalizePathX(point.startPoint.x),
-              y: normalizePathY(point.startPoint.y),
-            },
-          }),
-        );
-      } else if (point.item.type === 'smallHouse') {
-        dispatch(
-          addSmallHouse({
-            unitId: point.id,
-            spawning_point: {
-              x: normalizePathX(point.startPoint.x),
-              y: normalizePathY(point.startPoint.y),
-            },
-          }),
-        );
-      } else if (point.item.type === 'store') {
-        dispatch(
-          addStore({
-            unitId: point.id,
-            spawning_point: {
-              x: normalizePathX(point.startPoint.x),
-              y: normalizePathY(point.startPoint.y),
-            },
-          }),
-        );
-      } else if (point.item.type === 'villageHut') {
-        dispatch(
-          addVillageHut({
-            unitId: point.id,
-            spawning_point: {
-              x: normalizePathX(point.startPoint.x),
-              y: normalizePathY(point.startPoint.y),
-            },
-          }),
-        );
-      } else if (point.item.type === 'wareHouse') {
-        dispatch(
-          addWareHouse({
-            unitId: point.id,
-            spawning_point: {
-              x: normalizePathX(point.startPoint.x),
-              y: normalizePathY(point.startPoint.y),
-            },
-          }),
-        );
-      } else if (point.item.type === 'waterTankTower') {
-        dispatch(
-          addWaterTankTower({
-            unitId: point.id,
-            spawning_point: {
-              x: normalizePathX(point.startPoint.x),
-              y: normalizePathY(point.startPoint.y),
-            },
-          }),
-        );
-      } else if (point.item.type === 'rocks') {
-        dispatch(
-          addRocks({
-            unitId: point.id,
-            spawning_point: {
-              x: normalizePathX(point.startPoint.x),
-              y: normalizePathY(point.startPoint.y),
-            },
-          }),
-        );
-      } else if (point.item.type === 'forrest') {
-        dispatch(
-          addTrees({
-            unitId: point.id,
-            spawning_point: {
-              x: normalizePathX(point.startPoint.x),
-              y: normalizePathY(point.startPoint.y),
-            },
-          }),
-        );
-      }
-    });
+      });
+    } catch (err) {
+      console.log(err)
+    }
   }, [objectStartPoints, items, dispatch, tankAmmos, direction]);
 
   useEffect(() => {
