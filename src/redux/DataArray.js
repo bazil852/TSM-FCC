@@ -386,8 +386,8 @@ export const DataArraySlice = createSlice({
       if (!objectExists) {
         state.Items.Rocks.push({
           id: unitId,
-          pointx: spawning_point.x,
-          pointy: spawning_point.y,
+          pointx: spawning_point?.x,
+          pointy: spawning_point?.y,
         });
       }
     },

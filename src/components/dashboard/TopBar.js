@@ -1,16 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { NavLink } from 'react-router-dom';
 import '../../renderer/App.css';
 import { ipcRenderer } from 'electron';
 
 export default function TopBar() {
-  const [spStatus, setSpStatus] = useState({
-    start: false,
-    pause: false,
-    end: false,
-    respawn: false,
-  });
-
+  const [mediaRecorder, setMediaRecorder] = useState(null);
+  const [recording, setRecording] = useState(false);
+  const videoRef = useRef(null);
+  const recordedChunksRef = useRef([]);
+   const [spStatus, setSpStatus] = useState({
+     start: false,
+     pause: false,
+     end: false,
+     respawn: false,
+     XTurretSensitivity: 1.0,
+     YTurretSensitivity: 1.0,
+   });
   // Function to fetch the sp.json data
   const fetchSpStatus = async () => {
     try {
@@ -58,12 +63,17 @@ export default function TopBar() {
   };
 
   const handleEndSimulation = () => {
-    const updatedStatus = { ...spStatus, end: true};
+    const updatedStatus = { ...spStatus, end: true };
     updateSpStatus(updatedStatus);
 
     // Set start to false after 2 seconds
     setTimeout(() => {
-      const resetStartStatus = { ...spStatus, start: false , pause:false ,respawn:false };
+      const resetStartStatus = {
+        ...spStatus,
+        start: false,
+        pause: false,
+        respawn: false,
+      };
       updateSpStatus(resetStartStatus);
     }, 2000);
   };
@@ -76,6 +86,110 @@ export default function TopBar() {
   const handleStart = () => {
     const updatedStatus = { ...spStatus, start: true };
     updateSpStatus(updatedStatus);
+  };
+
+  // Screen recording functions
+  const startRecording = async () => {
+    try {
+      const inputSources = await ipcRenderer.invoke('getSources');
+      const screenId = inputSources[1].id; // Choose the first screen source or let the user select one
+      const IS_MACOS =
+        (await ipcRenderer.invoke('getOperatingSystem')) === 'darwin';
+
+      const audio = !IS_MACOS
+        ? { mandatory: { chromeMediaSource: 'desktop' } }
+        : false;
+
+      const constraints = {
+        audio,
+        video: {
+          mandatory: {
+            chromeMediaSource: 'desktop',
+            chromeMediaSourceId: screenId,
+          },
+        },
+      };
+
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
+      }
+
+      const newMediaRecorder = new MediaRecorder(stream, {
+        mimeType: 'video/webm; codecs=vp9',
+      });
+      newMediaRecorder.ondataavailable = handleDataAvailable;
+      newMediaRecorder.onstop = handleStop;
+      newMediaRecorder.start();
+
+      setMediaRecorder(newMediaRecorder);
+      setRecording(true);
+    } catch (error) {
+      console.error('Error starting recording:', error);
+    }
+  };
+
+  const handleDataAvailable = (event) => {
+    if (event.data.size > 0) {
+      recordedChunksRef.current.push(event.data);
+    }
+  };
+
+  const handleStop = async () => {
+    try {
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
+      }
+
+      const blob = new Blob(recordedChunksRef.current, {
+        type: 'video/webm; codecs=vp9',
+      });
+      const buffer = Buffer.from(await blob.arrayBuffer());
+
+      recordedChunksRef.current = [];
+
+      const fileName = `rec-${Date.now()}.webm`;
+      const { success, filePath } = await ipcRenderer.invoke(
+        'saveRecording',
+        fileName,
+        buffer,
+      );
+
+      if (success) {
+        console.log(`Video saved successfully at ${filePath}`);
+      } else {
+        console.error('Failed to save video.');
+      }
+    } catch (error) {
+      console.error('Error stopping recording:', error);
+    }
+  };
+  // Handlers for turret sensitivity sliders
+  const handleXTurretSensitivityChange = (event) => {
+    const newXTurretSensitivity = parseFloat(event.target.value);
+    const updatedStatus = {
+      ...spStatus,
+      XTurretSensitivity: newXTurretSensitivity,
+    };
+    updateSpStatus(updatedStatus);
+  };
+
+  const handleYTurretSensitivityChange = (event) => {
+    const newYTurretSensitivity = parseFloat(event.target.value);
+    const updatedStatus = {
+      ...spStatus,
+      YTurretSensitivity: newYTurretSensitivity,
+    };
+    updateSpStatus(updatedStatus);
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorder) {
+      mediaRecorder.stop();
+    }
+    setRecording(false);
   };
 
   return (
@@ -108,6 +222,52 @@ export default function TopBar() {
       >
         <NavLink to="/report">END SIMULATION</NavLink>
       </button>
+
+      <div className="slider-container">
+        <label className="turret-label" htmlFor="x-turret-sensitivity">
+          X Turret Sensitivity:{' '}
+          <span className="turret-span">
+            {' '}
+            {spStatus.XTurretSensitivity.toFixed(1)}
+          </span>
+        </label>
+        <input
+          type="range"
+          id="x-turret-sensitivity"
+          min="0.1"
+          max="2.0"
+          step="0.1"
+          value={spStatus.XTurretSensitivity}
+          onChange={handleXTurretSensitivityChange}
+        />
+      </div>
+
+      <div className="slider-container">
+        <label className="turret-label" htmlFor="y-turret-sensitivity">
+          Y Turret Sensitivity:{' '}
+          <span className="turret-span">
+            {spStatus.YTurretSensitivity.toFixed(1)}
+          </span>
+        </label>
+        <input
+          type="range"
+          id="y-turret-sensitivity"
+          min="0.1"
+          max="2.0"
+          step="0.1"
+          value={spStatus.YTurretSensitivity}
+          onChange={handleYTurretSensitivityChange}
+        />
+      </div>
+      {!recording ? (
+        <button className={'topBar_btn'} onClick={startRecording}>
+          Start Recording
+        </button>
+      ) : (
+        <button className="topBar_btn_true" onClick={stopRecording}>
+          Stop Recording
+        </button>
+      )}
     </div>
   );
 }

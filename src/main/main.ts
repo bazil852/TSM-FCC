@@ -8,10 +8,10 @@
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
-import path from 'path';
-
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import { app, BrowserWindow, shell, ipcMain ,desktopCapturer , dialog } from 'electron';
 import { autoUpdater } from 'electron-updater';
+import path from 'path';
+import os from "os"
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
@@ -54,7 +54,40 @@ ipcMain.on('read-json', (event) => {
 
 
 
+// Screen Recording
+ipcMain.handle('saveRecording', async (event, fileName, buffer) => {
+  const recPath = process.env.REC_PATH || path.join(app.getPath('videos'));
+  const fullPath = path.join(recPath, fileName);
 
+  try {
+    fs.writeFileSync(fullPath, buffer);
+    console.log(`Video saved successfully at ${fullPath}`);
+    return { success: true, filePath: fullPath };
+  } catch (error) {
+    console.error('Failed to save video:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+
+ipcMain.handle('getSources', async () => {
+  const sources = await desktopCapturer.getSources({ types: ['screen'] });
+  return sources;
+});
+
+ipcMain.handle('getOperatingSystem', () => {
+  return os.platform();
+});
+
+ipcMain.handle('showSaveDialog', async () => {
+  const { canceled, filePath } = await dialog.showSaveDialog({
+    buttonLabel: 'Save video',
+    defaultPath: `rec-${Date.now()}.webm`,
+  });
+  return { canceled, filePath };
+});
+
+//
 
 
 // my SQL CRUD Operations 

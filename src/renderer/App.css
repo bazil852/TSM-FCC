@@ -2585,30 +2585,34 @@ input[type='number'] {
 .topBar_btn {
   background-color: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(10px);
+  padding-left: 5px;
+  padding-right: 5px;
   height: 50px;
-  width: 300px;
+  width: 200px;
   display: flex;
   justify-content: center;
   align-items: center;
   color: #ffffff;
   font-weight: 700;
-  font-size: 1.4rem;
+  font-size: 1rem;
   border-radius: 10px;
   border: 1px solid white;
   cursor: pointer;
 }
 .topBar_btn_true {
+  padding-left: 5px;
+  padding-right: 5px;
   cursor: not-allowed;
   background-color: blueviolet;
   backdrop-filter: blur(10px);
   height: 50px;
-  width: 300px;
+  width: 200px;
   display: flex;
   justify-content: center;
   align-items: center;
   color: #ffffff;
   font-weight: 700;
-  font-size: 1.4rem;
+  font-size: 1rem;
   border-radius: 10px;
   border: 1px solid white;
   cursor: pointer;
@@ -2632,6 +2636,33 @@ input[type='number'] {
   justify-content: center;
   align-items: center;
 }
+.slider-container{
+  background-color: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  padding-left: 5px;
+  padding-right: 5px;
+  height: 50px;
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #ffffff;
+  font-weight: 500;
+  font-size: 1rem;
+  border-radius: 10px;
+  border: 1px solid white;
+  cursor: pointer;
+}
+.turret-label{
+color: white;
+}
+.turret-span{
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #007aff;
+}
+
 /* TOPBAR-END */
 
 /* CUSTOM-DROPDOWN-START */

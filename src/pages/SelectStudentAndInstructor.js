@@ -13,6 +13,7 @@ export default function SelectStudentAndInstructor() {
     pno: '',
     rank: '',
     unit: '',
+    groupcode: '',
   });
   const [instructorDetails, setInstructorDetails] = useState({
     name: '',
@@ -60,6 +61,7 @@ export default function SelectStudentAndInstructor() {
           pno: '',
           rank: '',
           unit: '',
+          groupcode: '',
         });
         navigate(-1); // Go back to the previous page
       } else {
@@ -101,8 +103,8 @@ export default function SelectStudentAndInstructor() {
     opacity: toggle ? 1 : 0,
     maxHeight: toggle ? '120%' : '0',
     overflow: 'hidden',
-    position: "absolute",
-    zIndex:"10",
+    position: 'absolute',
+    zIndex: '10',
     transition: 'all 0.3s ease-in-out',
   };
 
@@ -157,20 +159,27 @@ export default function SelectStudentAndInstructor() {
               className="select_student_instructor__tab_content"
               style={studentTabStyle}
             >
-              {Object.keys(studentDetails).map((key) => (
-                <div
-                  key={key}
-                  className="select_student_instructot_tab_input_container"
-                >
-                  <span>{key.toUpperCase()}</span>
-                  <input
-                    value={studentDetails[key]}
-                    onChange={(e) =>
-                      handleInputChange(key, e.target.value, true)
-                    }
-                  />
-                </div>
-              ))}
+              {Object.keys(studentDetails).map((key) => {
+                const label = key
+                  .replace('pno', 'P NO')
+                  .replace('groupcode', 'GROUP CODE')
+                  .toUpperCase();
+
+                return (
+                  <div
+                    key={key}
+                    className="select_student_instructot_tab_input_container"
+                  >
+                    <span>{label}</span>
+                    <input
+                      value={studentDetails[key]}
+                      onChange={(e) =>
+                        handleInputChange(key, e.target.value, true)
+                      }
+                    />
+                  </div>
+                );
+              })}
               <button
                 style={{
                   cursor: 'pointer',
@@ -190,21 +199,27 @@ export default function SelectStudentAndInstructor() {
               className="select_student_instructor__tab_content"
               style={instructorTabStyle}
             >
-              {Object.keys(instructorDetails).map((key) => (
-                <div
-                  key={key}
-                  className="select_student_instructot_tab_input_container"
-                >
-                  <span>{key.toUpperCase()}</span>
-                  <input
-                    type='text'
-                    value={instructorDetails[key]}
-                    onChange={(e) =>
-                      handleInputChange(key, e.target.value, false)
-                    }
-                  />
-                </div>
-              ))}
+              {Object.keys(instructorDetails).map((key) => {
+                const label = key
+                  .replace('pno', 'P NO')
+                  .replace('groupcode', 'GROUP CODE')
+                  .toUpperCase();
+
+                return (
+                  <div
+                    key={key}
+                    className="select_student_instructot_tab_input_container"
+                  >
+                    <span>{label}</span>
+                    <input
+                      value={instructorDetails[key]}
+                      onChange={(e) =>
+                        handleInputChange(key, e.target.value, false)
+                      }
+                    />
+                  </div>
+                );
+              })}
               <button
                 style={{
                   cursor: 'pointer',
