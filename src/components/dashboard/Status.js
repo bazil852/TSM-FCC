@@ -49,15 +49,15 @@ export default function Status() {
        'read-json',
        process.env.SP_DATA_PATH,
      );
-     console.log(spData)
+    //  console.log(spData)
     //  const studentData = await window.electron.readJSON(
     //    'E:/TSM-FCC-main/JSON_Files/PlayerData.json',
     //  );
     //  const simulationData = await window.electron.readJSON(
     //    'E:/TSM-FCC-main/JSON_Files/tsm.json',
     //  );
-     console.log(playerData.Player);
-     console.log(simulationData)
+    //  console.log(playerData.Player);
+    //  console.log(simulationData)
      setStudentStatus(playerData);
      setSimulationStatus(simulationData);
    } catch (error) {

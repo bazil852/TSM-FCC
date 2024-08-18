@@ -124,7 +124,7 @@ export default function GridCanvas({ stylingBox }) {
         'read-json',
         process.env.SIMULATION_DATA_PATH,
       );
-      console.log(simulationData);
+      // console.log(simulationData);
       setSimulationData(simulationData);
 
       // Dispatch actions to update Redux state
@@ -247,7 +247,7 @@ export default function GridCanvas({ stylingBox }) {
         ...rocksData,
       ];
 
-      console.log(allItems);
+      // console.log(allItems);
       setItems(allItems);
 
       // Set object start points with last point as startPoint
@@ -289,7 +289,7 @@ export default function GridCanvas({ stylingBox }) {
         });
       });
 
-      console.log(pathsData);
+      // console.log(pathsData);
       setPaths(pathsData);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -527,7 +527,7 @@ export default function GridCanvas({ stylingBox }) {
     setShowInitialAmmo(hasTanks && !manuallyClosed);
   }, [items, manuallyClosed]);
 
-  console.log(items);
+  // console.log(items);
 
   return (
     <div>

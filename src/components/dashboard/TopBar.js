@@ -2,20 +2,25 @@ import React, { useState, useEffect, useRef } from 'react';
 import { NavLink } from 'react-router-dom';
 import '../../renderer/App.css';
 import { ipcRenderer } from 'electron';
+import { useSelector, useDispatch } from 'react-redux';
+import { setReportData } from '../../redux/CarouselSelectedItemSlice';
 
 export default function TopBar() {
+  const dispatch = useDispatch();
   const [mediaRecorder, setMediaRecorder] = useState(null);
+  const reportData = useSelector((state) => state.selectedItem.reportData);
+  console.log(reportData);
   const [recording, setRecording] = useState(false);
   const videoRef = useRef(null);
   const recordedChunksRef = useRef([]);
-   const [spStatus, setSpStatus] = useState({
-     start: false,
-     pause: false,
-     end: false,
-     respawn: false,
-     XTurretSensitivity: 1.0,
-     YTurretSensitivity: 1.0,
-   });
+  const [spStatus, setSpStatus] = useState({
+    start: false,
+    pause: false,
+    end: false,
+    respawn: false,
+    XTurretSensitivity: 1.0,
+    YTurretSensitivity: 1.0,
+  });
   // Function to fetch the sp.json data
   const fetchSpStatus = async () => {
     try {
@@ -66,6 +71,19 @@ export default function TopBar() {
     const updatedStatus = { ...spStatus, end: true };
     updateSpStatus(updatedStatus);
 
+    console.log('Simulation ended. Saving report data...', reportData);
+
+    // Sending the reportData to be saved in the database
+    ipcRenderer.send('save-reports-data', reportData);
+
+    ipcRenderer.on('save-reports-data-response', (event, response) => {
+      if (response.success) {
+        console.log('Report data saved successfully:', response.data);
+      } else {
+        console.error('Failed to save report data:', response.message);
+      }
+    });
+
     // Set start to false after 2 seconds
     setTimeout(() => {
       const resetStartStatus = {
@@ -92,7 +110,7 @@ export default function TopBar() {
   const startRecording = async () => {
     try {
       const inputSources = await ipcRenderer.invoke('getSources');
-      const screenId = inputSources[1].id; // Choose the first screen source or let the user select one
+      const screenId = inputSources[0].id; // Choose the first screen source or let the user select one
       const IS_MACOS =
         (await ipcRenderer.invoke('getOperatingSystem')) === 'darwin';
 
@@ -155,6 +173,17 @@ export default function TopBar() {
         'saveRecording',
         fileName,
         buffer,
+      );
+
+      dispatch(
+        setReportData({
+          recordingFileName: fileName,
+          PNoScore: '85',
+          InstructorName: 'John Doe',
+          terrain: 'Mountain',
+          APC: 'APC123',
+          Tanks: 'Tank456',
+        }),
       );
 
       if (success) {

@@ -4,8 +4,16 @@ export const CarouselSelectedItemSlice = createSlice({
   name: 'selectedItem',
   initialState: {
     items: [],
-    selectedMapID: null, // Initialize selectedMapID
-    selectedStartIndex: 0, // Initialize selectedMapID
+    selectedMapID: null,
+    selectedStartIndex: 0,
+    reportData: {
+      recordingFileName: '',
+      PNoScore: '',
+      InstructorName: '',
+      terrain: '',
+      APC: '',
+      Tanks: '',
+    },
   },
   reducers: {
     addItem: (state, action) => {
@@ -21,9 +29,18 @@ export const CarouselSelectedItemSlice = createSlice({
     setSelectedStartIndex: (state, action) => {
       state.selectedStartIndex = action.payload;
     },
+    setReportData: (state, action) => {
+      state.reportData = { ...state.reportData, ...action.payload };
+    },
   },
 });
 
-export const { addItem, removeItem, setSelectedMapID, setSelectedStartIndex } =
-  CarouselSelectedItemSlice.actions;
+export const {
+  addItem,
+  removeItem,
+  setSelectedMapID,
+  setSelectedStartIndex,
+  setReportData,
+} = CarouselSelectedItemSlice.actions;
+
 export default CarouselSelectedItemSlice.reducer;

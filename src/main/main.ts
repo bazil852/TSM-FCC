@@ -8,17 +8,24 @@
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
-import { app, BrowserWindow, shell, ipcMain ,desktopCapturer , dialog } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  shell,
+  ipcMain,
+  desktopCapturer,
+  dialog,
+} from 'electron';
 import { autoUpdater } from 'electron-updater';
 import path from 'path';
-import os from "os"
+import os from 'os';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
-import dotenv from "dotenv"
-import connection from "../../database" 
+import dotenv from 'dotenv';
+import connection from '../../database';
 const fs = require('fs');
-dotenv.config()
+dotenv.config();
 
 class AppUpdater {
   constructor() {
@@ -35,24 +42,28 @@ let mainWindow: BrowserWindow | null = null;
 const filePath = path.join(app.getPath('desktop'), 'trmpDemo/data_output.json');
 console.log(filePath);
 ipcMain.on('read-json', (event) => {
-  fs.readFile(filePath, 'utf-8', (err:any, data:any) => {
+  fs.readFile(filePath, 'utf-8', (err: any, data: any) => {
     if (err) {
-      console.log("Failed to read file: ", err);
-      event.reply('read-json-response', { success: false, message: err.message });
+      console.log('Failed to read file: ', err);
+      event.reply('read-json-response', {
+        success: false,
+        message: err.message,
+      });
     } else {
       try {
         const jsonData = JSON.parse(data);
-        console.log("File read successfully");
+        console.log('File read successfully');
         event.reply('read-json-response', { success: true, data: jsonData });
-      } catch (parseError:any) {
-        console.error("Error parsing JSON:", parseError);
-        event.reply('read-json-response', { success: false, message: parseError.message });
+      } catch (parseError: any) {
+        console.error('Error parsing JSON:', parseError);
+        event.reply('read-json-response', {
+          success: false,
+          message: parseError.message,
+        });
       }
     }
   });
 });
-
-
 
 // Screen Recording
 ipcMain.handle('saveRecording', async (event, fileName, buffer) => {
@@ -68,7 +79,6 @@ ipcMain.handle('saveRecording', async (event, fileName, buffer) => {
     return { success: false, error: error.message };
   }
 });
-
 
 ipcMain.handle('getSources', async () => {
   const sources = await desktopCapturer.getSources({ types: ['screen'] });
@@ -89,13 +99,12 @@ ipcMain.handle('showSaveDialog', async () => {
 
 //
 
-
-// my SQL CRUD Operations 
+// my SQL CRUD Operations
 ipcMain.handle('fetch-instructors', async () => {
   console.log('fetching instructor');
 
   return new Promise((resolve, reject) => {
-    connection.query('SELECT * FROM instructor', (err:any, results:any) => {
+    connection.query('SELECT * FROM instructor', (err: any, results: any) => {
       if (err) {
         console.error('Error fetching instructors:', err);
         return reject(err);
@@ -107,7 +116,7 @@ ipcMain.handle('fetch-instructors', async () => {
 
 ipcMain.handle('fetch-students', async () => {
   return new Promise((resolve, reject) => {
-    connection.query('SELECT * FROM student', (err:any, results:any) => {
+    connection.query('SELECT * FROM student', (err: any, results: any) => {
       if (err) {
         console.error('Error fetching students:', err);
         return reject(err);
@@ -117,13 +126,12 @@ ipcMain.handle('fetch-students', async () => {
   });
 });
 
-
 ipcMain.handle('write-json', async (event, { filePath, data }) => {
   try {
     fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
     console.log('File written successfully');
     return { success: true };
-  } catch (err:any) {
+  } catch (err: any) {
     console.log('Failed to write file: ', err);
     throw new Error(err.message);
   }
@@ -131,7 +139,7 @@ ipcMain.handle('write-json', async (event, { filePath, data }) => {
 
 ipcMain.handle('fetch-maps', async () => {
   return new Promise((resolve, reject) => {
-    connection.query('SELECT * FROM map', (err:any, results:any) => {
+    connection.query('SELECT * FROM map', (err: any, results: any) => {
       if (err) {
         console.error('Error fetching maps:', err);
         return reject(err);
@@ -143,7 +151,7 @@ ipcMain.handle('fetch-maps', async () => {
 
 ipcMain.on('add-student', (event, student) => {
   const query = 'INSERT INTO student SET ?';
-  connection.query(query, student, (err:any, results:any) => {
+  connection.query(query, student, (err: any, results: any) => {
     if (err) {
       console.error('Error adding student:', err);
       event.reply('add-student-response', {
@@ -158,7 +166,7 @@ ipcMain.on('add-student', (event, student) => {
 
 ipcMain.on('add-instructor', (event, instructor) => {
   const query = 'INSERT INTO instructor SET ?';
-  connection.query(query, instructor, (err:any, results:any) => {
+  connection.query(query, instructor, (err: any, results: any) => {
     if (err) {
       console.error('Error adding instructor:', err);
       event.reply('add-instructor-response', {
@@ -170,7 +178,6 @@ ipcMain.on('add-instructor', (event, instructor) => {
     }
   });
 });
-
 
 // Json read Write
 
@@ -185,21 +192,45 @@ ipcMain.handle('read-json', async (event, filePath) => {
   }
 });
 
-
 ipcMain.on('save-map-data', (event, mapData) => {
-  console.log(mapData)
+  console.log(mapData);
   const query = 'INSERT INTO map SET ?';
-  connection.query(query, { data: JSON.stringify(mapData) }, (err:any, results:any) => {
-    if (err) {
-      console.error('Error saving map data:', err);
-      event.reply('save-map-data-response', {
-        success: false,
-        message: err.message,
-      });
-    } else {
-      event.reply('save-map-data-response', { success: true, data: results });
-    }
-  });
+  connection.query(
+    query,
+    { data: JSON.stringify(mapData) },
+    (err: any, results: any) => {
+      if (err) {
+        console.error('Error saving map data:', err);
+        event.reply('save-map-data-response', {
+          success: false,
+          message: err.message,
+        });
+      } else {
+        event.reply('save-map-data-response', { success: true, data: results });
+      }
+    },
+  );
+});
+ipcMain.on('save-reports-data', (event, reportData) => {
+  const query = 'INSERT INTO reports SET ?';
+  connection.query(
+    query,
+    { data: JSON.stringify(reportData) },
+    (err: any, results: any) => {
+      if (err) {
+        console.error('Error saving report data:', err);
+        event.reply('save-reports-data-response', {
+          success: false,
+          message: err.message,
+        });
+      } else {
+        event.reply('save-reports-data-response', {
+          success: true,
+          data: results,
+        });
+      }
+    },
+  );
 });
 
 ipcMain.on('update-map-data', (event, { idmap, mapData }) => {
@@ -226,7 +257,6 @@ ipcMain.on('update-map-data', (event, { idmap, mapData }) => {
 
 //
 
-
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
   console.log(msgTemplate(arg));
@@ -234,20 +264,26 @@ ipcMain.on('ipc-example', async (event, arg) => {
 });
 ipcMain.on('save-json', (event, args) => {
   const { data, filename } = args;
-  
+
   const filePath = filename;
-    
+
   // const filePath = path.join(app.getPath('documents'), filename);
-  console.log("filename: ",filePath);
-  fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8', (err:any) => {
+  console.log('filename: ', filePath);
+  fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8', (err: any) => {
     if (err) {
       // Send error back to renderer process
-      console.log("Failed: ",err);
-      event.reply('save-json-response', { success: false, message: err.message });
+      console.log('Failed: ', err);
+      event.reply('save-json-response', {
+        success: false,
+        message: err.message,
+      });
     } else {
       // Send success message back to renderer process
-      console.log("SAved");
-      event.reply('save-json-response', { success: true, message: 'File saved successfully.' });
+      console.log('SAved');
+      event.reply('save-json-response', {
+        success: true,
+        message: 'File saved successfully.',
+      });
     }
   });
 });
@@ -325,8 +361,6 @@ const createWindow = async () => {
 
   new AppUpdater();
 };
-
-
 
 /**
  * Add event listeners...
