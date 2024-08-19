@@ -148,6 +148,17 @@ ipcMain.handle('fetch-maps', async () => {
     });
   });
 });
+ipcMain.handle('fetch-reports-data', async () => {
+  return new Promise((resolve, reject) => {
+    connection.query('SELECT * FROM reports', (err: any, results: any) => {
+      if (err) {
+        console.error('Error fetching reports:', err);
+        return reject(err);
+      }
+      resolve(results);
+    });
+  });
+});
 
 ipcMain.on('add-student', (event, student) => {
   const query = 'INSERT INTO student SET ?';

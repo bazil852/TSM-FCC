@@ -1355,6 +1355,21 @@ input[type='number'] {
   white-space: nowrap;
   text-transform: uppercase;
 }
+.past_simulation_tab_table_data_recording {
+  font-weight: 600;
+  font-size: 1.2rem;
+  color: #9fa4a9;
+  width: 25%;
+  padding: 5px;
+  cursor: pointer;
+  background: rgb(60, 60, 196);
+  text-align: center;
+  color: white;
+  border-radius: 10px;
+  
+  white-space: nowrap;
+  text-transform: uppercase;
+}
 /*PAST-SIMULATION-END */
 
 /* TEST-MODE-START */
