@@ -1,8 +1,67 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import '../../renderer/App.css';
+import { ipcRenderer } from 'electron';
 
 export default function AdjustSimulation() {
   const [ammoType, setAmmoType] = useState('');
+  const [spStatus, setSpStatus] = useState({
+    start: false,
+    pause: false,
+    end: false,
+    respawn: false,
+    XTurretSensitivity: 1.3,
+    YTurretSensitivity: 1.4,
+    DoAllEnemeySmoke: false,
+    ArtilleryStrikeLocation: {
+      pointx: 27834,
+      pointy: 224460,
+    },
+  });
+
+  // Function to fetch the latest data from sp.json
+  const fetchSpStatus = async () => {
+    try {
+      const spData = await ipcRenderer.invoke(
+        'read-json',
+        process.env.SP_DATA_PATH,
+      );
+      setSpStatus(spData); // Update state with the latest data from the JSON file
+    } catch (error) {
+      console.error('Error fetching sp.json data:', error);
+    }
+  };
+
+  // Function to update sp.json data
+  const updateSpStatus = async (updatedData) => {
+    try {
+      await ipcRenderer.invoke('write-json', {
+        filePath: process.env.SP_DATA_PATH,
+        data: updatedData,
+      });
+      setSpStatus(updatedData); // Update state with new data
+    } catch (error) {
+      console.error('Error updating sp.json data:', error);
+    }
+  };
+
+  // Function to handle "Enemy Smoke Grenade" button click
+  const handleEnemySmokeGrenade = () => {
+    const updatedStatus = { ...spStatus, DoAllEnemeySmoke: true };
+    updateSpStatus(updatedStatus);
+
+    // Set DoAllEnemeySmoke to false after 2 seconds
+    setTimeout(() => {
+      const resetSmokeStatus = { ...updatedStatus, DoAllEnemeySmoke: false };
+      updateSpStatus(resetSmokeStatus);
+    }, 2000);
+  };
+
+  useEffect(() => {
+    fetchSpStatus(); // Fetch the initial data when component mounts
+    const intervalId = setInterval(fetchSpStatus, 5000); // Fetch the latest data every 5 seconds
+
+    return () => clearInterval(intervalId); // Cleanup the interval on component unmount
+  }, []);
 
   const adjustSimulation = [
     { title: 'AZIMUTH CALLIBRATION' },
@@ -35,6 +94,19 @@ export default function AdjustSimulation() {
               </div>
             );
           })}
+          <div
+            className={
+              !spStatus.DoAllEnemeySmoke
+                ? 'adjust_simulation_box_content_category'
+                : 'adjust_simulation_box_content_category_select'
+            }
+            onClick={handleEnemySmokeGrenade}
+          >
+            Enemy Smoke Grenade
+          </div>
+          <div className="adjust_simulation_box_content_category">
+            Enemy Artillery
+          </div>
         </div>
       </div>
 

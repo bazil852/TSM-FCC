@@ -7,42 +7,11 @@ import dessertTerainSvg from '../../../assets/terrain.svg';
 import semiDessetTerainSvg from '../../../assets/images.jpeg';
 import denseTerainSvg from '../../../assets/terrain.svg';
 import {
-  addEnemy,
-  addOwnTank,
   updateTotalEnemies,
   updateTotalOwnTanks,
   updateTotalEnemyTanks,
   updateTotalEnemyAPCs,
-  deleteEnemy,
-  deleteOwnTank,
-  addEnemyCar,
   setOnlyOneOwnTank,
-  addHouse,
-  addTrees,
-  addShop,
-  addShack,
-  addSmallHouse,
-  addVillageHut,
-  addWareHouse,
-  addWaterTankTower,
-  addHospital,
-  addStore,
-  addJhompri,
-  addRailwayStation,
-  addRocks,
-  deleteHouse,
-  deleteTrees,
-  deleteShop,
-  deleteShack,
-  deleteSmallHouse,
-  deleteVillageHut,
-  deleteWareHouse,
-  deleteWaterTankTower,
-  deleteHospital,
-  deleteStore,
-  deleteRailwayStation,
-  deleteJhompri,
-  deleteRocks,
   setExerciseTime,
   setTerrain,
   setStudent,
@@ -52,17 +21,9 @@ import {
   setTemperature,
   setWindSpeed,
   setWindDirection,
-  setWindGust,
 } from '../../redux/DataArray';
 
-import { removeItem } from '../../redux/CarouselSelectedItemSlice';
 import gridTank from '../../TSM-img/gridTank.svg';
-import gridTank2 from '../../TSM-img/gridTank2.svg';
-import gridTank3 from '../../TSM-img/gridTank3.svg';
-import gridTruck from '../../TSM-img/gridTruck.svg';
-import gridForrest from '../../TSM-img/gridForrest.svg';
-import gridAPV from '../../TSM-img/gridAPV.svg';
-import startSign from '../../TSM-img/gridStopSign.svg';
 import Increment from '../../TSM-img/increment.svg';
 import Decrement from '../../TSM-img/decrement.svg';
 import close from '../../TSM-img/close.svg';
@@ -70,14 +31,7 @@ import rocks from '../../TSM-img/rocks.png';
 import jhompri from '../../TSM-img/Jhompri.png';
 import house from '../../TSM-img/House.png';
 import hospital from '../../TSM-img/Hospital.png';
-import railwayStation from '../../TSM-img/RailwayStation.png';
 import shack from '../../TSM-img/Shack.png';
-import shop from '../../TSM-img/Shop.png';
-import smallHouse from '../../TSM-img/SmallHouse.png';
-import store from '../../TSM-img/Store.png';
-import villageHut from '../../TSM-img/VillageHut.png';
-import wareHouse from '../../TSM-img/WareHouse.png';
-import waterTankTower from '../../TSM-img/WaterTankTower.png';
 import compass from '../../TSM-img/compass.svg';
 
 export default function GridCanvas({ stylingBox }) {
@@ -89,7 +43,6 @@ export default function GridCanvas({ stylingBox }) {
   const [draggingItem, setDraggingItem] = useState(null);
   const [paths, setPaths] = useState({});
   const [objectStartPoints, setObjectStartPoints] = useState([]);
-  const selectedItems = useSelector((state) => state.selectedItem).items;
   const [selectedObjectId, setSelectedObjectId] = useState(null);
   const [latestTankId, setLatestTankId] = useState(null);
   const [tankAmmos, setTankAmmos] = useState({});
@@ -97,10 +50,11 @@ export default function GridCanvas({ stylingBox }) {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [manuallyClosed, setManuallyClosed] = useState(false);
   const [showInitialAmmo, setShowInitialAmmo] = useState(false);
+  const [simulationData, setSimulationData] = useState();
   // const simulationData = useSelector((state) => state.dataArray);
-
+  // const [tsmData, setTsmData] = useState(null);
   const initialAmmosTitleArray = data.initialAmmoTitleArray;
-
+  const [updatedItems,setUpdatedItems] = useState(null)
   const [apfsds, setApfsdsAmmo] = useState(40);
   const [he, setHeAmmo] = useState(40);
   const [heat, setHeatAmmo] = useState(40);
@@ -115,7 +69,134 @@ export default function GridCanvas({ stylingBox }) {
       },
     }));
   };
-  const [simulationData, setSimulationData] = useState();
+
+  //Fetching Players Data
+
+  const fetchPaths = async () => {
+    try {
+      // Fetch player and enemy data using ipcRenderer
+      const playerData = await ipcRenderer.invoke(
+        'read-json',
+        process.env.PLAYER_DATA_PATH,
+      );
+      const enemyData = await ipcRenderer.invoke(
+        'read-json',
+        process.env.ENEMY_DATA_PATH,
+      );
+
+      console.log(enemyData)
+
+      // Create a copy of simulationData to avoid mutating state directly
+      let updatedSimulation = { ...simulationData };
+
+     console.log(updatedSimulation)
+      // Update player location
+      if (
+        playerData &&
+        playerData.Player &&
+        playerData.Player.currentLocation
+      ) {
+        const { x, y } = playerData.Player.currentLocation;
+        updatedSimulation.Player.SpawnLocation = {
+          pointx: x,
+          pointy: y,
+        };
+
+      }
+
+
+
+
+      // Iterate over all enemy attributes in simulation data
+      Object.keys(updatedSimulation.Enemy).forEach((enemyAttr) => {
+        
+        // Update each enemy's spawn location if matching data found in enemyData
+        updatedSimulation.Enemy[enemyAttr].map((enemy) => {
+          
+          let data = enemyData.Enemy.find(
+            (u) => String(u.enemyId) == String(enemy.unitId),
+          );
+          console.log(data)
+          
+          if (data) {
+            enemy.SpawnLocation.pointx = data.location.x;
+            enemy.SpawnLocation.pointy = data.location.y;
+          }
+        });
+      });
+      
+      console.log(updatedSimulation)
+
+
+
+
+      // Prepare updated enemy data for items state
+      const updatedEnemyData = Object.keys(updatedSimulation.Enemy).flatMap(
+        (enemyName) =>
+          updatedSimulation.Enemy[enemyName].map((enemy) => {
+            const enemyPath = enemy.Path.map((point) => ({
+              x: normalizetoSmall(point.pointx),
+              y: normalizetoSmall(point.pointy),
+            }));
+            const enemyLastPoint = enemyPath[enemyPath.length - 1];
+
+            return {
+              id: enemy.unitId,
+              name: enemyName,
+              x:normalizetoSmall(enemy.SpawnLocation.pointx),
+              y:normalizetoSmall(enemy.SpawnLocation.pointy),
+              status: 'dangerous',
+              details: enemy.Ammo,
+              path: enemyPath,
+              type: 'tank',
+              src: gridTank,
+            };
+          }),
+      );
+
+      // Prepare player data for items state
+      const playerPath = updatedSimulation.Player.Path.map((point) => ({
+        x: normalizetoSmall(point.pointx),
+        y: normalizetoSmall(point.pointy),
+      }));
+      const playerLastPoint = playerPath[playerPath.length - 1];
+
+
+      const playerItemData = {
+        id: 'PlayerTank', // Use a unique identifier for the player tank
+        name: 'Player Tank',
+        x: normalizetoSmall(updatedSimulation.Player.SpawnLocation.pointx),
+        y: normalizetoSmall(updatedSimulation.Player.SpawnLocation.pointy),
+        status: 'own-tank',
+        details: playerData.Player.ammo, // Use player's ammo data
+        path: playerPath,
+        type: 'tank',
+        src: gridTank,
+      };
+
+      console.log(items);
+      
+
+
+      console.log(playerItemData)
+      console.log(updatedEnemyData);
+      // Update the items state with the new enemy and player data
+      console.log([...updatedEnemyData,playerItemData]);
+      setUpdatedItems([...updatedEnemyData, playerItemData]);
+      // setItems([...updatedEnemyData, playerItemData]);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  
+
+
+  useEffect(() => {
+    const intervalId = setInterval(fetchPaths, 3000);
+
+    return () => clearInterval(intervalId);
+  }, [simulationData]);
 
   // Function to fetch data from the JSON files
   const fetchData = async () => {
@@ -124,7 +205,7 @@ export default function GridCanvas({ stylingBox }) {
         'read-json',
         process.env.SIMULATION_DATA_PATH,
       );
-      // console.log(simulationData);
+
       setSimulationData(simulationData);
 
       // Dispatch actions to update Redux state
@@ -511,16 +592,6 @@ export default function GridCanvas({ stylingBox }) {
   };
 
   useEffect(() => {
-    const latestItem = selectedItems[selectedItems.length - 1];
-    if (
-      (latestItem && latestItem.type === 'tank') ||
-      (latestItem && latestItem.type === 'myTank')
-    ) {
-      setLatestTankId(latestItem.id);
-    }
-  }, [selectedItems]);
-
-  useEffect(() => {
     const hasTanks = items.some(
       (item) => item.type === 'tank' || item.type === 'myTank',
     );
@@ -534,7 +605,7 @@ export default function GridCanvas({ stylingBox }) {
       <div
         className="grid_canvas_main_container"
         style={{
-          height:"1030px",
+          height: '1030px',
           width:
             stylingBox === 1 && hasObjects
               ? '1030px'
@@ -558,7 +629,7 @@ export default function GridCanvas({ stylingBox }) {
                 pointerEvents: 'none',
               }}
             >
-              {items.map((object) => {
+              {items.map((object , index) => {
                 if (object.path) {
                   const pathColor =
                     object && object.status === 'own-tank'
@@ -569,7 +640,7 @@ export default function GridCanvas({ stylingBox }) {
 
                   return (
                     <path
-                      key={object.id}
+                      key={index}
                       d={drawPath(object.path)}
                       stroke={pathColor}
                       fill="none"
@@ -602,7 +673,7 @@ export default function GridCanvas({ stylingBox }) {
                   cursor: 'grab',
                 }}
               >
-                <div className="item_position" style={{marginLeft:"100px"}}>
+                <div className="item_position" style={{ marginLeft: '100px' }}>
                   <div className="item_position_clip_path_1"></div>
                   <div className="item_position_clip_path_2"></div>
                   <div>X : {normalizePathX(mousePosition.x).toFixed(0)}</div>
@@ -667,62 +738,119 @@ export default function GridCanvas({ stylingBox }) {
                   </div>
                 </div>
 
-                {items.map((item) => (
-                  <React.Fragment key={item.id}>
-                    <div
-                      className="Testing-grid"
-                      // onMouseDown={(e) => handleItemMouseDown(item.id, e)}
-                      style={{
-                        left: (item.x + pan.x) * zoom,
-                        top: (item.y + pan.y) * zoom,
-                        transform: `translate(-50%, -50%) scale(${zoom})`,
-                        backgroundImage: `url(${item.src})`,
-                        position: 'absolute',
-                        width: '30px',
-                        height: '30px',
-                        cursor: 'pointer',
-                        backgroundSize: 'contain',
-                        backgroundRepeat: 'no-repeat',
-                        rotate:
-                          item.status !== 'not-dangerous' &&
-                          (direction[item.id] === 'North'
-                            ? '90deg'
-                            : direction[item.id] === 'South'
-                            ? '-90deg'
-                            : direction[item.id] === 'East'
-                            ? '180deg'
-                            : ''),
-                        transition: 'rotate 0.3s ease',
-                      }}
-                    />
-                    {objectStartPoints.find(
-                      (point) => point.id === item.id,
-                    ) && (
-                      <div
-                        style={{
-                          left:
-                            (objectStartPoints.find(
-                              (point) => point.id === item.id,
-                            ).startPoint.x +
-                              pan.x) *
-                            zoom,
-                          top:
-                            (objectStartPoints.find(
-                              (point) => point.id === item.id,
-                            ).startPoint.y +
-                              pan.y) *
-                            zoom,
-                          transform: `translate(-50%, -50%) scale(${zoom})`,
-                          
-                          position: 'absolute',
-                          width: '20px',
-                          height: '20px',
-                          backgroundSize: 'cover',
-                        }}
-                      />
-                    )}
-                  </React.Fragment>
-                ))}
+                {updatedItems
+                  ? updatedItems.map((item,index) => (
+                      <React.Fragment key={index}>
+                        <div
+                          className="Testing-grid updating"
+                          // onMouseDown={(e) => handleItemMouseDown(item.id, e)}
+                          style={{
+                            left: (item.x + pan.x) * zoom,
+                            top: (item.y + pan.y) * zoom,
+                            transform: `translate(-50%, -50%) scale(${zoom})`,
+                            backgroundImage: `url(${item.src})`,
+                            position: 'absolute',
+                            width: '30px',
+                            height: '30px',
+                            cursor: 'pointer',
+                            backgroundSize: 'contain',
+                            backgroundRepeat: 'no-repeat',
+                            rotate:
+                              item.status !== 'not-dangerous' &&
+                              (direction[item.id] === 'North'
+                                ? '90deg'
+                                : direction[item.id] === 'South'
+                                ? '-90deg'
+                                : direction[item.id] === 'East'
+                                ? '180deg'
+                                : ''),
+                            transition: 'rotate 0.3s ease',
+                          }}
+                        />
+                        {objectStartPoints.find(
+                          (point) => point.id === item.id,
+                        ) && (
+                          <div
+                            style={{
+                              left:
+                                (objectStartPoints.find(
+                                  (point) => point.id === item.id,
+                                ).startPoint.x +
+                                  pan.x) *
+                                zoom,
+                              top:
+                                (objectStartPoints.find(
+                                  (point) => point.id === item.id,
+                                ).startPoint.y +
+                                  pan.y) *
+                                zoom,
+                              transform: `translate(-50%, -50%) scale(${zoom})`,
+
+                              position: 'absolute',
+                              width: '20px',
+                              height: '20px',
+                              backgroundSize: 'cover',
+                            }}
+                          />
+                        )}
+                      </React.Fragment>
+                    ))
+                  : items.map((item ,index) => (
+                      <React.Fragment key={index}>
+                        <div
+                          className="Testing-grid"
+                          // onMouseDown={(e) => handleItemMouseDown(item.id, e)}
+                          style={{
+                            left: (item.x + pan.x) * zoom,
+                            top: (item.y + pan.y) * zoom,
+                            transform: `translate(-50%, -50%) scale(${zoom})`,
+                            backgroundImage: `url(${item.src})`,
+                            position: 'absolute',
+                            width: '30px',
+                            height: '30px',
+                            cursor: 'pointer',
+                            backgroundSize: 'contain',
+                            backgroundRepeat: 'no-repeat',
+                            rotate:
+                              item.status !== 'not-dangerous' &&
+                              (direction[item.id] === 'North'
+                                ? '90deg'
+                                : direction[item.id] === 'South'
+                                ? '-90deg'
+                                : direction[item.id] === 'East'
+                                ? '180deg'
+                                : ''),
+                            transition: 'rotate 0.3s ease',
+                          }}
+                        />
+                        {objectStartPoints.find(
+                          (point) => point.id === item.id,
+                        ) && (
+                          <div
+                            style={{
+                              left:
+                                (objectStartPoints.find(
+                                  (point) => point.id === item.id,
+                                ).startPoint.x +
+                                  pan.x) *
+                                zoom,
+                              top:
+                                (objectStartPoints.find(
+                                  (point) => point.id === item.id,
+                                ).startPoint.y +
+                                  pan.y) *
+                                zoom,
+                              transform: `translate(-50%, -50%) scale(${zoom})`,
+
+                              position: 'absolute',
+                              width: '20px',
+                              height: '20px',
+                              backgroundSize: 'cover',
+                            }}
+                          />
+                        )}
+                      </React.Fragment>
+                    ))}
               </div>
             )}
           </TransformComponent>

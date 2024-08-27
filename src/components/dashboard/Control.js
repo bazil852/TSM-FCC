@@ -19,6 +19,7 @@ export default function Control() {
         {control.map((data, index) => {
           return (
             <div
+              key={index}
               className="control_main_content_controls"
               onClick={() => setChosenControl(data.title)}
             >
