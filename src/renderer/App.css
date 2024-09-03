@@ -1248,7 +1248,7 @@ input[type='number'] {
   color: #ffffff;
   font-weight: 700;
   font-size: 1.8rem;
-  width: 550px;
+  width: 1000px;
 }
 .basic_advance_tab_content_box_content {
   color: #ffffff;
@@ -1257,7 +1257,7 @@ input[type='number'] {
 }
 .partition {
   position: absolute;
-  width: 110px;
+  width: 260px;
   height: 2px;
   background-color: #ffffff;
   transform: rotate(90deg);
