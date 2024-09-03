@@ -104,7 +104,6 @@ export default function GridCanvas({ stylingBox }) {
     }));
   };
 
-  console.log(simulationData);
 
 
  const setMapValues = async () => {
@@ -183,7 +182,6 @@ export default function GridCanvas({ stylingBox }) {
       ...rocksData,
     ];
 
-    console.log(allItems);
     setItems(allItems);
 
     // Set object start points with last point as startPoint
@@ -209,7 +207,6 @@ export default function GridCanvas({ stylingBox }) {
       });
     });
 
-    console.log(pathsData);
     setFetchOnce(false);
     setPaths(pathsData);
   } catch (error) {
@@ -221,7 +218,6 @@ export default function GridCanvas({ stylingBox }) {
 
   useEffect(() => {
     if (!simulationData.newMapCreated && fetchOnce) {
-      console.log(simulationData);
       setMapValues();
     }
   }, [simulationData]);
@@ -408,122 +404,234 @@ export default function GridCanvas({ stylingBox }) {
     setMousePosition({ x, y });
   };
 
-  const handleItemMouseDown = (itemId, e) => {
-    e.stopPropagation();
-    setSelectedObjectId(itemId);
-    const itemIndex = items.findIndex((i) => i.id === itemId);
-    if (itemIndex === -1) return;
-    const item = items[itemIndex];
-    setDraggingItem(item);
 
-    const rect = gridRef.current.getBoundingClientRect();
-    const startX = (e.clientX - rect.left) / zoom - pan.x;
-    const startY = (e.clientY - rect.top) / zoom - pan.y;
+   const initializeItemPath = (itemId, item, startX, startY) => {
+     if (!objectStartPoints.some((point) => point.id === itemId)) {
+       setObjectStartPoints((prevObjectStartPoints) => [
+         ...prevObjectStartPoints,
+         {
+           id: itemId,
+           item,
+           startPoint: { x: startX, y: startY },
+           path: [{ x: startX, y: startY }],
+         },
+       ]);
+     }
+   };
 
-    if (!item.clickedOnce) {
-      const handleMouseMove = (moveEvent) => {
-        const mouseX = (moveEvent.clientX - rect.left) / zoom - pan.x;
-        const mouseY = (moveEvent.clientY - rect.top) / zoom - pan.y;
+   const markItemAsClicked = (itemId, itemIndex) => {
+     setItems((prevItems) =>
+       prevItems.map((i, index) =>
+         index === itemIndex ? { ...i, clickedOnce: true } : i,
+       ),
+     );
+   };
 
-        const diffX = (mouseX - startX) * zoom;
-        const diffY = (mouseY - startY) * zoom;
+   const updateObjectStartPoints = (itemId, newX, newY) => {
+     const threshold = 30;
+     setObjectStartPoints((prevObjectStartPoints) => {
+       return prevObjectStartPoints.map((obj) => {
+         if (obj.id === itemId) {
+           const lastPoint = obj.path[obj.path.length - 1];
+           if (
+             !lastPoint ||
+             Math.hypot(lastPoint.x - newX, lastPoint.y - newY) >= threshold
+           ) {
+             const newPath = [...obj.path, { x: newX, y: newY }];
+             return { ...obj, path: newPath };
+           }
+         }
+         return obj;
+       });
+     });
+   };
 
-        let newX = item.x + diffX;
-        let newY = item.y + diffY;
+ const handleItemMouseDown = (itemId, e) => {
+   e.stopPropagation();
+   setSelectedObjectId(itemId);
 
-        const boundedPosition = enforceGridBoundaries(newX, newY, 50, 50);
-        newX = boundedPosition.x;
-        newY = boundedPosition.y;
+   const itemIndex = items.findIndex((i) => i.id === itemId);
+   if (itemIndex === -1) return;
 
-        setItems((prevItems) =>
-          prevItems.map((i) =>
-            i.id === itemId ? { ...i, x: newX, y: newY } : i,
-          ),
-        );
-      };
+   const item = items[itemIndex];
+   setDraggingItem(item);
 
-      const handleMouseUp = () => {
-        setDraggingItem(null);
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-        setItems((prevItems) =>
-          prevItems.map((i, index) =>
-            index === itemIndex ? { ...i, clickedOnce: true } : i,
-          ),
-        );
-      };
+   const rect = gridRef.current.getBoundingClientRect();
+   const startX = (e.clientX - rect.left) / zoom - pan.x;
+   const startY = (e.clientY - rect.top) / zoom - pan.y;
+ console.log(item)
+   // Separate logic for tanks
+   if (item.type === 'tank' || item.type==="car" || item.type==="myTank") {
+     handleTankMouseDown(item, itemId, rect, startX, startY, itemIndex, e);
+   } else {
+     handleDefaultMouseDown(item, itemId, rect, startX, startY, itemIndex);
+   }
+ };
 
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-    } else {
-      e.stopPropagation();
-      const item = items.find((i) => i.id === itemId);
-      setDraggingItem(item);
+  
+  
+ // Function to handle tanks specifically (preserving the original logic)
+ const handleTankMouseDown = (
+   item,
+   itemId,
+   rect,
+   startX,
+   startY,
+   itemIndex,
+   e
+ ) => {
+   if (!item.clickedOnce) {
+     const handleMouseMove = (moveEvent) => {
+       const mouseX = (moveEvent.clientX - rect.left) / zoom - pan.x;
+       const mouseY = (moveEvent.clientY - rect.top) / zoom - pan.y;
 
-      const rect = gridRef.current.getBoundingClientRect();
-      const startX = (e.clientX - rect.left) / zoom - pan.x;
-      const startY = (e.clientY - rect.top) / zoom - pan.y;
+       const diffX = (mouseX - startX) * zoom;
+       const diffY = (mouseY - startY) * zoom;
 
-      if (!objectStartPoints.some((point) => point.id === itemId)) {
-        setObjectStartPoints((prevObjectStartPoints) => [
-          ...prevObjectStartPoints,
-          {
-            id: itemId,
-            item,
-            startPoint: { x: startX, y: startY },
-            path: [{ x: startX, y: startY }],
-          },
-        ]);
-      }
+       let newX = item.x + diffX;
+       let newY = item.y + diffY;
 
-      const handleMouseMove = (moveEvent) => {
-        const mouseX = (moveEvent.clientX - rect.left) / zoom - pan.x;
-        const mouseY = (moveEvent.clientY - rect.top) / zoom - pan.y;
+       const boundedPosition = enforceGridBoundaries(newX, newY, 50, 50);
+       newX = boundedPosition.x;
+       newY = boundedPosition.y;
 
-        const diffX = (mouseX - startX) * zoom;
-        const diffY = (mouseY - startY) * zoom;
+       setItems((prevItems) =>
+         prevItems.map((i) =>
+           i.id === itemId ? { ...i, x: newX, y: newY } : i,
+         ),
+       );
+     };
 
-        let newX = item.x + diffX;
-        let newY = item.y + diffY;
+     const handleMouseUp = () => {
+       setDraggingItem(null);
+       document.removeEventListener('mousemove', handleMouseMove);
+       document.removeEventListener('mouseup', handleMouseUp);
+       setItems((prevItems) =>
+         prevItems.map((i, index) =>
+           index === itemIndex ? { ...i, clickedOnce: true } : i,
+         ),
+       );
+     };
 
-        const boundedPosition = enforceGridBoundaries(newX, newY, 50, 50);
-        newX = boundedPosition.x;
-        newY = boundedPosition.y;
+     document.addEventListener('mousemove', handleMouseMove);
+     document.addEventListener('mouseup', handleMouseUp);
+   } else {
+     
+     const item = items.find((i) => i.id === itemId);
+     setDraggingItem(item);
 
-        setItems((prevItems) =>
-          prevItems.map((i) =>
-            i.id === itemId ? { ...i, x: newX, y: newY } : i,
-          ),
-        );
+     const rect = gridRef.current.getBoundingClientRect();
+     const startX = (e.clientX - rect.left) / zoom - pan.x;
+     const startY = (e.clientY - rect.top) / zoom - pan.y;
 
-        const threshold = 30;
-        setObjectStartPoints((prevObjectStartPoints) => {
-          return prevObjectStartPoints.map((obj) => {
-            if (obj.id === itemId) {
-              const lastPoint = obj.path[obj.path.length - 1];
-              if (
-                !lastPoint ||
-                Math.hypot(lastPoint.x - newX, lastPoint.y - newY) >= threshold
-              ) {
-                const newPath = [...obj.path, { x: newX, y: newY }];
-                return { ...obj, path: newPath };
-              }
-            }
-            return obj;
-          });
-        });
-      };
+     if (!objectStartPoints.some((point) => point.id === itemId)) {
+       setObjectStartPoints((prevObjectStartPoints) => [
+         ...prevObjectStartPoints,
+         {
+           id: itemId,
+           item,
+           startPoint: { x: startX, y: startY },
+           path: [{ x: startX, y: startY }],
+         },
+       ]);
+     }
 
-      const handleMouseUp = () => {
-        setDraggingItem(null);
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-      };
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-    }
-  };
+     const handleMouseMove = (moveEvent) => {
+       const mouseX = (moveEvent.clientX - rect.left) / zoom - pan.x;
+       const mouseY = (moveEvent.clientY - rect.top) / zoom - pan.y;
 
+       const diffX = (mouseX - startX) * zoom;
+       const diffY = (mouseY - startY) * zoom;
+
+       let newX = item.x + diffX;
+       let newY = item.y + diffY;
+
+       const boundedPosition = enforceGridBoundaries(newX, newY, 50, 50);
+       newX = boundedPosition.x;
+       newY = boundedPosition.y;
+
+       setItems((prevItems) =>
+         prevItems.map((i) =>
+           i.id === itemId ? { ...i, x: newX, y: newY } : i,
+         ),
+       );
+
+       const threshold = 30;
+       setObjectStartPoints((prevObjectStartPoints) => {
+         return prevObjectStartPoints.map((obj) => {
+           if (obj.id === itemId) {
+             const lastPoint = obj.path[obj.path.length - 1];
+             if (
+               !lastPoint ||
+               Math.hypot(lastPoint.x - newX, lastPoint.y - newY) >= threshold
+             ) {
+               const newPath = [...obj.path, { x: newX, y: newY }];
+               return { ...obj, path: newPath };
+             }
+           }
+           return obj;
+         });
+       
+       })
+     }
+     const handleMouseUp = () => {
+       setDraggingItem(null);
+       document.removeEventListener('mousemove', handleMouseMove);
+       document.removeEventListener('mouseup', handleMouseUp);
+       markItemAsClicked(itemId, itemIndex);
+     };
+
+     document.addEventListener('mousemove', handleMouseMove);
+     document.addEventListener('mouseup', handleMouseUp);
+   }
+ };
+
+ // Function to handle other item types with the refactored logic
+ const handleDefaultMouseDown = (
+   item,
+   itemId,
+   rect,
+   startX,
+   startY,
+   itemIndex,
+ ) => {
+  
+
+   if (!item.clickedOnce) {
+     initializeItemPath(itemId, item, startX, startY);
+   }
+
+   const handleMouseMove = (moveEvent) => {
+     const mouseX = (moveEvent.clientX - rect.left) / zoom - pan.x;
+     const mouseY = (moveEvent.clientY - rect.top) / zoom - pan.y;
+
+     const diffX = (mouseX - startX) * zoom;
+     const diffY = (mouseY - startY) * zoom;
+
+     let newX = item.x + diffX;
+     let newY = item.y + diffY;
+
+     const boundedPosition = enforceGridBoundaries(newX, newY, 50, 50);
+     newX = boundedPosition.x;
+     newY = boundedPosition.y;
+
+     setItems((prevItems) =>
+       prevItems.map((i) => (i.id === itemId ? { ...i, x: newX, y: newY } : i)),
+     );
+
+     updateObjectStartPoints(itemId, newX, newY);
+   };
+
+   const handleMouseUp = () => {
+     setDraggingItem(null);
+     document.removeEventListener('mousemove', handleMouseMove);
+     document.removeEventListener('mouseup', handleMouseUp);
+     markItemAsClicked(itemId, itemIndex);
+   };
+
+   document.addEventListener('mousemove', handleMouseMove);
+   document.addEventListener('mouseup', handleMouseUp);
+ };
   const handleDelete = () => {
     if (selectedObjectId) {
       const updatedItems = items.filter((item) => item.id !== selectedObjectId);
@@ -648,7 +756,6 @@ export default function GridCanvas({ stylingBox }) {
       if (addedTank) {
         setManuallyClosed(false);
       }
-      console.log('object', objectStartPoints);
     }
   }, [selectedItems]);
 
@@ -705,6 +812,7 @@ export default function GridCanvas({ stylingBox }) {
       dispatch(
         updateTotalEnemyAPCs(items.filter((item) => item.type === 'car').length),
       );
+      console.log(objectStartPoints);
       objectStartPoints.forEach((point) => {
         const ammoForThisTank = tankAmmos[point.id] || {
           apfsds: 0,
@@ -713,7 +821,6 @@ export default function GridCanvas({ stylingBox }) {
           mg762: 0,
         };
         const directionOfObject = direction[point.id] || 'West';
-        console.log(point);
         // console.log(normalizePathX(point.path[0].x));
         if (point.item.status === 'dangerous') {
           if (point.item.type === 'tank') {

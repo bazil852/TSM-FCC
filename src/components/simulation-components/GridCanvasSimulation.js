@@ -29,8 +29,17 @@ import Decrement from '../../TSM-img/decrement.svg';
 import close from '../../TSM-img/close.svg';
 import rocks from '../../TSM-img/rocks.png';
 import jhompri from '../../TSM-img/Jhompri.png';
+import railwayStation from '../../TSM-img/RailwayStation.png';
+import houseImage from '../../TSM-img/House.png';
+import smallHouseImage from '../../TSM-img/SmallHouse.png';
+import WareHouseImage from '../../TSM-img/WareHouse.png';
+import waterTankImage from '../../TSM-img/WaterTankTower.png';
+import storeImage from '../../TSM-img/Store.png';
+import shopImage from '../../TSM-img/Shop.png';
 import house from '../../TSM-img/House.png';
 import hospital from '../../TSM-img/Hospital.png';
+import treeImage from '../../TSM-img/forest1.svg';
+import villageHutImage from '../../TSM-img/VillageHut.png';
 import shack from '../../TSM-img/Shack.png';
 import compass from '../../TSM-img/compass.svg';
 
@@ -54,7 +63,7 @@ export default function GridCanvas({ stylingBox }) {
   // const simulationData = useSelector((state) => state.dataArray);
   // const [tsmData, setTsmData] = useState(null);
   const initialAmmosTitleArray = data.initialAmmoTitleArray;
-  const [updatedItems,setUpdatedItems] = useState(null)
+  const [updatedItems, setUpdatedItems] = useState(null);
   const [apfsds, setApfsdsAmmo] = useState(40);
   const [he, setHeAmmo] = useState(40);
   const [heat, setHeatAmmo] = useState(40);
@@ -84,12 +93,12 @@ export default function GridCanvas({ stylingBox }) {
         process.env.ENEMY_DATA_PATH,
       );
 
-      console.log(enemyData)
+      console.log(enemyData);
 
       // Create a copy of simulationData to avoid mutating state directly
       let updatedSimulation = { ...simulationData };
 
-     console.log(updatedSimulation)
+      console.log(updatedSimulation);
       // Update player location
       if (
         playerData &&
@@ -101,34 +110,25 @@ export default function GridCanvas({ stylingBox }) {
           pointx: x,
           pointy: y,
         };
-
       }
-
-
-
 
       // Iterate over all enemy attributes in simulation data
       Object.keys(updatedSimulation.Enemy).forEach((enemyAttr) => {
-        
         // Update each enemy's spawn location if matching data found in enemyData
         updatedSimulation.Enemy[enemyAttr].map((enemy) => {
-          
           let data = enemyData.Enemy.find(
             (u) => String(u.enemyId) == String(enemy.unitId),
           );
-          console.log(data)
-          
+          console.log(data);
+
           if (data) {
             enemy.SpawnLocation.pointx = data.location.x;
             enemy.SpawnLocation.pointy = data.location.y;
           }
         });
       });
-      
-      console.log(updatedSimulation)
 
-
-
+      console.log(updatedSimulation);
 
       // Prepare updated enemy data for items state
       const updatedEnemyData = Object.keys(updatedSimulation.Enemy).flatMap(
@@ -143,8 +143,8 @@ export default function GridCanvas({ stylingBox }) {
             return {
               id: enemy.unitId,
               name: enemyName,
-              x:normalizetoSmall(enemy.SpawnLocation.pointx),
-              y:normalizetoSmall(enemy.SpawnLocation.pointy),
+              x: normalizetoSmall(enemy.SpawnLocation.pointx),
+              y: normalizetoSmall(enemy.SpawnLocation.pointy),
               status: 'dangerous',
               details: enemy.Ammo,
               path: enemyPath,
@@ -161,7 +161,6 @@ export default function GridCanvas({ stylingBox }) {
       }));
       const playerLastPoint = playerPath[playerPath.length - 1];
 
-
       const playerItemData = {
         id: 'PlayerTank', // Use a unique identifier for the player tank
         name: 'Player Tank',
@@ -175,22 +174,111 @@ export default function GridCanvas({ stylingBox }) {
       };
 
       console.log(items);
-      
+      const prepareItemData = (itemsArray, type, src) => {
+        return itemsArray.map((item) => ({
+          id: item.id,
+          x: normalizetoSmall(item.pointx),
+          y: normalizetoSmall(item.pointy),
+          status: 'neutral',
+          details: {},
+          type,
+          src,
+        }));
+      };
 
+      const hospitalData = prepareItemData(
+        simulationData.Items.Hospital,
+        'hospital',
+        hospital,
+      );
+      const houseData = prepareItemData(
+        simulationData.Items.House,
+        'house',
+        house,
+      );
+      const jhompriData = prepareItemData(
+        simulationData.Items.Jhompri,
+        'jhompri',
+        jhompri,
+      );
+      const railwayStationData = prepareItemData(
+        simulationData.Items.RailwayStation,
+        'RailwayStation',
+        railwayStation,
+      );
+      const rocksData = prepareItemData(
+        simulationData.Items.Rocks,
+        'rocks',
+        rocks,
+      );
+      const shackData = prepareItemData(
+        simulationData.Items.Shack,
+        'shack',
+        shack,
+      );
+      const shopData = prepareItemData(
+        simulationData.Items.Shop,
+        'shop',
+        shopImage,
+      );
+      const smalllHouseData = prepareItemData(
+        simulationData.Items.SmallHouse,
+        'smallhouse',
+        smallHouseImage,
+      );
+      const storeData = prepareItemData(
+        simulationData.Items.Store,
+        'store',
+        storeImage,
+      );
+      const treesData = prepareItemData(
+        simulationData.Items.Trees,
+        'trees',
+        treeImage,
+      );
+      const villageHutData = prepareItemData(
+        simulationData.Items.VillageHut,
+        'villagehut',
+        villageHutImage,
+      );
+      const warehouseData = prepareItemData(
+        simulationData.Items.WareHouse,
+        'warehouse',
+        WareHouseImage,
+      );
+      const WaterTankTowerData = prepareItemData(
+        simulationData.Items.WaterTankTower,
+        'watertank',
+        waterTankImage,
+      );
 
-      console.log(playerItemData)
-      console.log(updatedEnemyData);
-      // Update the items state with the new enemy and player data
-      console.log([...updatedEnemyData,playerItemData]);
-      setUpdatedItems([...updatedEnemyData, playerItemData]);
+      // Combine all items
+      const allItems = [
+        playerItemData,
+        ...updatedEnemyData,
+        ...houseData,
+        ...railwayStationData,
+        ...treesData,
+        ...shackData,
+        ...WaterTankTowerData,
+        ...warehouseData,
+        ...hospitalData,
+        ...jhompriData,
+        ...rocksData,
+        ...villageHutData,
+        ...shopData,
+        ...smalllHouseData,
+        ...storeData,
+      ];
+
+      // console.log(allItems);
+      setUpdatedItems(allItems);
+
       // setItems([...updatedEnemyData, playerItemData]);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   };
-
-  
-
 
   useEffect(() => {
     const intervalId = setInterval(fetchPaths, 3000);
@@ -285,47 +373,88 @@ export default function GridCanvas({ stylingBox }) {
         }));
       };
 
-      const houseData = prepareItemData(
-        simulationData.Items.House,
-        'house',
-        house,
-      );
-      const treesData = prepareItemData(
-        simulationData.Items.Trees,
-        'trees',
-        '',
-      );
-      const shackData = prepareItemData(
-        simulationData.Items.Shack,
-        'shack',
-        shack,
-      );
-      const hospitalData = prepareItemData(
-        simulationData.Items.Hospital,
-        'hospital',
-        hospital,
-      );
-      const jhompriData = prepareItemData(
-        simulationData.Items.Jhompri,
-        'jhompri',
-        jhompri,
-      );
-      const rocksData = prepareItemData(
-        simulationData.Items.Rocks,
-        'rocks',
-        rocks,
-      );
-
+        const hospitalData = prepareItemData(
+          simulationData.Items.Hospital,
+          'hospital',
+          hospital,
+        );
+        const houseData = prepareItemData(
+          simulationData.Items.House,
+          'house',
+          house,
+        );
+        const jhompriData = prepareItemData(
+          simulationData.Items.Jhompri,
+          'jhompri',
+          jhompri,
+        );
+        const railwayStationData = prepareItemData(
+          simulationData.Items.RailwayStation,
+          'RailwayStation',
+          railwayStation,
+        );
+        const rocksData = prepareItemData(
+          simulationData.Items.Rocks,
+          'rocks',
+          rocks,
+        );
+        const shackData = prepareItemData(
+          simulationData.Items.Shack,
+          'shack',
+          shack,
+        );
+        const shopData = prepareItemData(
+          simulationData.Items.Shop,
+          'shop',
+          shopImage,
+        );
+        const smalllHouseData = prepareItemData(
+          simulationData.Items.SmallHouse,
+          'smallhouse',
+          smallHouseImage,
+        );
+        const storeData = prepareItemData(
+          simulationData.Items.Store,
+          'store',
+          storeImage,
+        );
+        const treesData = prepareItemData(
+          simulationData.Items.Trees,
+          'trees',
+          treeImage,
+        );
+        const villageHutData = prepareItemData(
+          simulationData.Items.VillageHut,
+          'villagehut',
+          villageHutImage,
+        );
+        const warehouseData = prepareItemData(
+          simulationData.Items.WareHouse,
+          'warehouse',
+          WareHouseImage,
+        );
+        const WaterTankTowerData = prepareItemData(
+          simulationData.Items.WaterTankTower,
+          'watertank',
+          waterTankImage,
+        );
       // Combine all items
       const allItems = [
         playerData,
         ...enemyData,
         ...houseData,
+        ...railwayStationData,
         ...treesData,
         ...shackData,
+        ...WaterTankTowerData,
+        ...warehouseData,
         ...hospitalData,
         ...jhompriData,
         ...rocksData,
+        ...villageHutData,
+        ...shopData,
+        ...smalllHouseData,
+        ...storeData,
       ];
 
       // console.log(allItems);
@@ -629,7 +758,7 @@ export default function GridCanvas({ stylingBox }) {
                 pointerEvents: 'none',
               }}
             >
-              {items.map((object , index) => {
+              {items.map((object, index) => {
                 if (object.path) {
                   const pathColor =
                     object && object.status === 'own-tank'
@@ -739,7 +868,7 @@ export default function GridCanvas({ stylingBox }) {
                 </div>
 
                 {updatedItems
-                  ? updatedItems.map((item,index) => (
+                  ? updatedItems.map((item, index) => (
                       <React.Fragment key={index}>
                         <div
                           className="Testing-grid updating"
@@ -795,7 +924,7 @@ export default function GridCanvas({ stylingBox }) {
                         )}
                       </React.Fragment>
                     ))
-                  : items.map((item ,index) => (
+                  : items.map((item, index) => (
                       <React.Fragment key={index}>
                         <div
                           className="Testing-grid"

@@ -328,6 +328,7 @@ export const DataArraySlice = createSlice({
     },
     addHospital: (state, action) => {
       const { unitId, spawning_point } = action.payload;
+      console.log(spawning_point);
       const objectExists = state.Items.Hospital.some(
         (object) => object.id === unitId,
       );

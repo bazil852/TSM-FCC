@@ -9,7 +9,9 @@ import car1 from '../../TSM-img/car1.svg';
 import MapCarousel from './MapCarousel';
 import MapDetailModel from './MapDetailModel';
 import data from '../../data.json';
-import mapImg from '../../TSM-img/map_1.svg';
+import dessertTerainSvg from '../../../assets/terrain.svg';
+import semiDessetTerainSvg from '../../../assets/images.jpeg';
+import denseTerainSvg from '../../../assets/terrain.svg';
 import { ipcRenderer } from 'electron';
 import {
   addEnemy,
@@ -203,28 +205,149 @@ export default function SelectMap() {
       dispatch(addHouse(housePayload));
     });
 
-    itemData.data.Items.Hospital.forEach((data) => dispatch(addHospital(data)));
-    itemData.data.Items.Jhompri.forEach((data) => dispatch(addJhompri(data)));
-    itemData.data.Items.RailwayStation.forEach((data) =>
-      dispatch(addRailwayStation(data)),
-    );
-    itemData.data.Items.Rocks.forEach((data) => dispatch(addRocks(data)));
-    itemData.data.Items.Shack.forEach((data) => dispatch(addShack(data)));
-    itemData.data.Items.Shop.forEach((data) => dispatch(addShop(data)));
-    itemData.data.Items.SmallHouse.forEach((data) =>
-      dispatch(addSmallHouse(data)),
-    );
-    itemData.data.Items.Store.forEach((data) => dispatch(addStore(data)));
-    itemData.data.Items.Trees.forEach((data) => dispatch(addTrees(data)));
-    itemData.data.Items.VillageHut.forEach((data) =>
-      dispatch(addVillageHut(data)),
-    );
-    itemData.data.Items.WareHouse.forEach((data) =>
-      dispatch(addWareHouse(data)),
-    );
-    itemData.data.Items.WaterTankTower.forEach((data) =>
-      dispatch(addWaterTankTower(data)),
-    );
+   itemData.data.Items.Hospital.map((hospital) => {
+     const hospitalPayload = {
+       ...hospital,
+       unitId: hospital.id,
+       spawning_point: {
+         x: hospital.pointx,
+         y: hospital.pointy,
+       },
+     };
+     dispatch(addHospital(hospitalPayload));
+   });
+
+   itemData.data.Items.Jhompri.map((jhompri) => {
+     const jhompriPayload = {
+       ...jhompri,
+       unitId: jhompri.id,
+       spawning_point: {
+         x: jhompri.pointx,
+         y: jhompri.pointy,
+       },
+     };
+     dispatch(addJhompri(jhompriPayload));
+   });
+
+   itemData.data.Items.RailwayStation.map((station) => {
+     const stationPayload = {
+       ...station,
+       unitId: station.id,
+       spawning_point: {
+         x: station.pointx,
+         y: station.pointy,
+       },
+     };
+     dispatch(addRailwayStation(stationPayload));
+   });
+
+   itemData.data.Items.Rocks.map((rock) => {
+     const rockPayload = {
+       ...rock,
+       unitId: rock.id,
+       spawning_point: {
+         x: rock.pointx,
+         y: rock.pointy,
+       },
+     };
+     dispatch(addRocks(rockPayload));
+   });
+
+   itemData.data.Items.Shack.map((shack) => {
+     const shackPayload = {
+       ...shack,
+       unitId: shack.id,
+       spawning_point: {
+         x: shack.pointx,
+         y: shack.pointy,
+       },
+     };
+     dispatch(addShack(shackPayload));
+   });
+
+   itemData.data.Items.Shop.map((shop) => {
+     const shopPayload = {
+       ...shop,
+       unitId: shop.id,
+       spawning_point: {
+         x: shop.pointx,
+         y: shop.pointy,
+       },
+     };
+     dispatch(addShop(shopPayload));
+   });
+
+   itemData.data.Items.SmallHouse.map((smallHouse) => {
+     const smallHousePayload = {
+       ...smallHouse,
+       unitId: smallHouse.id,
+       spawning_point: {
+         x: smallHouse.pointx,
+         y: smallHouse.pointy,
+       },
+     };
+     dispatch(addSmallHouse(smallHousePayload));
+   });
+
+   itemData.data.Items.Store.map((store) => {
+     const storePayload = {
+       ...store,
+       unitId: store.id,
+       spawning_point: {
+         x: store.pointx,
+         y: store.pointy,
+       },
+     };
+     dispatch(addStore(storePayload));
+   });
+
+   itemData.data.Items.Trees.map((tree) => {
+     const treePayload = {
+       ...tree,
+       unitId: tree.id,
+       spawning_point: {
+         x: tree.pointx,
+         y: tree.pointy,
+       },
+     };
+     dispatch(addTrees(treePayload));
+   });
+
+   itemData.data.Items.VillageHut.map((villageHut) => {
+     const villageHutPayload = {
+       ...villageHut,
+       unitId: villageHut.id,
+       spawning_point: {
+         x: villageHut.pointx,
+         y: villageHut.pointy,
+       },
+     };
+     dispatch(addVillageHut(villageHutPayload));
+   });
+
+   itemData.data.Items.WareHouse.map((wareHouse) => {
+     const wareHousePayload = {
+       ...wareHouse,
+       unitId: wareHouse.id,
+       spawning_point: {
+         x: wareHouse.pointx,
+         y: wareHouse.pointy,
+       },
+     };
+     dispatch(addWareHouse(wareHousePayload));
+   });
+
+   itemData.data.Items.WaterTankTower.map((waterTankTower) => {
+     const waterTankTowerPayload = {
+       ...waterTankTower,
+       unitId: waterTankTower.id,
+       spawning_point: {
+         x: waterTankTower.pointx,
+         y: waterTankTower.pointy,
+       },
+     };
+     dispatch(addWaterTankTower(waterTankTowerPayload));
+   });
   };
 
   return (
@@ -240,7 +363,7 @@ export default function SelectMap() {
               <thead>
                 <tr>
                   <th>Image</th>
-                  <th>Area</th>
+                  <th>Name</th>
                   <th>Total Enemies</th>
                   <th>Own Tanks</th>
                   <th></th>
@@ -252,12 +375,13 @@ export default function SelectMap() {
                     <tr key={index}>
                       <td>
                         <img
-                          src={mapImg}
+                          src={item.data.ExerciseInfo.terrain == 'Semi Dessert' ?
+                          semiDessetTerainSvg:item.data.ExerciseInfo.terrain =="Dense"? denseTerainSvg : dessertTerainSvg }
                           alt={item.name}
                           className="table-image"
                         />
                       </td>
-                      <td>{item.data.ExerciseInfo.mapArea}</td>
+                      <td>{item.data.ExerciseInfo.mapName}</td>
                       <td>{item.data.totalEnemies}</td>
                       <td>{item.data.totalOwnTanks}</td>
                       <td>
