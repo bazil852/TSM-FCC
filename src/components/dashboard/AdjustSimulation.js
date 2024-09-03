@@ -16,6 +16,9 @@ export default function AdjustSimulation() {
       pointx: 27834,
       pointy: 224460,
     },
+    FCCFailure: false, // New field
+    JoystickFailure: false, // New field
+    LaserFailure: false, // New field
   });
 
   // Function to fetch the latest data from sp.json
@@ -56,6 +59,15 @@ export default function AdjustSimulation() {
     }, 2000);
   };
 
+  // Function to handle Faults (FCC, Joystick, Laser) toggling
+  const handleFaultToggle = (faultType) => {
+    const updatedStatus = {
+      ...spStatus,
+      [faultType]: !spStatus[faultType], // Toggle the current state
+    };
+    updateSpStatus(updatedStatus);
+  };
+
   useEffect(() => {
     fetchSpStatus(); // Fetch the initial data when component mounts
     const intervalId = setInterval(fetchSpStatus, 5000); // Fetch the latest data every 5 seconds
@@ -68,9 +80,9 @@ export default function AdjustSimulation() {
     { title: 'BORE SIGHTING' },
   ];
   const faults = [
-    { title: 'FCC FAILURE' },
-    { title: 'JOYSTICK FAILURE' },
-    { title: 'LASER FAILURE' },
+    { title: 'FCC FAILURE', key: 'FCCFailure' }, // Added key for identification
+    { title: 'JOYSTICK FAILURE', key: 'JoystickFailure' }, // Added key for identification
+    { title: 'LASER FAILURE', key: 'LaserFailure' }, // Added key for identification
   ];
   const ammo = [
     { title: 'APFSDS' },
@@ -94,7 +106,7 @@ export default function AdjustSimulation() {
               </div>
             );
           })}
-          <div
+          <button
             className={
               !spStatus.DoAllEnemeySmoke
                 ? 'adjust_simulation_box_content_category'
@@ -103,7 +115,7 @@ export default function AdjustSimulation() {
             onClick={handleEnemySmokeGrenade}
           >
             Enemy Smoke Grenade
-          </div>
+          </button>
           <div className="adjust_simulation_box_content_category">
             Enemy Artillery
           </div>
@@ -115,9 +127,17 @@ export default function AdjustSimulation() {
         <div className="faults_box_content">
           {faults.map((data, index) => {
             return (
-              <div className="faults_box_content_category" key={index}>
+              <button
+                className={
+                  spStatus[data.key]?
+                     'adjust_simulation_box_content_category_select':
+                    'adjust_simulation_box_content_category'
+                }
+                key={index}
+                onClick={() => handleFaultToggle(data.key)}
+              >
                 {data.title}
-              </div>
+              </button>
             );
           })}
         </div>

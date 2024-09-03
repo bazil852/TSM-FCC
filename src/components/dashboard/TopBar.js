@@ -4,6 +4,7 @@ import '../../renderer/App.css';
 import { ipcRenderer } from 'electron';
 import { useSelector, useDispatch } from 'react-redux';
 import { setReportData } from '../../redux/CarouselSelectedItemSlice';
+import { resetDataArray } from '../../redux/DataArray';
 
 export default function TopBar() {
   const dispatch = useDispatch();
@@ -18,8 +19,16 @@ export default function TopBar() {
     pause: false,
     end: false,
     respawn: false,
-    XTurretSensitivity: 1.0,
-    YTurretSensitivity: 1.0,
+    XTurretSensitivity: 1.3,
+    YTurretSensitivity: 1.4,
+    DoAllEnemeySmoke: false,
+    ArtilleryStrikeLocation: {
+      pointx: 27834,
+      pointy: 224460,
+    },
+    FCCFailure: false, 
+    JoystickFailure: false, 
+    LaserFailure: false, 
   });
   // Function to fetch the sp.json data
   const fetchSpStatus = async () => {
@@ -91,7 +100,12 @@ export default function TopBar() {
         start: false,
         pause: false,
         respawn: false,
+        FCCFailure: false,
+        JoystickFailure: false,
+        LaserFailure: false,
+        DoAllEnemeySmoke: false,
       };
+      dispatch(resetDataArray())
       updateSpStatus(resetStartStatus);
     }, 2000);
   };

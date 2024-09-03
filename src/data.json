@@ -1,7 +1,7 @@
 {
   "dropDownOptionsOfSelectStudent": ["Option 1", "Option 2", "Option 3"],
   "dropDownOptionsOfSelectInstructor": ["Option 4", "Option 5", "Option 6"],
-  "dropDownOptionsOfSelectTimeOfDay": ["DAWN", "DUSK", "NIGHT"],
+  "dropDownOptionsOfSelectTimeOfDay": ["DAY","DAWN", "DUSK", "NIGHT"],
   "dropDownOptionsOfSelectWeatherCondition": ["RAIN", "SUNNY", "CLOUDY"],
   "dropDownOptionsOfSelectDifficulty": ["EASY", "MEDIUM", "DIFFICULT"],
   "dropDownOptionsOfExcersieTime": ["Option 1", "Option 2", "Option 3"],
@@ -447,16 +447,20 @@
   ],
   "basicDetails": [
     {
-      "title": "Total Battle Practice",
-      "detail": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."
+      "title": "Bore Sighting (Day)",
+      "detail": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+      "key":"boreDay"
+      
     },
     {
-      "title": "Practice LRF",
-      "detail": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."
+      "title": "Bore Sighting (Night)",
+      "detail": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+      "key": "boreNight"
     },
     {
-      "title": "Practice Aim & Fire",
-      "detail": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."
+      "title": "Friendly Mode",
+      "detail": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+      "key": "friendlyMode"
     }
   ],
   "advanceDetails": [

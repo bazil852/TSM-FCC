@@ -36,7 +36,10 @@ import {
   updateTotalOwnTanks,
   updateTotalEnemies,
   setNewMapCreated,
+  resetDataArray,
 } from '../../redux/DataArray';
+
+import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setSelectedMapID } from '../../redux/CarouselSelectedItemSlice';
 
@@ -44,7 +47,7 @@ export default function SelectMap() {
   const dispatch = useDispatch();
   const dataArrayState = useSelector((state) => state.dataArray);
   console.log(dataArrayState);
-
+  const navigate = useNavigate();
   const [selectedSlide, setSelectedSlide] = useState(0);
   const [show, setShown] = useState(false);
   const [openModal, setOpenModal] = useState(false);
@@ -83,8 +86,6 @@ export default function SelectMap() {
       phone: '456-789-0123',
     },
   ];
-
-  
 
   const props3 = useSpring({
     transform: show ? 'scale(1.03)' : 'scale(1)',
@@ -135,7 +136,6 @@ export default function SelectMap() {
   }, [openModal]);
 
   const selectMap = (itemData) => {
-    
     dispatch(setNewMapCreated(false));
     const defaultAmmo = {
       Heat: 40,
@@ -205,150 +205,155 @@ export default function SelectMap() {
       dispatch(addHouse(housePayload));
     });
 
-   itemData.data.Items.Hospital.map((hospital) => {
-     const hospitalPayload = {
-       ...hospital,
-       unitId: hospital.id,
-       spawning_point: {
-         x: hospital.pointx,
-         y: hospital.pointy,
-       },
-     };
-     dispatch(addHospital(hospitalPayload));
-   });
+    itemData.data.Items.Hospital.map((hospital) => {
+      const hospitalPayload = {
+        ...hospital,
+        unitId: hospital.id,
+        spawning_point: {
+          x: hospital.pointx,
+          y: hospital.pointy,
+        },
+      };
+      dispatch(addHospital(hospitalPayload));
+    });
 
-   itemData.data.Items.Jhompri.map((jhompri) => {
-     const jhompriPayload = {
-       ...jhompri,
-       unitId: jhompri.id,
-       spawning_point: {
-         x: jhompri.pointx,
-         y: jhompri.pointy,
-       },
-     };
-     dispatch(addJhompri(jhompriPayload));
-   });
+    itemData.data.Items.Jhompri.map((jhompri) => {
+      const jhompriPayload = {
+        ...jhompri,
+        unitId: jhompri.id,
+        spawning_point: {
+          x: jhompri.pointx,
+          y: jhompri.pointy,
+        },
+      };
+      dispatch(addJhompri(jhompriPayload));
+    });
 
-   itemData.data.Items.RailwayStation.map((station) => {
-     const stationPayload = {
-       ...station,
-       unitId: station.id,
-       spawning_point: {
-         x: station.pointx,
-         y: station.pointy,
-       },
-     };
-     dispatch(addRailwayStation(stationPayload));
-   });
+    itemData.data.Items.RailwayStation.map((station) => {
+      const stationPayload = {
+        ...station,
+        unitId: station.id,
+        spawning_point: {
+          x: station.pointx,
+          y: station.pointy,
+        },
+      };
+      dispatch(addRailwayStation(stationPayload));
+    });
 
-   itemData.data.Items.Rocks.map((rock) => {
-     const rockPayload = {
-       ...rock,
-       unitId: rock.id,
-       spawning_point: {
-         x: rock.pointx,
-         y: rock.pointy,
-       },
-     };
-     dispatch(addRocks(rockPayload));
-   });
+    itemData.data.Items.Rocks.map((rock) => {
+      const rockPayload = {
+        ...rock,
+        unitId: rock.id,
+        spawning_point: {
+          x: rock.pointx,
+          y: rock.pointy,
+        },
+      };
+      dispatch(addRocks(rockPayload));
+    });
 
-   itemData.data.Items.Shack.map((shack) => {
-     const shackPayload = {
-       ...shack,
-       unitId: shack.id,
-       spawning_point: {
-         x: shack.pointx,
-         y: shack.pointy,
-       },
-     };
-     dispatch(addShack(shackPayload));
-   });
+    itemData.data.Items.Shack.map((shack) => {
+      const shackPayload = {
+        ...shack,
+        unitId: shack.id,
+        spawning_point: {
+          x: shack.pointx,
+          y: shack.pointy,
+        },
+      };
+      dispatch(addShack(shackPayload));
+    });
 
-   itemData.data.Items.Shop.map((shop) => {
-     const shopPayload = {
-       ...shop,
-       unitId: shop.id,
-       spawning_point: {
-         x: shop.pointx,
-         y: shop.pointy,
-       },
-     };
-     dispatch(addShop(shopPayload));
-   });
+    itemData.data.Items.Shop.map((shop) => {
+      const shopPayload = {
+        ...shop,
+        unitId: shop.id,
+        spawning_point: {
+          x: shop.pointx,
+          y: shop.pointy,
+        },
+      };
+      dispatch(addShop(shopPayload));
+    });
 
-   itemData.data.Items.SmallHouse.map((smallHouse) => {
-     const smallHousePayload = {
-       ...smallHouse,
-       unitId: smallHouse.id,
-       spawning_point: {
-         x: smallHouse.pointx,
-         y: smallHouse.pointy,
-       },
-     };
-     dispatch(addSmallHouse(smallHousePayload));
-   });
+    itemData.data.Items.SmallHouse.map((smallHouse) => {
+      const smallHousePayload = {
+        ...smallHouse,
+        unitId: smallHouse.id,
+        spawning_point: {
+          x: smallHouse.pointx,
+          y: smallHouse.pointy,
+        },
+      };
+      dispatch(addSmallHouse(smallHousePayload));
+    });
 
-   itemData.data.Items.Store.map((store) => {
-     const storePayload = {
-       ...store,
-       unitId: store.id,
-       spawning_point: {
-         x: store.pointx,
-         y: store.pointy,
-       },
-     };
-     dispatch(addStore(storePayload));
-   });
+    itemData.data.Items.Store.map((store) => {
+      const storePayload = {
+        ...store,
+        unitId: store.id,
+        spawning_point: {
+          x: store.pointx,
+          y: store.pointy,
+        },
+      };
+      dispatch(addStore(storePayload));
+    });
 
-   itemData.data.Items.Trees.map((tree) => {
-     const treePayload = {
-       ...tree,
-       unitId: tree.id,
-       spawning_point: {
-         x: tree.pointx,
-         y: tree.pointy,
-       },
-     };
-     dispatch(addTrees(treePayload));
-   });
+    itemData.data.Items.Trees.map((tree) => {
+      const treePayload = {
+        ...tree,
+        unitId: tree.id,
+        spawning_point: {
+          x: tree.pointx,
+          y: tree.pointy,
+        },
+      };
+      dispatch(addTrees(treePayload));
+    });
 
-   itemData.data.Items.VillageHut.map((villageHut) => {
-     const villageHutPayload = {
-       ...villageHut,
-       unitId: villageHut.id,
-       spawning_point: {
-         x: villageHut.pointx,
-         y: villageHut.pointy,
-       },
-     };
-     dispatch(addVillageHut(villageHutPayload));
-   });
+    itemData.data.Items.VillageHut.map((villageHut) => {
+      const villageHutPayload = {
+        ...villageHut,
+        unitId: villageHut.id,
+        spawning_point: {
+          x: villageHut.pointx,
+          y: villageHut.pointy,
+        },
+      };
+      dispatch(addVillageHut(villageHutPayload));
+    });
 
-   itemData.data.Items.WareHouse.map((wareHouse) => {
-     const wareHousePayload = {
-       ...wareHouse,
-       unitId: wareHouse.id,
-       spawning_point: {
-         x: wareHouse.pointx,
-         y: wareHouse.pointy,
-       },
-     };
-     dispatch(addWareHouse(wareHousePayload));
-   });
+    itemData.data.Items.WareHouse.map((wareHouse) => {
+      const wareHousePayload = {
+        ...wareHouse,
+        unitId: wareHouse.id,
+        spawning_point: {
+          x: wareHouse.pointx,
+          y: wareHouse.pointy,
+        },
+      };
+      dispatch(addWareHouse(wareHousePayload));
+    });
 
-   itemData.data.Items.WaterTankTower.map((waterTankTower) => {
-     const waterTankTowerPayload = {
-       ...waterTankTower,
-       unitId: waterTankTower.id,
-       spawning_point: {
-         x: waterTankTower.pointx,
-         y: waterTankTower.pointy,
-       },
-     };
-     dispatch(addWaterTankTower(waterTankTowerPayload));
-   });
+    itemData.data.Items.WaterTankTower.map((waterTankTower) => {
+      const waterTankTowerPayload = {
+        ...waterTankTower,
+        unitId: waterTankTower.id,
+        spawning_point: {
+          x: waterTankTower.pointx,
+          y: waterTankTower.pointy,
+        },
+      };
+      dispatch(addWaterTankTower(waterTankTowerPayload));
+    });
   };
+ 
+  const resetData = () => {
+    dispatch(resetDataArray())
+    navigate("/create_map");
+  }
 
   return (
     <div className="select_map_main_class">
@@ -375,8 +380,13 @@ export default function SelectMap() {
                     <tr key={index}>
                       <td>
                         <img
-                          src={item.data.ExerciseInfo.terrain == 'Semi Dessert' ?
-                          semiDessetTerainSvg:item.data.ExerciseInfo.terrain =="Dense"? denseTerainSvg : dessertTerainSvg }
+                          src={
+                            item.data.ExerciseInfo.terrain == 'Semi Dessert'
+                              ? semiDessetTerainSvg
+                              : item.data.ExerciseInfo.terrain == 'Dense'
+                              ? denseTerainSvg
+                              : dessertTerainSvg
+                          }
                           alt={item.name}
                           className="table-image"
                         />
@@ -408,9 +418,14 @@ export default function SelectMap() {
         </div>
         <div className="select_map_button_group_main_class">
           <div className="select_map_button_group">
-            <NavLink to={'/create_map'} className="select_map_button">
-              {dataArrayState.newMapCreated ? 'Create New Map' : 'Update Map'}
-            </NavLink>
+            {!dataArrayState.newMapCreated ? (
+              <NavLink to={'/create_map'} className="select_map_button">
+                Update Map
+              </NavLink>
+            ) : null}
+            <div onClick={resetData} className="select_map_button">
+              Create New Map
+            </div>
             {/* <div
               className="select_map_button"
               type="button"

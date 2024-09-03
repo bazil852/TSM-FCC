@@ -46,6 +46,9 @@ export const DataArraySlice = createSlice({
   },
 
   reducers: {
+    resetDataArray: () => {
+      return DataArraySlice.getInitialState(); 
+    },
     setOnlyOneOwnTank: (state, action) => {
       state.onlyOneOwnTank = action.payload;
     },
@@ -566,6 +569,7 @@ export const {
   setWeatherCondition,
   setWeatherConditionIntensity,
   setWeatherVisibility,
+  resetDataArray,
 } = DataArraySlice.actions;
 
 export default DataArraySlice.reducer;

@@ -183,16 +183,23 @@ export default function GridCanvas({ stylingBox }) {
     ];
 
     setItems(allItems);
-
+ console.log(allItems)
     // Set object start points with last point as startPoint
-    setObjectStartPoints(
-      allItems.map((item) => ({
-        id: item.id,
-        item,
-        startPoint: { x: item.path[item.path.length - 1].x, y: item.path[item.path.length - 1].y },
-        path: item.path.map(u => ({ x: u.x, y: u.y }))
-      }))
-    );
+   setObjectStartPoints(
+     allItems.map((item) => ({
+       id: item.id,
+       item,
+       startPoint:
+         item.path && item.path.length > 0
+           ? {
+               x: item.path[item.path.length - 1].x,
+               y: item.path[item.path.length - 1].y,
+             }
+           : { x: item.x, y: item.y }, // Use item.x and item.y if no path
+       path: item.path ? item.path.map((u) => ({ x: u.x, y: u.y })) : [], // Ensure path is an array, even if empty
+     })),
+   );
+
 
     // Extract paths for all units and set in paths state
     const pathsData = {};

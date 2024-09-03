@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import '../renderer/App.css';
 import mainMenu from '../TSM-img/main_menu.svg';
 import backButton from '../TSM-img/back_button.svg';
 import Footer from '../utility/Footer';
 import data from '../data.json';
+import TSMBoreDayJson from '../../JSON_Files/tsm.json';
+import TSMBoreNightJson from '../../JSON_Files/tsm.json';
+import TSMFriendlyJson from '../../JSON_Files/tsm.json';
+import { ipcRenderer } from 'electron';
 
 export default function BasicAdvanceTab() {
   const [toggle, setToggle] = useState(false);
@@ -25,6 +29,25 @@ export default function BasicAdvanceTab() {
     maxHeight: toggle ? '100%' : '0',
     overflow: 'hidden',
     transition: 'all 0.3s ease-in-out',
+  };
+  const navigate = useNavigate();
+
+  const selectMode = (data) => {
+    console.log(data);
+    var jsonData;
+    if (data.key == 'boreDay') {
+      jsonData = TSMBoreDayJson;
+    } else if (data.key == 'boreNight') {
+      jsonData = TSMBoreNightJson;
+    } else {
+      jsonData = TSMFriendlyJson;
+    }
+    console.log(jsonData);
+    ipcRenderer.send('save-json', {
+      data: jsonData,
+      filename: process.env.SIMULATION_DATA_PATH,
+    });
+    navigate('/dashboard');
   };
 
   return (
@@ -70,7 +93,11 @@ export default function BasicAdvanceTab() {
             <div className="basic_advance_tab_content" style={studentTabStyle}>
               {basicDetails.map((data, index) => {
                 return (
-                  <div key={index}>
+                  <div
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => selectMode(data)}
+                    key={index}
+                  >
                     <div className="basic_advance_tab_content_box">
                       <div className="basic_advance_tab_content_box_heading">
                         {data.title}
