@@ -50,6 +50,13 @@ input[type='number'] {
   z-index: 1;
 }
 
+.steps-parent-btn{
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
 
 .adjust_simulation_box_content_category_select {
   background-color: red;
