@@ -1,29 +1,33 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import '../renderer/App.css';
 import mainMenu from '../TSM-img/main_menu.svg';
 import backButton from '../TSM-img/back_button.svg';
 import Footer from '../utility/Footer';
+import { ipcRenderer } from 'electron';
 import data from '../data.json';
 
 export default function TestMode() {
-  const [active, setActive] = useState(false);
+  const [diagnosticsArray, setDiagnosticsArray] = useState([]); // Consolidated array for all diagnostics data
+  const [loading, setLoading] = useState(false); // Loading state for diagnostics
 
-  const trainingArray = data.softwareArray;
-  const recentArray = data.hardwareArray;
+  const handleRunDiagnostics = async () => {
+    setLoading(true); // Set loading to true while diagnostics are running
+    try {
+      // Call the exposed IPC method directly using ipcRenderer
+      const result = await ipcRenderer.invoke('run-python-diagnostics');
+      setDiagnosticsArray(result); // Set the diagnostics data from Python
+    } catch (error) {
+      console.error('Error running diagnostics:', error);
+      setDiagnosticsArray(data.softwareArray.concat(data.hardwareArray)); // Fallback to local data if error occurs
+    } finally {
+      setLoading(false); // Set loading to false after diagnostics complete
+    }
+  };
 
-  const trainingStyle = {
-    opacity: !active ? 1 : 0,
-    height: active && '0px',
-    overflow: 'hidden',
-    transition: 'opacity 0.4s ease-in-out',
-  };
-  const recentStyle = {
-    opacity: active ? 1 : 0,
-    height: !active && '0px',
-    overflow: 'hidden',
-    transition: 'opacity 0.4s ease-in-out',
-  };
+  useEffect(() => {
+    handleRunDiagnostics(); // Run diagnostics on component mount
+  }, []);
 
   return (
     <div
@@ -39,92 +43,43 @@ export default function TestMode() {
         </span>
       </NavLink>
       <div className="test_mode_main_content_container">
-        <div className="test_mode_tab_heading__box">
-          <div
-            onClick={() => setActive(false)}
-            style={{
-              cursor: 'pointer',
-              color: !active ? 'white' : '#9fa4a9',
-              fontWeight: !active ? 700 : 600,
-              fontSize: !active ? '1.5rem' : '1.4rem',
-              transition: 'all 0.1s ease',
-            }}
-          >
-            SOFTWARE
-          </div>
-          <div
-            onClick={() => setActive(true)}
-            style={{
-              cursor: 'pointer',
-              color: active ? 'white' : '#9fa4a9',
-              fontWeight: active ? 700 : 600,
-              fontSize: active ? '1.5rem' : '1.4rem',
-              transition: 'all 0.1s ease',
-            }}
-          >
-            HARDWARE
-          </div>
-        </div>
-
         <div className="test_mode_tab_table">
           <div className="test_mode_tab_table_heading_container">
             <div className="test_mode_tab_table_name_heading">NAME</div>
             <div className="test_mode_tab_table_name_heading">STATUS</div>
           </div>
 
-          <div style={trainingStyle}>
-            {trainingArray.map((data, index) => {
-              return (
-                <div className="test_mode_tab_table_data_container" key={index}>
-                  <div className="test_mode_tab_table_data">{data.name}</div>
-                  <div
-                    className="test_mode_tab_table_data"
-                    style={{
-                      color:
-                        data.status === 'Operational' ||
-                        data.status === 'operational' ||
-                        data.status === 'OPERATIONAL'
-                          ? '#1AD336'
-                          : data.status === 'down' ||
-                            data.status === 'Down' ||
-                            data.status === 'DOWN'
-                          ? '#BF1413'
-                          : '#FAFF1B',
-                    }}
-                  >
-                    {data.status}
-                  </div>
+          {diagnosticsArray.map((data, index) => {
+            return (
+              <div className="test_mode_tab_table_data_container" key={index}>
+                <div className="test_mode_tab_table_data">{data.name}</div>
+                <div
+                  className="test_mode_tab_table_data"
+                  style={{
+                    color:
+                      data.status.toLowerCase() === 'operational'
+                        ? '#1AD336'
+                        : data.status.toLowerCase() === 'down'
+                        ? '#BF1413'
+                        : '#FAFF1B',
+                  }}
+                >
+                  {data.status.toUpperCase()}
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            );
+          })}
+        </div>
 
-          <div style={recentStyle}>
-            {recentArray.map((data, index) => {
-              return (
-                <div className="test_mode_tab_table_data_container" key={index}>
-                  <div className="test_mode_tab_table_data">{data.name}</div>
-                  <div
-                    className="test_mode_tab_table_data"
-                    style={{
-                      color:
-                        data.status === 'Operational' ||
-                        data.status === 'operational' ||
-                        data.status === 'OPERATIONAL'
-                          ? '#1AD336'
-                          : data.status === 'down' ||
-                            data.status === 'Down' ||
-                            data.status === 'DOWN'
-                          ? '#BF1413'
-                          : '#FAFF1B',
-                    }}
-                  >
-                    {data.status}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+        {/* Refresh Button */}
+        <div className="refresh_button_container">
+          <button
+            className="refresh_button"
+            onClick={handleRunDiagnostics}
+            disabled={loading}
+          >
+            {loading ? 'Refreshing...' : 'Refresh'}
+          </button>
         </div>
       </div>
 

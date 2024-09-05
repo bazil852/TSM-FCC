@@ -14,10 +14,25 @@ export default function PastSimulation() {
     const [selectedVideo, setSelectedVideo] = useState(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [reports, setReports] = useState()
+  const [videoUrl, setVideoUrl] = useState('');
   const fetchResorts = async () => {
     let data = await ipcRenderer.invoke('fetch-reports-data');
     console.log(data);
     setReports(data);
+  };
+
+  const fetchVideo = async (filePath) => {
+    const videoData = await ipcRenderer.invoke('fetch-video-data', filePath);
+    if (videoData) {
+      const blob = new Blob([Uint8Array.from(atob(videoData), c => c.charCodeAt(0))], { type: 'video/webm' });
+      const url = URL.createObjectURL(blob);
+      setVideoUrl(url);
+    }
+  };
+
+  const handleViewClick = (filePath) => {
+    fetchVideo(filePath);
+    setModalIsOpen(true);
   };
 
   useEffect(() => {
@@ -44,19 +59,19 @@ export default function PastSimulation() {
       className="past_simulation_main_class"
       style={{ backgroundImage: `url(${mainMenu})` }}
     >
-      <Modal isOpen={modalIsOpen} closeModal={() => {
-        setModalIsOpen(false);
-        setSelectedVideo(null)
-      }}>
-        {selectedVideo && (
-          <iframe
-            className="iFrame_video_player"
-            title={selectedVideo.title}
-            src={selectedVideo}
-            frameBorder="0"
-            allow="autoplay; encrypted-media"
-            allowFullScreen
-          ></iframe>
+      <Modal
+        isOpen={modalIsOpen}
+        closeModal={() => {
+          setModalIsOpen(false);
+          setSelectedVideo(null);
+          URL.revokeObjectURL(videoUrl); // Clean up the Blob URL
+        }}
+      >
+        {videoUrl && (
+          <video className="iFrame_video_player" controls>
+            <source src={videoUrl} type="video/webm" />
+            Your browser does not support the video tag.
+          </video>
         )}
       </Modal>
       <NavLink className="navigation_button_with_bigger_width_2" to="/">
@@ -135,18 +150,15 @@ export default function PastSimulation() {
                     </div>
                     <div className="past_simulation_tab_table_data">{'70'}</div>
                     <div
-                      onClick={() =>
-                        {
-                        setSelectedVideo(
-                          `${process.env.REC_PATH}/${data.data.recordingFileName}`,
-                        )
-                        setModalIsOpen(true)
-                        }
-                      }
-                      className="past_simulation_tab_table_data_recording"
-                    >
-                      View
-                    </div>
+                    onClick={() =>
+                      handleViewClick(
+                        `${process.env.REC_PATH}/${data.data.recordingFileName}`
+                      )
+                    }
+                    className="past_simulation_tab_table_data_recording"
+                  >
+                    View
+                  </div>
                   </div>
                 );
               })}

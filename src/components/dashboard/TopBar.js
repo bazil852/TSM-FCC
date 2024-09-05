@@ -124,7 +124,7 @@ export default function TopBar() {
   const startRecording = async () => {
     try {
       const inputSources = await ipcRenderer.invoke('getSources');
-      const screenId = inputSources[0].id; // Choose the first screen source or let the user select one
+      const screenId = inputSources[2].id; // Choose the first screen source or let the user select one
       const IS_MACOS =
         (await ipcRenderer.invoke('getOperatingSystem')) === 'darwin';
 

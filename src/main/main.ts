@@ -24,6 +24,8 @@ import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import dotenv from 'dotenv';
 import connection from '../../database';
+import { spawn } from 'child_process';
+
 const fs = require('fs');
 dotenv.config();
 
@@ -96,8 +98,6 @@ ipcMain.handle('showSaveDialog', async () => {
   });
   return { canceled, filePath };
 });
-
-//
 
 // my SQL CRUD Operations
 ipcMain.handle('fetch-instructors', async () => {
@@ -266,7 +266,47 @@ ipcMain.on('update-map-data', (event, { idmap, mapData }) => {
   );
 });
 
-//
+//Get Video from Directory
+ipcMain.handle('fetch-video-data', async (event, videoPath) => {
+  try {
+    console.log("Video Path: ",videoPath);
+    const videoBuffer = fs.readFileSync(videoPath);
+    return videoBuffer.toString('base64'); // Convert buffer to base64 for easy transmission
+  } catch (error) {
+    console.error('Error reading video file:', error);
+    return null;
+  }
+});
+
+// Listen for IPC calls from React renderer
+ipcMain.handle('run-python-diagnostics', async () => {
+  return new Promise((resolve, reject) => {
+    const pythonProcess = spawn('python', [path.join(__dirname, '../python_scripts/BiteSystem.py')]);
+
+    let result = '';
+
+    pythonProcess.stdout.on('data', (data) => {
+      result += data.toString();
+    });
+
+    pythonProcess.stderr.on('data', (data) => {
+      console.error('Python Error:', data.toString());
+    });
+
+    pythonProcess.on('close', (code) => {
+      if (code === 0) {
+        try {
+          const diagnostics = JSON.parse(result);
+          resolve(diagnostics);  // Resolve with parsed JSON object
+        } catch (error) {
+          reject(new Error(`Failed to parse JSON: ${error.message}`));
+        }
+      } else {
+        reject(new Error(`Python script exited with code ${code}`));
+      }
+    });
+  });
+});
 
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
