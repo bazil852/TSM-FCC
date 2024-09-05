@@ -14,14 +14,13 @@ export default function CreateMap() {
   const dispatch = useDispatch();
   const [mapName, setMapNm] = useState('');
   const navigate = useNavigate();
-  const options = data.dropDownOptionsOfExcersieTime;
   const options1 = data.dropDownOptionsOfSelectTerrain;
 
   const enemy = useSelector((state) => state.dataArray.Enemy);
   const objects = useSelector((state) => state.dataArray.Items);
   const Player = useSelector((state) => state.dataArray.Player);
 
-  const [exerciseTime, setExerciseTimes] = useState(options[0]);
+  const [exerciseTime, setExerciseTimes] = useState(2);
   const [terrain, setTerain] = useState(options1[0]);
 
   const handleMapNameChange = (value) => {
@@ -91,7 +90,39 @@ export default function CreateMap() {
               </div>
             </div>
 
-            <div
+            <div className="select_exercise_time_dropdown">
+              <span>Exercise Time</span>
+              <div className="progress_bar_and_value_main_container">
+                <div className="progress_bar_container-map">
+                  <input
+                    type="range"
+                    min="2"
+                    max="30"
+                    value={exerciseTime}
+                    style={{ width: '356px !important' }}
+                    onChange={(e) => handleExerciseTime(e.target.value)}
+                  />
+                </div>
+                <div className="progress_bar_value_box">
+                  <input
+                    type="number"
+                    value={exerciseTime}
+                    onChange={(e) => {
+                      if (e.target.value > 30) {
+                        handleExerciseTime(30);
+                      } else if (e.target.value < 2) {
+                        handleExerciseTime(2);
+                      } else {
+                        handleExerciseTime(e.target.value);
+                      }
+                    }}
+                  />
+                  Min
+                </div>
+              </div>
+            </div>
+
+            {/* <div
               className="select_exercise_time_dropdown"
               style={{ zIndex: 3 }}
             >
@@ -101,7 +132,7 @@ export default function CreateMap() {
                 selected={exerciseTime}
                 onOptionSelect={handleExerciseTime}
               />
-            </div>
+            </div> */}
             <div className="select_terrain_dropdown" style={{ zIndex: 2 }}>
               <span>SELECT TERRAIN</span>
               <DropDown
