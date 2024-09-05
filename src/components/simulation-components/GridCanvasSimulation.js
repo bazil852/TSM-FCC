@@ -23,7 +23,8 @@ import {
   setWindDirection,
 } from '../../redux/DataArray';
 
-import gridTank from '../../TSM-img/gridTank.svg';
+import gridTank from '../../TSM-img/tank2.svg';
+import PlayerTank from '../../TSM-img/tank1.svg';
 import Increment from '../../TSM-img/increment.svg';
 import Decrement from '../../TSM-img/decrement.svg';
 import close from '../../TSM-img/close.svg';
@@ -79,6 +80,23 @@ export default function GridCanvas({ stylingBox }) {
     }));
   };
 
+    const normalizePathX = (x) => {
+      const scaleFactorToLargeSpace = 500000 / 1000;
+      const normalizedX = x * scaleFactorToLargeSpace;
+      return normalizedX;
+    };
+
+    const normalizePathY = (y) => {
+      const scaleFactorToLargeSpace = 500000 / 1000;
+      const normalizedY = y * scaleFactorToLargeSpace;
+      return normalizedY;
+    };
+
+    const normalizetoSmall = (value) => {
+      const scaleFactorToGridSpace = 1000 / 500000;
+      return value * scaleFactorToGridSpace;
+    };
+
   //Fetching Players Data
 
   const fetchPaths = async () => {
@@ -94,7 +112,7 @@ export default function GridCanvas({ stylingBox }) {
       );
 
       console.log(enemyData);
-
+     console.log(simulationData)
       // Create a copy of simulationData to avoid mutating state directly
       let updatedSimulation = { ...simulationData };
 
@@ -170,7 +188,7 @@ export default function GridCanvas({ stylingBox }) {
         details: playerData.Player.ammo, // Use player's ammo data
         path: playerPath,
         type: 'tank',
-        src: gridTank,
+        src: PlayerTank,
       };
 
       console.log(items);
@@ -280,11 +298,11 @@ export default function GridCanvas({ stylingBox }) {
     }
   };
 
-  useEffect(() => {
-    const intervalId = setInterval(fetchPaths, 3000);
+  // useEffect(() => {
+  //   const intervalId = setInterval(fetchPaths, 3000);
 
-    return () => clearInterval(intervalId);
-  }, [simulationData]);
+  //   return () => clearInterval(intervalId);
+  // }, [simulationData]);
 
   // Function to fetch data from the JSON files
   const fetchData = async () => {
@@ -293,7 +311,7 @@ export default function GridCanvas({ stylingBox }) {
         'read-json',
         process.env.SIMULATION_DATA_PATH,
       );
-
+     console.log(simulationData)
       setSimulationData(simulationData);
 
       // Dispatch actions to update Redux state
@@ -328,8 +346,8 @@ export default function GridCanvas({ stylingBox }) {
       const playerData = {
         id: simulationData.Player.id,
         name: 'Player Tank',
-        x: playerLastPoint.x,
-        y: playerLastPoint.y,
+        x: simulationData.Player.SpawnLocation.pointx,
+        y: simulationData.Player.SpawnLocation.pointy,
         status: 'own-tank',
         details: simulationData.Player.Ammo,
         path: playerPath,
@@ -344,13 +362,13 @@ export default function GridCanvas({ stylingBox }) {
             x: normalizetoSmall(point.pointx),
             y: normalizetoSmall(point.pointy),
           }));
-          const enemyLastPoint = enemyPath[enemyPath.length - 1];
+         
 
           return {
             id: enemy.unitId,
             name: enemyName,
-            x: enemyLastPoint.x,
-            y: enemyLastPoint.y,
+            x: normalizetoSmall(enemy.SpawnLocation.pointx),
+            y: normalizetoSmall(enemy.SpawnLocation.pointy),
             status: 'dangerous',
             details: enemy.Ammo,
             path: enemyPath,
@@ -665,22 +683,7 @@ export default function GridCanvas({ stylingBox }) {
     return { x: boundedX, y: boundedY };
   };
 
-  const normalizePathX = (x) => {
-    const scaleFactorToLargeSpace = 500000 / 1000;
-    const normalizedX = x * scaleFactorToLargeSpace;
-    return normalizedX;
-  };
 
-  const normalizePathY = (y) => {
-    const scaleFactorToLargeSpace = 500000 / 1000;
-    const normalizedY = y * scaleFactorToLargeSpace;
-    return normalizedY;
-  };
-
-  const normalizetoSmall = (value) => {
-    const scaleFactorToGridSpace = 1000 / 500000;
-    return value * scaleFactorToGridSpace;
-  };
 
   const getMousePosition = (e) => {
     const rect = gridRef.current.getBoundingClientRect();

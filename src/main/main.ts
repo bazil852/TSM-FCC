@@ -317,7 +317,7 @@ ipcMain.on('save-json', (event, args) => {
   const { data, filename } = args;
 
   const filePath = filename;
-
+  console.log(data.Items.Jhompri)
   // const filePath = path.join(app.getPath('documents'), filename);
   console.log('filename: ', filePath);
   fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8', (err: any) => {

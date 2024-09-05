@@ -47,7 +47,7 @@ export const DataArraySlice = createSlice({
 
   reducers: {
     resetDataArray: () => {
-      return DataArraySlice.getInitialState(); 
+      return DataArraySlice.getInitialState();
     },
     setOnlyOneOwnTank: (state, action) => {
       state.onlyOneOwnTank = action.payload;
@@ -225,90 +225,20 @@ export const DataArraySlice = createSlice({
         };
       }
     },
-    addHouse: (state, action) => {
-      const { unitId, spawning_point } = action.payload;
-      const buildingExists = state.Items.House.some(
-        (building) => building.id === unitId,
-      );
-      if (!buildingExists) {
-        state.Items.House.push({
-          id: unitId,
-          pointx: spawning_point.x,
-          pointy: spawning_point.y,
-        });
-      }
-    },
-    addShop: (state, action) => {
-      const { unitId, spawning_point } = action.payload;
-      const buildingExists = state.Items.Shop.some(
-        (building) => building.id === unitId,
-      );
-      if (!buildingExists) {
-        state.Items.Shop.push({
-          id: unitId,
-          pointx: spawning_point.x,
-          pointy: spawning_point.y,
-        });
-      }
-    },
-    addShack: (state, action) => {
-      const { unitId, spawning_point } = action.payload;
-      const buildingExists = state.Items.Shack.some(
-        (building) => building.id === unitId,
-      );
-      if (!buildingExists) {
-        state.Items.Shack.push({
-          id: unitId,
-          pointx: spawning_point.x,
-          pointy: spawning_point.y,
-        });
-      }
-    },
-    addSmallHouse: (state, action) => {
-      const { unitId, spawning_point } = action.payload;
-      const buildingExists = state.Items.SmallHouse.some(
-        (building) => building.id === unitId,
-      );
-      if (!buildingExists) {
-        state.Items.SmallHouse.push({
-          id: unitId,
-          pointx: spawning_point.x,
-          pointy: spawning_point.y,
-        });
-      }
-    },
-    addVillageHut: (state, action) => {
-      const { unitId, spawning_point } = action.payload;
-      const buildingExists = state.Items.VillageHut.some(
-        (building) => building.id === unitId,
-      );
-      if (!buildingExists) {
-        state.Items.VillageHut.push({
-          id: unitId,
-          pointx: spawning_point.x,
-          pointy: spawning_point.y,
-        });
-      }
-    },
-    addWareHouse: (state, action) => {
-      const { unitId, spawning_point } = action.payload;
-      const buildingExists = state.Items.WareHouse.some(
-        (building) => building.id === unitId,
-      );
-      if (!buildingExists) {
-        state.Items.WareHouse.push({
-          id: unitId,
-          pointx: spawning_point.x,
-          pointy: spawning_point.y,
-        });
-      }
-    },
     addTrees: (state, action) => {
       const { unitId, spawning_point } = action.payload;
-      const objectExists = state.Items.Trees.some(
+
+      const existingTreeIndex = state.Items.Trees.findIndex(
         (object) => object.id === unitId,
       );
-      if (!objectExists) {
+
+      if (existingTreeIndex !== -1) {
+        state.Items.Trees[existingTreeIndex] = {
+          ...state.Items.Trees[existingTreeIndex],
+          pointx: spawning_point.x,
+          pointy: spawning_point.y,
+        };
+      } else {
         state.Items.Trees.push({
           id: unitId,
           pointx: spawning_point.x,
@@ -316,12 +246,21 @@ export const DataArraySlice = createSlice({
         });
       }
     },
+
     addWaterTankTower: (state, action) => {
       const { unitId, spawning_point } = action.payload;
-      const objectExists = state.Items.WaterTankTower.some(
+
+      const existingIndex = state.Items.WaterTankTower.findIndex(
         (object) => object.id === unitId,
       );
-      if (!objectExists) {
+
+      if (existingIndex !== -1) {
+        state.Items.WaterTankTower[existingIndex] = {
+          ...state.Items.WaterTankTower[existingIndex],
+          pointx: spawning_point.x,
+          pointy: spawning_point.y,
+        };
+      } else {
         state.Items.WaterTankTower.push({
           id: unitId,
           pointx: spawning_point.x,
@@ -329,13 +268,21 @@ export const DataArraySlice = createSlice({
         });
       }
     },
+
     addHospital: (state, action) => {
       const { unitId, spawning_point } = action.payload;
-      console.log(spawning_point);
-      const objectExists = state.Items.Hospital.some(
+
+      const existingIndex = state.Items.Hospital.findIndex(
         (object) => object.id === unitId,
       );
-      if (!objectExists) {
+
+      if (existingIndex !== -1) {
+        state.Items.Hospital[existingIndex] = {
+          ...state.Items.Hospital[existingIndex],
+          pointx: spawning_point.x,
+          pointy: spawning_point.y,
+        };
+      } else {
         state.Items.Hospital.push({
           id: unitId,
           pointx: spawning_point.x,
@@ -343,12 +290,21 @@ export const DataArraySlice = createSlice({
         });
       }
     },
+
     addStore: (state, action) => {
       const { unitId, spawning_point } = action.payload;
-      const objectExists = state.Items.Store.some(
+
+      const existingIndex = state.Items.Store.findIndex(
         (object) => object.id === unitId,
       );
-      if (!objectExists) {
+
+      if (existingIndex !== -1) {
+        state.Items.Store[existingIndex] = {
+          ...state.Items.Store[existingIndex],
+          pointx: spawning_point.x,
+          pointy: spawning_point.y,
+        };
+      } else {
         state.Items.Store.push({
           id: unitId,
           pointx: spawning_point.x,
@@ -356,12 +312,21 @@ export const DataArraySlice = createSlice({
         });
       }
     },
+
     addRailwayStation: (state, action) => {
       const { unitId, spawning_point } = action.payload;
-      const objectExists = state.Items.RailwayStation.some(
+
+      const existingIndex = state.Items.RailwayStation.findIndex(
         (object) => object.id === unitId,
       );
-      if (!objectExists) {
+
+      if (existingIndex !== -1) {
+        state.Items.RailwayStation[existingIndex] = {
+          ...state.Items.RailwayStation[existingIndex],
+          pointx: spawning_point.x,
+          pointy: spawning_point.y,
+        };
+      } else {
         state.Items.RailwayStation.push({
           id: unitId,
           pointx: spawning_point.x,
@@ -369,12 +334,21 @@ export const DataArraySlice = createSlice({
         });
       }
     },
+
     addJhompri: (state, action) => {
       const { unitId, spawning_point } = action.payload;
-      const objectExists = state.Items.Jhompri.some(
+
+      const existingIndex = state.Items.Jhompri.findIndex(
         (object) => object.id === unitId,
       );
-      if (!objectExists) {
+
+      if (existingIndex !== -1) {
+        state.Items.Jhompri[existingIndex] = {
+          ...state.Items.Jhompri[existingIndex],
+          pointx: spawning_point.x,
+          pointy: spawning_point.y,
+        };
+      } else {
         state.Items.Jhompri.push({
           id: unitId,
           pointx: spawning_point.x,
@@ -382,16 +356,157 @@ export const DataArraySlice = createSlice({
         });
       }
     },
+
     addRocks: (state, action) => {
       const { unitId, spawning_point } = action.payload;
-      const objectExists = state.Items.Rocks.some(
+
+      const existingIndex = state.Items.Rocks.findIndex(
         (object) => object.id === unitId,
       );
-      if (!objectExists) {
+
+      if (existingIndex !== -1) {
+        state.Items.Rocks[existingIndex] = {
+          ...state.Items.Rocks[existingIndex],
+          pointx: spawning_point.x,
+          pointy: spawning_point.y,
+        };
+      } else {
         state.Items.Rocks.push({
           id: unitId,
-          pointx: spawning_point?.x,
-          pointy: spawning_point?.y,
+          pointx: spawning_point.x,
+          pointy: spawning_point.y,
+        });
+      }
+    },
+
+    addWareHouse: (state, action) => {
+      const { unitId, spawning_point } = action.payload;
+
+      const existingIndex = state.Items.WareHouse.findIndex(
+        (object) => object.id === unitId,
+      );
+
+      if (existingIndex !== -1) {
+        state.Items.WareHouse[existingIndex] = {
+          ...state.Items.WareHouse[existingIndex],
+          pointx: spawning_point.x,
+          pointy: spawning_point.y,
+        };
+      } else {
+        state.Items.WareHouse.push({
+          id: unitId,
+          pointx: spawning_point.x,
+          pointy: spawning_point.y,
+        });
+      }
+    },
+
+    addVillageHut: (state, action) => {
+      const { unitId, spawning_point } = action.payload;
+
+      const existingIndex = state.Items.VillageHut.findIndex(
+        (object) => object.id === unitId,
+      );
+
+      if (existingIndex !== -1) {
+        state.Items.VillageHut[existingIndex] = {
+          ...state.Items.VillageHut[existingIndex],
+          pointx: spawning_point.x,
+          pointy: spawning_point.y,
+        };
+      } else {
+        state.Items.VillageHut.push({
+          id: unitId,
+          pointx: spawning_point.x,
+          pointy: spawning_point.y,
+        });
+      }
+    },
+
+    addSmallHouse: (state, action) => {
+      const { unitId, spawning_point } = action.payload;
+
+      const existingIndex = state.Items.SmallHouse.findIndex(
+        (object) => object.id === unitId,
+      );
+
+      if (existingIndex !== -1) {
+        state.Items.SmallHouse[existingIndex] = {
+          ...state.Items.SmallHouse[existingIndex],
+          pointx: spawning_point.x,
+          pointy: spawning_point.y,
+        };
+      } else {
+        state.Items.SmallHouse.push({
+          id: unitId,
+          pointx: spawning_point.x,
+          pointy: spawning_point.y,
+        });
+      }
+    },
+
+    addShack: (state, action) => {
+      const { unitId, spawning_point } = action.payload;
+
+      const existingIndex = state.Items.Shack.findIndex(
+        (object) => object.id === unitId,
+      );
+
+      if (existingIndex !== -1) {
+        state.Items.Shack[existingIndex] = {
+          ...state.Items.Shack[existingIndex],
+          pointx: spawning_point.x,
+          pointy: spawning_point.y,
+        };
+      } else {
+        state.Items.Shack.push({
+          id: unitId,
+          pointx: spawning_point.x,
+          pointy: spawning_point.y,
+        });
+      }
+    },
+
+    addShop: (state, action) => {
+      const { unitId, spawning_point } = action.payload;
+
+      const existingIndex = state.Items.Shop.findIndex(
+        (object) => object.id === unitId,
+      );
+
+      if (existingIndex !== -1) {
+        state.Items.Shop[existingIndex] = {
+          ...state.Items.Shop[existingIndex],
+          pointx: spawning_point.x,
+          pointy: spawning_point.y,
+        };
+      } else {
+        state.Items.Shop.push({
+          id: unitId,
+          pointx: spawning_point.x,
+          pointy: spawning_point.y,
+        });
+      }
+    },
+
+    addHouse: (state, action) => {
+      const { unitId, spawning_point } = action.payload;
+
+      const existingIndex = state.Items.House.findIndex(
+        (object) => object.id === unitId,
+      );
+
+      if (existingIndex !== -1) {
+        state.Items.House[existingIndex] = {
+          ...state.Items.House[existingIndex],
+          pointx: spawning_point.x,
+          pointy: spawning_point.y,
+        };
+      } else {
+        state.Items.House.push({
+          id: unitId,
+          pointx: spawning_point.x,
+          pointy: spawning_point.y,
         });
       }
     },

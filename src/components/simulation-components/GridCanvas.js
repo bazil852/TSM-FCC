@@ -44,7 +44,7 @@ import DataArray, {
   deleteJhompri,
   deleteRocks,
 } from '../../redux/DataArray';
-import { removeItem ,addItem} from '../../redux/CarouselSelectedItemSlice';
+import { removeItem, addItem } from '../../redux/CarouselSelectedItemSlice';
 import gridTank from '../../TSM-img/gridTank.svg';
 import gridTank2 from '../../TSM-img/gridTank2.svg';
 import gridTank3 from '../../TSM-img/gridTank3.svg';
@@ -52,23 +52,30 @@ import gridTruck from '../../TSM-img/gridTruck.svg';
 import gridForrest from '../../TSM-img/gridForrest.svg';
 import gridAPV from '../../TSM-img/gridAPV.svg';
 import startSign from '../../TSM-img/gridStopSign.svg';
-import Increment from '../../TSM-img/increment.svg';
-import Decrement from '../../TSM-img/decrement.svg';
 import close from '../../TSM-img/close.svg';
-import rocks from '../../TSM-img/rocks.png';
-import jhompri from '../../TSM-img/Jhompri.png';
-import house from '../../TSM-img/House.png';
 import hospital from '../../TSM-img/Hospital.png';
-import railwayStation from '../../TSM-img/RailwayStation.png';
-import shack from '../../TSM-img/Shack.png';
 import shop from '../../TSM-img/Shop.png';
 import smallHouse from '../../TSM-img/SmallHouse.png';
 import store from '../../TSM-img/Store.png';
 import villageHut from '../../TSM-img/VillageHut.png';
 import wareHouse from '../../TSM-img/WareHouse.png';
 import waterTankTower from '../../TSM-img/WaterTankTower.png';
+import smallHouseImage from '../../TSM-img/SmallHouse.png';
+import storeImage from '../../TSM-img/Store.png';
+import villageHutImage from '../../TSM-img/VillageHut.png';
+import WareHouseImage from '../../TSM-img/WareHouse.png';
 import compass from '../../TSM-img/compass.svg';
-
+import PlayerTank from '../../TSM-img/tank1.svg';
+import Increment from '../../TSM-img/increment.svg';
+import Decrement from '../../TSM-img/decrement.svg';
+import rocks from '../../TSM-img/rocks.png';
+import jhompri from '../../TSM-img/Jhompri.png';
+import house from '../../TSM-img/House.png';
+import railwayStation from '../../TSM-img/RailwayStation.png';
+import waterTankImage from '../../TSM-img/WaterTankTower.png';
+import shopImage from '../../TSM-img/Shop.png';
+import treeImage from '../../TSM-img/forest1.svg';
+import shack from '../../TSM-img/Shack.png';
 export default function GridCanvas({ stylingBox }) {
   const gridRef = useRef(null);
   const dispatch = useDispatch();
@@ -107,7 +114,9 @@ export default function GridCanvas({ stylingBox }) {
 
 
  const setMapValues = async () => {
-  try {
+   try {
+    
+     console.log(simulationData);
     // Prepare player data
     const playerPath = simulationData.Player.Path.map((point) => ({
       x: normalizetoSmall(point.pointx),
@@ -156,30 +165,97 @@ export default function GridCanvas({ stylingBox }) {
         id: item.id,
         x: normalizetoSmall(item.pointx),
         y: normalizetoSmall(item.pointy),
-        status: 'neutral',
+        status: 'not-dangerous',
         details: {},
         type,
         src,
       }));
     };
 
-    const houseData = prepareItemData(simulationData.Items.House, 'house', house);
-    const treesData = prepareItemData(simulationData.Items.Trees, 'trees', '');
-    const shackData = prepareItemData(simulationData.Items.Shack, 'shack', shack);
-    const hospitalData = prepareItemData(simulationData.Items.Hospital, 'hospital', hospital);
-    const jhompriData = prepareItemData(simulationData.Items.Jhompri, 'jhompri', jhompri);
-    const rocksData = prepareItemData(simulationData.Items.Rocks, 'rocks', rocks);
+    const hospitalData = prepareItemData(
+      simulationData.Items.Hospital,
+      'hospital',
+      hospital,
+    );
+    const houseData = prepareItemData(
+      simulationData.Items.House,
+      'house',
+      house,
+    );
+    const jhompriData = prepareItemData(
+      simulationData.Items.Jhompri,
+      'jhompri',
+      jhompri,
+    );
+    const railwayStationData = prepareItemData(
+      simulationData.Items.RailwayStation,
+      'RailwayStation',
+      railwayStation,
+    );
+    const rocksData = prepareItemData(
+      simulationData.Items.Rocks,
+      'rocks',
+      rocks,
+    );
+    const shackData = prepareItemData(
+      simulationData.Items.Shack,
+      'shack',
+      shack,
+    );
+    const shopData = prepareItemData(
+      simulationData.Items.Shop,
+      'shop',
+      shopImage,
+    );
+    const smalllHouseData = prepareItemData(
+      simulationData.Items.SmallHouse,
+      'smallhouse',
+      smallHouseImage,
+    );
+    const storeData = prepareItemData(
+      simulationData.Items.Store,
+      'store',
+      storeImage,
+    );
+    const treesData = prepareItemData(
+      simulationData.Items.Trees,
+      'trees',
+      treeImage,
+    );
+    const villageHutData = prepareItemData(
+      simulationData.Items.VillageHut,
+      'villagehut',
+      villageHutImage,
+    );
+    const warehouseData = prepareItemData(
+      simulationData.Items.WareHouse,
+      'warehouse',
+      WareHouseImage,
+    );
+    const WaterTankTowerData = prepareItemData(
+      simulationData.Items.WaterTankTower,
+      'watertank',
+      waterTankImage,
+    );
 
+     console.log(enemyData);
     // Combine all items
     const allItems = [
       playerData,
       ...enemyData,
       ...houseData,
+      ...railwayStationData,
       ...treesData,
       ...shackData,
+      ...WaterTankTowerData,
+      ...warehouseData,
       ...hospitalData,
       ...jhompriData,
       ...rocksData,
+      ...villageHutData,
+      ...shopData,
+      ...smalllHouseData,
+      ...storeData,
     ];
 
     setItems(allItems);
@@ -384,16 +460,11 @@ export default function GridCanvas({ stylingBox }) {
   const scaleFactorToLargeSpace = 500000 / 800;
 
   const normalizePathX = (x) => {
-    const scaleFactorToLargeSpace = 500000 / 800;
-
     const normalizedX = x * scaleFactorToLargeSpace;
-
     return normalizedX;
   };
 
   const normalizePathY = (y) => {
-    const scaleFactorToLargeSpace = 500000 / 800;
-
     const normalizedY = y * scaleFactorToLargeSpace;
     return normalizedY;
   };
@@ -402,6 +473,7 @@ export default function GridCanvas({ stylingBox }) {
     const scaleFactorToGridSpace = 800 / 500000;
     return value * scaleFactorToGridSpace;
   };
+  console.log(simulationData)
 
   const getMousePosition = (e) => {
     const rect = gridRef.current.getBoundingClientRect();
@@ -876,8 +948,8 @@ export default function GridCanvas({ stylingBox }) {
               })),
               initialAmmo: ammoForThisTank,
               spawning_point: {
-                x: normalizePathX(point.startPoint.x),
-                y: normalizePathY(point.startPoint.y),
+                x: normalizePathX(point.item.x),
+                y: normalizePathY(point.item.y),
               },
             }),
           );
@@ -886,8 +958,8 @@ export default function GridCanvas({ stylingBox }) {
             addHouse({
               unitId: point.id,
               spawning_point: {
-                x: normalizePathX(point.startPoint.x),
-                y: normalizePathY(point.startPoint.y),
+                x: normalizePathX(point.path[point.path.length - 1].x),
+                y: normalizePathX(point.path[point.path.length - 1].y),
               },
             }),
           );
@@ -896,8 +968,8 @@ export default function GridCanvas({ stylingBox }) {
             addJhompri({
               unitId: point.id,
               spawning_point: {
-                x: normalizePathX(point.startPoint.x),
-                y: normalizePathY(point.startPoint.y),
+                x: normalizePathX(point.path[point.path.length - 1].x),
+                y: normalizePathX(point.path[point.path.length - 1].y),
               },
             }),
           );
@@ -906,8 +978,8 @@ export default function GridCanvas({ stylingBox }) {
             addHospital({
               unitId: point.id,
               spawning_point: {
-                x: normalizePathX(point.startPoint.x),
-                y: normalizePathY(point.startPoint.y),
+                x: normalizePathX(point.path[point.path.length - 1].x),
+                y: normalizePathX(point.path[point.path.length - 1].y),
               },
             }),
           );
@@ -916,8 +988,8 @@ export default function GridCanvas({ stylingBox }) {
             addRailwayStation({
               unitId: point.id,
               spawning_point: {
-                x: normalizePathX(point.startPoint.x),
-                y: normalizePathY(point.startPoint.y),
+                x: normalizePathX(point.path[point.path.length - 1].x),
+                y: normalizePathX(point.path[point.path.length - 1].y),
               },
             }),
           );
@@ -926,8 +998,8 @@ export default function GridCanvas({ stylingBox }) {
             addShack({
               unitId: point.id,
               spawning_point: {
-                x: normalizePathX(point.startPoint.x),
-                y: normalizePathY(point.startPoint.y),
+                x: normalizePathX(point.path[point.path.length - 1].x),
+                y: normalizePathX(point.path[point.path.length - 1].y),
               },
             }),
           );
@@ -936,8 +1008,8 @@ export default function GridCanvas({ stylingBox }) {
             addShop({
               unitId: point.id,
               spawning_point: {
-                x: normalizePathX(point.startPoint.x),
-                y: normalizePathY(point.startPoint.y),
+                x: normalizePathX(point.path[point.path.length - 1].x),
+                y: normalizePathX(point.path[point.path.length - 1].y),
               },
             }),
           );
@@ -946,8 +1018,8 @@ export default function GridCanvas({ stylingBox }) {
             addSmallHouse({
               unitId: point.id,
               spawning_point: {
-                x: normalizePathX(point.startPoint.x),
-                y: normalizePathY(point.startPoint.y),
+                x: normalizePathX(point.path[point.path.length - 1].x),
+                y: normalizePathX(point.path[point.path.length - 1].y),
               },
             }),
           );
@@ -956,8 +1028,8 @@ export default function GridCanvas({ stylingBox }) {
             addStore({
               unitId: point.id,
               spawning_point: {
-                x: normalizePathX(point.startPoint.x),
-                y: normalizePathY(point.startPoint.y),
+                x: normalizePathX(point.path[point.path.length - 1].x),
+                y: normalizePathX(point.path[point.path.length - 1].y),
               },
             }),
           );
@@ -966,8 +1038,8 @@ export default function GridCanvas({ stylingBox }) {
             addVillageHut({
               unitId: point.id,
               spawning_point: {
-                x: normalizePathX(point.startPoint.x),
-                y: normalizePathY(point.startPoint.y),
+                x: normalizePathX(point.path[point.path.length - 1].x),
+                y: normalizePathX(point.path[point.path.length - 1].y),
               },
             }),
           );
@@ -976,8 +1048,8 @@ export default function GridCanvas({ stylingBox }) {
             addWareHouse({
               unitId: point.id,
               spawning_point: {
-                x: normalizePathX(point.startPoint.x),
-                y: normalizePathY(point.startPoint.y),
+                x: normalizePathX(point.path[point.path.length - 1].x),
+                y: normalizePathX(point.path[point.path.length - 1].y),
               },
             }),
           );
@@ -986,8 +1058,8 @@ export default function GridCanvas({ stylingBox }) {
             addWaterTankTower({
               unitId: point.id,
               spawning_point: {
-                x: normalizePathX(point.startPoint.x),
-                y: normalizePathY(point.startPoint.y),
+                x: normalizePathX(point.path[point.path.length - 1].x),
+                y: normalizePathX(point.path[point.path.length - 1].y),
               },
             }),
           );
@@ -996,8 +1068,8 @@ export default function GridCanvas({ stylingBox }) {
             addRocks({
               unitId: point.id,
               spawning_point: {
-                x: normalizePathX(point.startPoint.x),
-                y: normalizePathY(point.startPoint.y),
+                x: normalizePathX(point.path[point.path.length - 1].x),
+                y: normalizePathX(point.path[point.path.length - 1].y),
               },
             }),
           );
@@ -1006,8 +1078,8 @@ export default function GridCanvas({ stylingBox }) {
             addTrees({
               unitId: point.id,
               spawning_point: {
-                x: normalizePathX(point.startPoint.x),
-                y: normalizePathY(point.startPoint.y),
+                x: normalizePathX(point.path[point.path.length - 1].x),
+                y: normalizePathX(point.path[point.path.length - 1].y),
               },
             }),
           );
