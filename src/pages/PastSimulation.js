@@ -1,4 +1,4 @@
-import { useState , useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import '../renderer/App.css';
 import backButton from '../TSM-img/back_button.svg';
@@ -11,33 +11,84 @@ import Modal from '../utility/Modal';
 
 export default function PastSimulation() {
   const [active, setActive] = useState(false);
-    const [selectedVideo, setSelectedVideo] = useState(null);
+  const [selectedVideo, setSelectedVideo] = useState(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [reports, setReports] = useState()
-  const [videoUrl, setVideoUrl] = useState('');
-  const fetchResorts = async () => {
-    let data = await ipcRenderer.invoke('fetch-reports-data');
-    console.log(data);
-    setReports(data);
+  const [reports, setReports] = useState();
+  const [videoBlob, setVideoBlob] = useState(null); // State to store the accumulated video Blob
+  const [videoUrl, setVideoUrl] = useState(null);   
+
+  useEffect(() => {
+    // Fetch reports data on mount
+    fetchReports();
+  }, []);
+
+  useEffect(() => {
+    // Listen for video chunks from Electron
+    const handleVideoChunk = (event, chunk) => {
+      if (chunk) {
+        console.log("[DEBUG] Received video chunk from Electron:", chunk.length);
+  
+        // Convert base64 chunk to binary and append to the video blob
+        const byteCharacters = atob(chunk);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+  
+        const byteArray = new Uint8Array(byteNumbers);
+        const newBlob = new Blob([byteArray], { type: 'video/webm' });
+  
+        // Accumulate the blobs
+        setVideoBlob((prevBlob) => (prevBlob ? new Blob([prevBlob, newBlob], { type: 'video/webm' }) : newBlob));
+      }
+    };
+  
+    ipcRenderer.on('video-chunk', handleVideoChunk);
+  
+    // Listen for the end of the stream to create the URL
+    ipcRenderer.on('video-end', () => {
+      if (videoBlob) {
+        const url = URL.createObjectURL(videoBlob);
+        setVideoUrl(url);
+      }
+    });
+  
+    return () => {
+      ipcRenderer.removeListener('video-chunk', handleVideoChunk); // Clean up the listener
+      ipcRenderer.removeListener('video-end', handleVideoChunk); // Clean up the end listener
+      if (videoUrl) {
+        URL.revokeObjectURL(videoUrl); // Clean up URL on unmount
+      }
+    };
+  }, [videoBlob, videoUrl]); 
+  const fetchReports = async () => {
+    try {
+      const data = await ipcRenderer.invoke('fetch-reports-data');
+      console.log(data);
+      setReports(data);
+    } catch (error) {
+      console.error('Error fetching reports:', error);
+    }
   };
 
   const fetchVideo = async (filePath) => {
-    const videoData = await ipcRenderer.invoke('fetch-video-data', filePath);
-    if (videoData) {
-      const blob = new Blob([Uint8Array.from(atob(videoData), c => c.charCodeAt(0))], { type: 'video/webm' });
-      const url = URL.createObjectURL(blob);
-      setVideoUrl(url);
+    try {
+      // Reset videoBlob and videoUrl before fetching a new video
+      setVideoBlob(null);
+      setVideoUrl(null);
+  
+      // Start fetching video data in chunks
+      await ipcRenderer.invoke('fetch-video-data', filePath);
+    } catch (error) {
+      console.error('Error fetching video:', error);
     }
   };
 
   const handleViewClick = (filePath) => {
-    fetchVideo(filePath);
+    fetchVideo(filePath); // Pass the file path to fetchVideo
     setModalIsOpen(true);
   };
 
-  useEffect(() => {
-    fetchResorts();
-  }, []);
   const trainingArray = data.trainingArray;
   const recentArray = data.recentArray;
 
@@ -47,6 +98,7 @@ export default function PastSimulation() {
     overflow: 'hidden',
     transition: 'opacity 0.4s ease-in-out',
   };
+
   const recentStyle = {
     opacity: active ? 1 : 0,
     height: !active && '0px',
@@ -64,16 +116,22 @@ export default function PastSimulation() {
         closeModal={() => {
           setModalIsOpen(false);
           setSelectedVideo(null);
-          URL.revokeObjectURL(videoUrl); // Clean up the Blob URL
+          if (videoUrl) {
+            URL.revokeObjectURL(videoUrl); // Clean up the Blob URL
+            setVideoUrl(null); // Reset the video URL to free up memory
+          }
         }}
       >
-        {videoUrl && (
+        {videoUrl ? (
           <video className="iFrame_video_player" controls>
             <source src={videoUrl} type="video/webm" />
             Your browser does not support the video tag.
           </video>
+        ) : (
+          <p>Loading video...</p>
         )}
       </Modal>
+
       <NavLink className="navigation_button_with_bigger_width_2" to="/">
         <span id="first_span_navigation_button">
           <img src={backButton} alt="back" /> MAIN MENU /
@@ -125,31 +183,30 @@ export default function PastSimulation() {
 
           <div style={trainingStyle}>
             {reports &&
-              reports.map((data, index) => {
-                return (
+              reports.map((data, index) => (
+                <div
+                  className="past_simulation_tab_table_data_container"
+                  key={index}
+                >
+                  <div className="past_simulation_tab_table_name_data">
+                    <div id="past_simulation_tab_table_name_data_first_phrase">
+                      {data.data.InstructorName} - {data.data.terrain}
+                    </div>
+                    <div id="past_simulation_tab_table_name_data_second_phrase">
+                      {data.data.terrain} -
+                      <span key={index}>
+                        {data.data.APC} {data.data.Tanks}
+                      </span>
+                    </div>
+                  </div>
                   <div
-                    className="past_simulation_tab_table_data_container"
-                    key={index}
+                    className="past_simulation_tab_table_data"
+                    style={{ color: '#ffffff' }}
                   >
-                    <div className="past_simulation_tab_table_name_data">
-                      <div id="past_simulation_tab_table_name_data_first_phrase">
-                        {data.data.InstructorName} - {data.data.terrain}
-                      </div>
-                      <div id="past_simulation_tab_table_name_data_second_phrase">
-                        {data.data.terrain} -
-                        <span key={index}>
-                          {data.data.APC} {data.data.Tanks}
-                        </span>
-                      </div>
-                    </div>
-                    <div
-                      className="past_simulation_tab_table_data"
-                      style={{ color: '#ffffff' }}
-                    >
-                      {data.data.PNoScore}
-                    </div>
-                    <div className="past_simulation_tab_table_data">{'70'}</div>
-                    <div
+                    {data.data.PNoScore}
+                  </div>
+                  <div className="past_simulation_tab_table_data">{'70'}</div>
+                  <div
                     onClick={() =>
                       handleViewClick(
                         `${process.env.REC_PATH}/${data.data.recordingFileName}`
@@ -159,9 +216,8 @@ export default function PastSimulation() {
                   >
                     View
                   </div>
-                  </div>
-                );
-              })}
+                </div>
+              ))}
           </div>
 
           <div style={recentStyle}>
@@ -180,14 +236,12 @@ export default function PastSimulation() {
                     </div>
                     <div id="past_simulation_tab_table_name_data_second_phrase">
                       {data.terrain} -
-                      {enemyVehiclesArray.map(([vehicleType, count], index) => {
-                        return (
-                          <span key={index}>
-                            {vehicleType.toUpperCase()} {count}
-                            {index < enemyVehiclesArray.length - 1 ? ', ' : ''}
-                          </span>
-                        );
-                      })}
+                      {enemyVehiclesArray.map(([vehicleType, count], index) => (
+                        <span key={index}>
+                          {vehicleType.toUpperCase()} {count}
+                          {index < enemyVehiclesArray.length - 1 ? ', ' : ''}
+                        </span>
+                      ))}
                     </div>
                   </div>
                   <div

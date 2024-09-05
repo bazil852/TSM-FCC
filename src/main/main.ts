@@ -266,18 +266,37 @@ ipcMain.on('update-map-data', (event, { idmap, mapData }) => {
   );
 });
 
-//Get Video from Directory
-ipcMain.handle('fetch-video-data', async (event, videoPath) => {
-  try {
-    console.log("Video Path: ",videoPath);
-    const videoBuffer = fs.readFileSync(videoPath);
-    return videoBuffer.toString('base64'); // Convert buffer to base64 for easy transmission
-  } catch (error) {
-    console.error('Error reading video file:', error);
-    return null;
-  }
-});
+// Stream video from Directory
+ipcMain.handle('fetch-video-data', (event, videoPath) => {
+  return new Promise((resolve, reject) => {
+    try {
+      console.log("[DEBUG] Starting to fetch video data...");
+      console.log("[DEBUG] Video Path: ", videoPath);
 
+      const stream = fs.createReadStream(videoPath, { encoding: 'base64' });
+
+      stream.on('data', (chunk) => {
+        console.log(`[DEBUG] Received chunk of size: ${chunk.length}`);
+        event.sender.send('video-chunk', chunk); // Send each chunk to the renderer
+      });
+
+      stream.on('end', () => {
+        console.log("[DEBUG] Stream ended.");
+        event.sender.send('video-end'); // Signal the end of the video stream
+        resolve(); // Resolve without data; data is sent in chunks
+      });
+
+      stream.on('error', (error) => {
+        console.error('[ERROR] Error reading video file:', error);
+        reject(error);
+      });
+      
+    } catch (error) {
+      console.error('[ERROR] Error setting up video stream:', error);
+      reject(error);
+    }
+  });
+});
 // Listen for IPC calls from React renderer
 ipcMain.handle('run-python-diagnostics', async () => {
   return new Promise((resolve, reject) => {
