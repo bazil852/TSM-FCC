@@ -156,7 +156,7 @@ export default function GridCanvas({ stylingBox }) {
               x: normalizetoSmall(point.pointx),
               y: normalizetoSmall(point.pointy),
             }));
-            const enemyLastPoint = enemyPath[enemyPath.length - 1];
+          
 
             return {
               id: enemy.unitId,
@@ -269,6 +269,8 @@ export default function GridCanvas({ stylingBox }) {
         'watertank',
         waterTankImage,
       );
+      console.log(updatedEnemyData);
+      console.log(playerItemData)
 
       // Combine all items
       const allItems = [
@@ -289,7 +291,7 @@ export default function GridCanvas({ stylingBox }) {
         ...storeData,
       ];
 
-      // console.log(allItems);
+      console.log(allItems);
       setUpdatedItems(allItems);
 
       // setItems([...updatedEnemyData, playerItemData]);
@@ -298,11 +300,11 @@ export default function GridCanvas({ stylingBox }) {
     }
   };
 
-  // useEffect(() => {
-  //   const intervalId = setInterval(fetchPaths, 3000);
+  useEffect(() => {
+    const intervalId = setInterval(fetchPaths, 3000);
 
-  //   return () => clearInterval(intervalId);
-  // }, [simulationData]);
+    return () => clearInterval(intervalId);
+  }, [simulationData]);
 
   // Function to fetch data from the JSON files
   const fetchData = async () => {
