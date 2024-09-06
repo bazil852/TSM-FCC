@@ -3,37 +3,12 @@ import '../../renderer/App.css';
 import { ipcRenderer } from 'electron';
 
 export default function Status() {
-  const studentStatus = [
-    {
-      title: 'STUDENT STATUS',
-      'Total Enemies': 7,
-      'Total Hits': 9,
-      'Damage Taken': 9,
-    },
-  ];
-  const simulationStatus = [
-    {
-      title: 'SIMULATION STATUS',
-      'Elapsed Time': '00:23',
-      'Time Left': '00:30',
-      'Total Time': '00:53',
-    },
-  ];
-  const ammoStatus = [
-    {
-      title: 'AMMO STATUS',
-      Total: 1000,
-      Fired: 300,
-      Balancer: 100,
-      'Total MG': 25,
-      'MG Fired': 25,
-      'MG Balancer': 50,
-    },
-  ];
-
-  const [studentStatusNew, setStudentStatus] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [playerData, setPlayerData] = useState({});
   const [simulationStatusNew, setSimulationStatus] = useState({});
-  const [spData, setSpData] = useState({}); // State to hold sp.json data
+  const [spData, setSpData] = useState({});
+  const [elapsedTime, setElapsedTime] = useState(0); // Time in seconds
+  const [timeLeft, setTimeLeft] = useState(0); // Time in seconds
 
   // Function to fetch data from the JSON files
   const fetchData = async () => {
@@ -42,46 +17,69 @@ export default function Status() {
         'read-json',
         process.env.PLAYER_DATA_PATH,
       );
-      const simulationData = await ipcRenderer.invoke(
-        'read-json',
-        process.env.SIMULATION_DATA_PATH,
-      );
+
       const spDataFetched = await ipcRenderer.invoke(
         'read-json',
         process.env.SP_DATA_PATH,
       );
-
-      setStudentStatus(playerData);
-      setSimulationStatus(simulationData);
-      setSpData(spDataFetched); // Set fetched sp.json data
+      setPlayerData(playerData);
+      setSpData(spDataFetched);
+      setLoading(false);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   };
 
-  // Fetch data when the component mounts
   useEffect(() => {
-    fetchData(); // Initial fetch
-    const intervalId = setInterval(fetchData, 5000); // Fetch every 5 seconds
+    fetchData();
+    const intervalId = setInterval(fetchData, 5000);
 
-    return () => clearInterval(intervalId); // Cleanup interval on component unmount
+    return () => clearInterval(intervalId);
   }, []);
 
-  // Function to handle step updates
-  const handleStep = async (stepNumber) => {
-    try {
-      const updatedSpData = { ...spData, step: stepNumber }; // Update step value
-      await ipcRenderer.invoke('write-json', {
-        filePath: process.env.SP_DATA_PATH,
-        data: updatedSpData,
-      });
-      setSpData(updatedSpData); // Update local state
-    } catch (error) {
-      console.error('Error updating step in sp.json:', error);
-    }
+  const fetchSimulation = async () => {
+    const simulationData = await ipcRenderer.invoke(
+      'read-json',
+      process.env.SIMULATION_DATA_PATH,
+    );
+    setSimulationStatus(simulationData);
   };
+  useEffect(() => {
+    if (simulationStatusNew) {
+      fetchSimulation();
+    }
+  }, []);
 
-  const allStatus = [studentStatus, simulationStatus, ammoStatus];
+  // Start the timer based on exerciseTime from the simulation data
+  useEffect(() => {
+    if (!loading && simulationStatusNew?.ExerciseInfo?.exerciseTime) {
+      const totalTime = simulationStatusNew.ExerciseInfo.exerciseTime * 60; // Convert total time to seconds
+      setTimeLeft(totalTime);
+
+      const intervalId = setInterval(() => {
+        setElapsedTime((prevElapsedTime) => {
+          const newElapsedTime = prevElapsedTime + 1;
+          setTimeLeft(totalTime - newElapsedTime); // Calculate time left
+
+          if (newElapsedTime >= totalTime) {
+            clearInterval(intervalId); // Stop the timer when time is up
+          }
+
+          return newElapsedTime;
+        });
+      }, 1000);
+
+      return () => clearInterval(intervalId); // Cleanup on component unmount
+    }
+  }, [loading, simulationStatusNew]);
+
+  const formatTime = (timeInSeconds) => {
+    const minutes = Math.floor(timeInSeconds / 60);
+    const seconds = timeInSeconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${seconds
+      .toString()
+      .padStart(2, '0')}`;
+  };
 
   return (
     <div className="status_main_class">
@@ -92,42 +90,110 @@ export default function Status() {
           simulationStatusNew?.ExerciseInfo?.terrain === 'boreNight' ? (
             <div className="steps-parent-btn">
               <button
-                className={spData.step == 1 ? 'topBar_btn_true' : 'topBar_btn'}
+                className={spData.step === 1 ? 'topBar_btn_true' : 'topBar_btn'}
                 onClick={() => handleStep(1)}
               >
                 STEP 1
               </button>
               <button
                 style={{ marginBlock: '20px' }}
-                className={spData.step == 2 ? 'topBar_btn_true' : 'topBar_btn'}
+                className={spData.step === 2 ? 'topBar_btn_true' : 'topBar_btn'}
                 onClick={() => handleStep(2)}
               >
                 STEP 2
               </button>
               <button
-                className={spData.step == 3 ? 'topBar_btn_true' : 'topBar_btn'}
+                className={spData.step === 3 ? 'topBar_btn_true' : 'topBar_btn'}
                 onClick={() => handleStep(3)}
               >
                 STEP 3
               </button>
             </div>
           ) : (
-            allStatus.map((statusArray, index) => (
-              <div key={index} className="status_box">
-                <div className="status_title">{statusArray[0].title}</div>
-                {Object.entries(statusArray[0]).map(([key, value]) => {
-                  if (key !== 'title') {
-                    return (
-                      <div key={key} className="status_item">
-                        <strong>{key}:</strong>
-                        <p> {value}</p>
-                      </div>
-                    );
-                  }
-                  return null;
-                })}
-              </div>
-            ))
+            !loading &&
+            simulationStatusNew &&
+            playerData && (
+              <>
+                <div className="status_box">
+                  <div className="status_title">STUDENT STATUS</div>
+
+                  <div className="status_item">
+                    <strong>Moving Target Hits:</strong>
+                    <p>
+                      {
+                        playerData?.Player['player Target States']
+                          ?.movingTargetsHits
+                      }
+                    </p>
+                  </div>
+                  <div className="status_item">
+                    <strong>Static Target Hits:</strong>
+                    <p>
+                      {
+                        playerData?.Player['player Target States']
+                          ?.staticTargetHits
+                      }
+                    </p>
+                  </div>
+                  <div className="status_item">
+                    <strong>Total Cannon Hits:</strong>
+                    <p>
+                      {
+                        playerData?.Player['player Target States']
+                          ?.totalCannonHits
+                      }
+                    </p>
+                  </div>
+                  <div className="status_item">
+                    <strong>Total Cannon Missed:</strong>
+                    <p>
+                      {
+                        playerData?.Player['player Target States']
+                          ?.totalCannonMissed
+                      }
+                    </p>
+                  </div>
+                </div>
+                <div className="status_box">
+                  <div className="status_title">AMMO STATUS</div>
+                  <div className="status_item">
+                    <strong>HEAT:</strong>
+                    <p>{playerData?.Player.ammo.heat}</p>
+                  </div>
+                  <div className="status_item">
+                    <strong>APFSFDS:</strong>
+                    <p>{playerData?.Player.ammo.aPFSFDS}</p>
+                  </div>
+                  <div className="status_item">
+                    <strong>HE:</strong>
+                    <p>{playerData?.Player.ammo.hE}</p>
+                  </div>
+                  <div className="status_item">
+                    <strong>MG:</strong>
+                    <p>{playerData?.Player.ammo.mG}</p>
+                  </div>
+                </div>
+                <div className="status_box">
+                  <div className="status_title">SIMULATION STATUS</div>
+                  <div className="status_item">
+                    <strong>Elapsed Time:</strong>
+                    <p>{formatTime(elapsedTime)}</p>
+                  </div>
+                  <div className="status_item">
+                    <strong>Time Left:</strong>
+                    <p>{formatTime(timeLeft)}</p>
+                  </div>
+                  <div className="status_item">
+                    <strong>Total Time:</strong>
+                    <p>
+                      {formatTime(
+                        simulationStatusNew?.ExerciseInfo?.exerciseTime * 60,
+                      )}
+                    </p>
+                  </div>
+                </div>
+              </>
+            )
           )}
         </>
       )}

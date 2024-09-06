@@ -1,11 +1,16 @@
 {
   "Player": {
-    "ammo": { "heat": 0, "aPFSFDS": 0, "hE": 0, "mG": 0 },
+    "ammo": 
+    { "heat": 1010,
+     "aPFSFDS": 30,
+      "hE": 900,
+       "mG": 40 
+      },
     "player Target States": {
-      "movingTargetsHits": 0,
-      "staticTargetHits": 0,
-      "totalCannonHits": 0,
-      "totalCannonMissed": 0
+      "movingTargetsHits": 10,
+      "staticTargetHits": 10,
+      "totalCannonHits": 10,
+      "totalCannonMissed": 10
     },
     "currentLocation": {
       "x": 333917.73898141796,
