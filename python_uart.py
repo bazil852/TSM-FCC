@@ -5,7 +5,7 @@ import struct
 from collections import defaultdict
 
 # Setup serial connection
-ser = serial.Serial('COM7', 115200, timeout=50)  # Adjust the COM port and baud rate as needed
+ser = serial.Serial('COM4', 115200, timeout=50)  # Adjust the COM port and baud rate as needed
 
 # Define the keys for the JSON dictionary that correspond to your data structure
 keys = [

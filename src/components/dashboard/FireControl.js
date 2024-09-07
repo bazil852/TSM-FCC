@@ -19,7 +19,7 @@ import blackSliderKnob from '../../TSM-img/blackSliderKnob.svg';
 import blackSliderTrack from '../../TSM-img/blackSliderTrack.svg';
 import whiteLight from '../../TSM-img/whiteLight.svg';
 import directionBtn from '../../TSM-img/directionBtn.svg';
-const { ipcRenderer } = require('electron');
+const { ipcRenderer } = window.require('electron');
 
 
 export default function FireControl() {
@@ -71,7 +71,10 @@ export default function FireControl() {
 
   useEffect(() => {
     const handleReadJsonResponse = (event, response) => {
+      
       if (response.success) {
+
+        console.log("m3: ",response.data);
         // Destructuring new JSON response keys
          const newStates = JSON.parse(JSON.stringify(initialSwitchStates));
 
@@ -90,7 +93,7 @@ export default function FireControl() {
       });
 
 
-        console.log("m3: ",newStates);
+        
         const m1_scd_cpd = response.data['m1_scd/cpd'];
         const m2_move_fix = response.data['m2_move/fix'];
         const m2_first_last = response.data['m2_first/last'];
@@ -114,6 +117,8 @@ export default function FireControl() {
           
           // Add other keys as needed
         } = response.data;
+
+        // console.log("FCC Values: ",response.data);
   
         // Updating state variables
         setAmmo(m2_ammo);
@@ -153,8 +158,10 @@ export default function FireControl() {
   
   useEffect(() => {
     const triggerReadJson = () => {
-        ipcRenderer.send('read-json');
+      console.log('Sending read-json-FCC event to Electron');
+      ipcRenderer.send('read-json-FCC');
     };
+    
 
     ipcRenderer.on('trigger-json-read', triggerReadJson);
 
@@ -712,25 +719,8 @@ export default function FireControl() {
             </div>
           </div>
         </div>
-
-        <div className="dashboard_thirteen_set_joystick">
-          <div
-            className="dashboard_thirteen_set_joystick_text"
-            onClick={() => setCPDandSCD('CPD')}
-          >
-            RATED
-          </div>
-          <img
-            src={rated_pre === 'rated' ? joystickDown : joystickUp}
-            alt="joystick"
-          />
-          <div
-            className="dashboard_thirteen_set_joystick_text"
-            onClick={() => setCPDandSCD('SCD')}
-          >
-            PRESET
-          </div>
-        </div>
+        {/* Here copied */}
+        
 
         <div className="dashboard_fourteen_set_grey_knob">
           <div

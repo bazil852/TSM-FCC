@@ -6,10 +6,22 @@ import MapCarousel from '../components/simulation-components/MapCarousel';
 import '../renderer/App.css';
 import tank1 from '../TSM-img/tank1.svg';
 import tank2 from '../TSM-img/tank2.svg';
+import tank3 from '../TSM-img/tank3.png';
+import tank4 from '../TSM-img/tank4.png';
+import tank5 from '../TSM-img/tank5.png';
+import tank6 from '../TSM-img/tank6.png';
+import tank7 from '../TSM-img/tank7.png';
+import tank8 from '../TSM-img/tank8.png';
 import forest1 from '../TSM-img/forest1.svg';
 import rocks from '../TSM-img/rocks.png';
-import car1 from '../TSM-img/car1.svg';
-import car2 from '../TSM-img/car2.svg';
+import car1 from '../TSM-img/car1.png';
+import car2 from '../TSM-img/car2.png';
+import car3 from '../TSM-img/car3.png';
+import car4 from '../TSM-img/car4.png';
+import car5 from '../TSM-img/car5.png';
+import car6 from '../TSM-img/car6.png';
+import car7 from '../TSM-img/car7.png';
+import car8 from '../TSM-img/car8.png';
 import jhompri from '../TSM-img/Jhompri.png';
 import house from '../TSM-img/House.png';
 import hospital from '../TSM-img/Hospital.png';
@@ -78,8 +90,20 @@ export default function SelectObjectCarousel({ carouselObjectType }) {
   const imageMap = {
     tank1: tank1,
     tank2: tank2,
+    tank3: tank3,
+    tank4: tank4,
+    tank5: tank5,
+    tank6: tank6,
+    tank7: tank7,
+    tank8: tank8,
     car1: car1,
     car2: car2,
+    car3: car3,
+    car4: car4,
+    car5: car5,
+    car6: car6,
+    car7: car7,
+    car8: car8,
     forest1: forest1,
     rocks: rocks,
     jhompri: jhompri,

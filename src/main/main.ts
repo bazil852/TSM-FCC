@@ -41,9 +41,10 @@ let mainWindow: BrowserWindow | null = null;
 // /Users/bazil/Documents/TSM-SIMULATOR/data_output.json
 // const filePath = path.join(app.getPath('desktop'), 'Demo/TSM-FCC/data_output.json');
 // C:\Users\ESFORGE-03\Desktop\trmpDemo\data_output.json
-const filePath = path.join(app.getPath('desktop'), 'trmpDemo/data_output.json');
+// const filePath = path.join(app.getPath('desktop'), 'TSM-FCC/data_output.json');
+const filePath = path.join(app.getPath('desktop'), 'TSM-FCC/data_output.json');
 console.log(filePath);
-ipcMain.on('read-json', (event) => {
+ipcMain.on('read-json-FCC', (event) => {
   fs.readFile(filePath, 'utf-8', (err: any, data: any) => {
     if (err) {
       console.log('Failed to read file: ', err);
