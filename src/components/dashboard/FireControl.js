@@ -76,11 +76,11 @@ export default function FireControl() {
 
   useEffect(() => {
     const handleReadJsonResponse = (event, response) => {
-      console.log('Response received:', response);
+      // console.log('Response received:', response);
 
       if (response.success) {
 
-        console.log("m3: ",response.data);
+        // console.log("m3: ",response.data);
         // Destructuring new JSON response keys
         const newStates = {
           APFSDS: { AZ: [], EL: [] },
@@ -178,7 +178,7 @@ export default function FireControl() {
   
   useEffect(() => {
     const triggerReadJson = () => {
-      console.log('Sending read-json-FCC event to Electron');
+      // console.log('Sending read-json-FCC event to Electron');
       ipcRenderer.send('read-json-FCC');
     };
     

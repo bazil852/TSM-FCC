@@ -1,14 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import '../../renderer/App.css';
 import { ipcRenderer } from 'electron';
+import { useDispatch, useSelector } from 'react-redux'; // Import hooks for Redux
+import {
+  setElapsedTime,
+  setTimeLeft,
+  setTotalTime,
+} from '../../../src/redux/CarouselSelectedItemSlice'; // Import your actions
 
 export default function Status() {
+  const dispatch = useDispatch();
+
+  const { elapsedTime, timeLeft, totalTime } = useSelector(
+    (state) => state.selectedItem.reportData,
+  );
+
   const [loading, setLoading] = useState(true);
   const [playerData, setPlayerData] = useState({});
   const [simulationStatusNew, setSimulationStatus] = useState({});
   const [spData, setSpData] = useState({});
-  const [elapsedTime, setElapsedTime] = useState(0); // Time in seconds
-  const [timeLeft, setTimeLeft] = useState(0); // Time in seconds
+  const [localElapsedTime, setLocalElapsedTime] = useState(0); // Local elapsed time state
 
   // Function to fetch data from the JSON files
   const fetchData = async () => {
@@ -44,6 +55,7 @@ export default function Status() {
     );
     setSimulationStatus(simulationData);
   };
+
   useEffect(() => {
     if (simulationStatusNew) {
       fetchSimulation();
@@ -53,15 +65,20 @@ export default function Status() {
   // Start the timer based on exerciseTime from the simulation data
   useEffect(() => {
     if (!loading && simulationStatusNew?.ExerciseInfo?.exerciseTime) {
-      const totalTime = simulationStatusNew.ExerciseInfo.exerciseTime * 60; // Convert total time to seconds
-      setTimeLeft(totalTime);
+      const totalTimeValue = simulationStatusNew.ExerciseInfo.exerciseTime * 60; // Convert total time to seconds
+      dispatch(setTotalTime(totalTimeValue)); // Update Redux with total time
+      setLocalElapsedTime(0); // Reset local elapsed time to 0
 
       const intervalId = setInterval(() => {
-        setElapsedTime((prevElapsedTime) => {
+        setLocalElapsedTime((prevElapsedTime) => {
           const newElapsedTime = prevElapsedTime + 1;
-          setTimeLeft(totalTime - newElapsedTime); // Calculate time left
+          const newTimeLeft = totalTimeValue - newElapsedTime;
 
-          if (newElapsedTime >= totalTime) {
+          // Dispatch plain number values to Redux
+          dispatch(setElapsedTime(newElapsedTime));
+          dispatch(setTimeLeft(newTimeLeft));
+
+          if (newElapsedTime >= totalTimeValue) {
             clearInterval(intervalId); // Stop the timer when time is up
           }
 
@@ -71,7 +88,7 @@ export default function Status() {
 
       return () => clearInterval(intervalId); // Cleanup on component unmount
     }
-  }, [loading, simulationStatusNew]);
+  }, [loading, simulationStatusNew, dispatch]);
 
   const formatTime = (timeInSeconds) => {
     const minutes = Math.floor(timeInSeconds / 60);
@@ -86,114 +103,83 @@ export default function Status() {
       {simulationStatusNew && (
         <>
           <div className="status_main_heading">STATUS</div>
-          {simulationStatusNew?.ExerciseInfo?.terrain === 'boreDay' ||
-          simulationStatusNew?.ExerciseInfo?.terrain === 'boreNight' ? (
-            <div className="steps-parent-btn">
-              <button
-                className={spData.step === 1 ? 'topBar_btn_true' : 'topBar_btn'}
-                onClick={() => handleStep(1)}
-              >
-                STEP 1
-              </button>
-              <button
-                style={{ marginBlock: '20px' }}
-                className={spData.step === 2 ? 'topBar_btn_true' : 'topBar_btn'}
-                onClick={() => handleStep(2)}
-              >
-                STEP 2
-              </button>
-              <button
-                className={spData.step === 3 ? 'topBar_btn_true' : 'topBar_btn'}
-                onClick={() => handleStep(3)}
-              >
-                STEP 3
-              </button>
-            </div>
-          ) : (
-            !loading &&
-            simulationStatusNew &&
-            playerData && (
-              <>
-                <div className="status_box">
-                  <div className="status_title">STUDENT STATUS</div>
+          {!loading && simulationStatusNew && playerData && (
+            <>
+              <div className="status_box">
+                <div className="status_title">STUDENT STATUS</div>
 
-                  <div className="status_item">
-                    <strong>Moving Target Hits:</strong>
-                    <p>
-                      {
-                        playerData?.Player['player Target States']
-                          ?.movingTargetsHits
-                      }
-                    </p>
-                  </div>
-                  <div className="status_item">
-                    <strong>Static Target Hits:</strong>
-                    <p>
-                      {
-                        playerData?.Player['player Target States']
-                          ?.staticTargetHits
-                      }
-                    </p>
-                  </div>
-                  <div className="status_item">
-                    <strong>Total Cannon Hits:</strong>
-                    <p>
-                      {
-                        playerData?.Player['player Target States']
-                          ?.totalCannonHits
-                      }
-                    </p>
-                  </div>
-                  <div className="status_item">
-                    <strong>Total Cannon Missed:</strong>
-                    <p>
-                      {
-                        playerData?.Player['player Target States']
-                          ?.totalCannonMissed
-                      }
-                    </p>
-                  </div>
+                <div className="status_item">
+                  <strong>Moving Target Hits:</strong>
+                  <p>
+                    {
+                      playerData?.Player['player Target States']
+                        ?.movingTargetsHits
+                    }
+                  </p>
                 </div>
-                <div className="status_box">
-                  <div className="status_title">AMMO STATUS</div>
-                  <div className="status_item">
-                    <strong>HEAT:</strong>
-                    <p>{playerData?.Player.ammo.heat}</p>
-                  </div>
-                  <div className="status_item">
-                    <strong>APFSFDS:</strong>
-                    <p>{playerData?.Player.ammo.aPFSFDS}</p>
-                  </div>
-                  <div className="status_item">
-                    <strong>HE:</strong>
-                    <p>{playerData?.Player.ammo.hE}</p>
-                  </div>
-                  <div className="status_item">
-                    <strong>MG:</strong>
-                    <p>{playerData?.Player.ammo.mG}</p>
-                  </div>
+                <div className="status_item">
+                  <strong>Static Target Hits:</strong>
+                  <p>
+                    {
+                      playerData?.Player['player Target States']
+                        ?.staticTargetHits
+                    }
+                  </p>
                 </div>
-                <div className="status_box">
-                  <div className="status_title">SIMULATION STATUS</div>
-                  <div className="status_item">
-                    <strong>Elapsed Time:</strong>
-                    <p>{formatTime(elapsedTime)}</p>
-                  </div>
-                  <div className="status_item">
-                    <strong>Time Left:</strong>
-                    <p>{formatTime(timeLeft)}</p>
-                  </div>
-                  <div className="status_item">
-                    <strong>Total Time:</strong>
-                    <p>
-                      {formatTime(
-                        simulationStatusNew?.ExerciseInfo?.exerciseTime * 60,
-                      )}
-                    </p>
-                  </div>
+                <div className="status_item">
+                  <strong>Total Cannon Hits:</strong>
+                  <p>
+                    {
+                      playerData?.Player['player Target States']
+                        ?.totalCannonHits
+                    }
+                  </p>
                 </div>
-              </>
-            )
+                <div className="status_item">
+                  <strong>Total Cannon Missed:</strong>
+                  <p>
+                    {
+                      playerData?.Player['player Target States']
+                        ?.totalCannonMissed
+                    }
+                  </p>
+                </div>
+              </div>
+              <div className="status_box">
+                <div className="status_title">AMMO STATUS</div>
+                <div className="status_item">
+                  <strong>HEAT:</strong>
+                  <p>{playerData?.Player.ammo.heat}</p>
+                </div>
+                <div className="status_item">
+                  <strong>APFSFDS:</strong>
+                  <p>{playerData?.Player.ammo.aPFSFDS}</p>
+                </div>
+                <div className="status_item">
+                  <strong>HE:</strong>
+                  <p>{playerData?.Player.ammo.hE}</p>
+                </div>
+                <div className="status_item">
+                  <strong>MG:</strong>
+                  <p>{playerData?.Player.ammo.mG}</p>
+                </div>
+              </div>
+              <div className="status_box">
+                <div className="status_title">SIMULATION STATUS</div>
+                <div className="status_item">
+                  <strong>Elapsed Time:</strong>
+                  <p>{formatTime(elapsedTime)}</p> {/* Read from Redux */}
+                </div>
+                <div className="status_item">
+                  <strong>Time Left:</strong>
+                  <p>{formatTime(timeLeft)}</p> {/* Read from Redux */}
+                </div>
+                <div className="status_item">
+                  <strong>Total Time:</strong>
+                  <p>{formatTime(totalTime)}</p> {/* Read from Redux */}
+                </div>
+              </div>
+            </>
           )}
         </>
       )}
