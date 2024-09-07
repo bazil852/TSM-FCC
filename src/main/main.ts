@@ -45,7 +45,7 @@ let mainWindow: BrowserWindow | null = null;
 const filePath = path.join(app.getPath('desktop'), 'TSM-FCC/data_output.json');
 console.log(filePath);
 ipcMain.on('read-json-FCC', (event) => {
-  fs.readFile(filePath, 'utf-8', (err: any, data: any) => {
+  fs.readFile('E:/TSM-FCC-main/data_output.json', 'utf-8', (err: any, data: any) => {
     if (err) {
       console.log('Failed to read file: ', err);
       event.reply('read-json-response', {
@@ -276,18 +276,18 @@ ipcMain.handle('fetch-video-data', (event, videoPath) => {
 
       const stream = fs.createReadStream(videoPath, { encoding: 'base64' });
 
-      stream.on('data', (chunk) => {
+      stream.on('data', (chunk:any) => {
         console.log(`[DEBUG] Received chunk of size: ${chunk.length}`);
         event.sender.send('video-chunk', chunk); // Send each chunk to the renderer
       });
 
       stream.on('end', () => {
         console.log("[DEBUG] Stream ended.");
-        event.sender.send('video-end'); // Signal the end of the video stream
-        resolve(); // Resolve without data; data is sent in chunks
+        event.sender.send('video-end'); 
+        resolve(); 
       });
 
-      stream.on('error', (error) => {
+      stream.on('error', (error:any) => {
         console.error('[ERROR] Error reading video file:', error);
         reject(error);
       });
@@ -318,7 +318,7 @@ ipcMain.handle('run-python-diagnostics', async () => {
         try {
           const diagnostics = JSON.parse(result);
           resolve(diagnostics);  // Resolve with parsed JSON object
-        } catch (error) {
+        } catch (error:any) {
           reject(new Error(`Failed to parse JSON: ${error.message}`));
         }
       } else {

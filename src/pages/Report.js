@@ -5,12 +5,50 @@ import backButton from '../TSM-img/back_button.svg';
 import Footer from '../utility/Footer';
 import ReportGraph from '../utility/ReportGraph';
 import data from '../data.json';
+import { ipcRenderer } from 'electron';
 import { useSelector } from 'react-redux';
+import { useEffect, useState } from 'react';
 
 export default function Report() {
   const reportData = data.reportData;
-   const dataArrayState = useSelector((state) => state.dataArray);
-   console.log("Report Page Log: ",dataArrayState)
+  const dataArrayState = useSelector((state) => state.dataArray);
+  const reportInfo = useSelector((state) => state.selectedItem);
+  const [simulationData, setSimulationData] = useState();
+  const [playerData, setPlayerData] = useState();
+  const [enemyData, setEnemyData] = useState();
+
+  const fetchSimulation = async () => {
+    const simulationData = await ipcRenderer.invoke(
+      'read-json',
+      process.env.SIMULATION_DATA_PATH,
+    );
+    const playerData = await ipcRenderer.invoke(
+      'read-json',
+      process.env.PLAYER_DATA_PATH,
+    );
+
+    const enemyData = await ipcRenderer.invoke(
+      'read-json',
+      process.env.ENEMY_DATA_PATH,
+    );
+
+    setPlayerData(playerData);
+    setEnemyData(enemyData);
+    setSimulationData(simulationData);
+  };
+
+  useEffect(() => {
+    if (!simulationData) {
+      fetchSimulation();
+    }
+  }, []);
+
+  console.log(simulationData);
+  console.log(reportInfo);
+  console.log(enemyData);
+  console.log(playerData);
+
+  console.log('Report Page Log: ', dataArrayState);
   return (
     <div
       className="report_main_class"

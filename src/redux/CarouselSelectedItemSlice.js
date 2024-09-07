@@ -13,6 +13,9 @@ export const CarouselSelectedItemSlice = createSlice({
       terrain: '',
       APC: '',
       Tanks: '',
+      elapsedTime: 0, // Add elapsed time
+      timeLeft: 0, // Add time left
+      totalTime: 0, // Add total time
     },
   },
   reducers: {
@@ -32,6 +35,15 @@ export const CarouselSelectedItemSlice = createSlice({
     setReportData: (state, action) => {
       state.reportData = { ...state.reportData, ...action.payload };
     },
+    setElapsedTime: (state, action) => {
+      state.reportData.elapsedTime = action.payload;
+    },
+    setTimeLeft: (state, action) => {
+      state.reportData.timeLeft = action.payload;
+    },
+    setTotalTime: (state, action) => {
+      state.reportData.totalTime = action.payload;
+    },
   },
 });
 
@@ -41,6 +53,9 @@ export const {
   setSelectedMapID,
   setSelectedStartIndex,
   setReportData,
+  setElapsedTime,
+  setTimeLeft,
+  setTotalTime, // Export new actions
 } = CarouselSelectedItemSlice.actions;
 
 export default CarouselSelectedItemSlice.reducer;
