@@ -6,6 +6,7 @@ export const CarouselSelectedItemSlice = createSlice({
     items: [],
     selectedMapID: null,
     selectedStartIndex: 0,
+    continue: true,
     reportData: {
       recordingFileName: '',
       PNoScore: '',
@@ -13,9 +14,11 @@ export const CarouselSelectedItemSlice = createSlice({
       terrain: '',
       APC: '',
       Tanks: '',
-      elapsedTime: 0, // Add elapsed time
-      timeLeft: 0, // Add time left
-      totalTime: 0, // Add total time
+      score: '',
+      elapsedTime: 0,
+      timeLeft: 0,
+      totalTime: 0,
+      totalEnemyTanks:0,
     },
   },
   reducers: {
@@ -44,6 +47,9 @@ export const CarouselSelectedItemSlice = createSlice({
     setTotalTime: (state, action) => {
       state.reportData.totalTime = action.payload;
     },
+    setContinue: (state, action) => {
+      state.continue = action.payload;
+    },
   },
 });
 
@@ -55,6 +61,7 @@ export const {
   setReportData,
   setElapsedTime,
   setTimeLeft,
+  setContinue,
   setTotalTime, // Export new actions
 } = CarouselSelectedItemSlice.actions;
 

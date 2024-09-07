@@ -10,25 +10,29 @@ export default function Footer() {
   const dataArrayState = useSelector((state) => state.dataArray);
   const selectedMap = useSelector((state) => state.selectedItem);
 
+  console.log(selectedMap);
   const saveStateToJsonFile = () => {
-    console.log(dataArrayState);
-    console.log('Workings');
+     if (!selectedMap.continue) {
+       navigate('/');
+     } else {
+       console.log(dataArrayState);
+       if (dataArrayState.newMapCreated) {
+         ipcRenderer.send('save-map-data', dataArrayState);
+       } else {
+         console.log(selectedMap.selectedMapID);
+         ipcRenderer.send('update-map-data', {
+           idmap: selectedMap.selectedMapID,
+           mapData: dataArrayState,
+         });
+       }
 
-    if (dataArrayState.newMapCreated) {
-      ipcRenderer.send('save-map-data', dataArrayState);
-    } else {
-      console.log(selectedMap.selectedMapID);
-      ipcRenderer.send('update-map-data', {
-        idmap: selectedMap.selectedMapID,
-        mapData: dataArrayState,
-      });
-    }
+       ipcRenderer.send('save-json', {
+         data: dataArrayState,
+         filename: process.env.SIMULATION_DATA_PATH,
+       });
 
-    ipcRenderer.send('save-json', {
-      data: dataArrayState,
-      filename: process.env.SIMULATION_DATA_PATH,
-    });
-    navigate("/dashboard")
+       navigate('/dashboard');
+     }
   };
 
   useEffect(() => {

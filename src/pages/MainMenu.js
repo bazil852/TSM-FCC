@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import SwiperCore from 'swiper';
 import { Mousewheel, Pagination, Autoplay } from 'swiper/modules';
@@ -12,12 +12,23 @@ import image2 from '../TSM-img/2.jpeg';
 import image3 from '../TSM-img/3.jpeg';
 import image4 from '../TSM-img/4.jpeg';
 import image5 from '../TSM-img/5.jpeg';
+import { useDispatch, useSelector } from 'react-redux';
+import { setContinue } from '../redux/CarouselSelectedItemSlice';
 
 SwiperCore.use([Mousewheel, Pagination, Autoplay]);
 
 export default function MainMenu() {
   const buttonArray = data.buttonArray;
-
+  const reportData = useSelector((state) => state.selectedItem)
+  const [once,setOnce] = useState(true)
+  console.log(reportData);
+  const dispatch = useDispatch()
+  useEffect(() => {
+    if (once) {
+      setOnce(false)
+      dispatch(setContinue(true));
+    } 
+  }, []);
   const swiperRef = useRef(null);
 
   useEffect(() => {

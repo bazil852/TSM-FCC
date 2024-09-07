@@ -15,7 +15,7 @@ export default function PastSimulation() {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [reports, setReports] = useState();
   const [videoBlob, setVideoBlob] = useState(null); // State to store the accumulated video Blob
-  const [videoUrl, setVideoUrl] = useState(null);   
+  const [videoUrl, setVideoUrl] = useState(null);
 
   useEffect(() => {
     // Fetch reports data on mount
@@ -26,25 +26,32 @@ export default function PastSimulation() {
     // Listen for video chunks from Electron
     const handleVideoChunk = (event, chunk) => {
       if (chunk) {
-        console.log("[DEBUG] Received video chunk from Electron:", chunk.length);
-  
+        console.log(
+          '[DEBUG] Received video chunk from Electron:',
+          chunk.length,
+        );
+
         // Convert base64 chunk to binary and append to the video blob
         const byteCharacters = atob(chunk);
         const byteNumbers = new Array(byteCharacters.length);
         for (let i = 0; i < byteCharacters.length; i++) {
           byteNumbers[i] = byteCharacters.charCodeAt(i);
         }
-  
+
         const byteArray = new Uint8Array(byteNumbers);
         const newBlob = new Blob([byteArray], { type: 'video/webm' });
-  
+
         // Accumulate the blobs
-        setVideoBlob((prevBlob) => (prevBlob ? new Blob([prevBlob, newBlob], { type: 'video/webm' }) : newBlob));
+        setVideoBlob((prevBlob) =>
+          prevBlob
+            ? new Blob([prevBlob, newBlob], { type: 'video/webm' })
+            : newBlob,
+        );
       }
     };
-  
+
     ipcRenderer.on('video-chunk', handleVideoChunk);
-  
+
     // Listen for the end of the stream to create the URL
     ipcRenderer.on('video-end', () => {
       if (videoBlob) {
@@ -52,7 +59,7 @@ export default function PastSimulation() {
         setVideoUrl(url);
       }
     });
-  
+
     return () => {
       ipcRenderer.removeListener('video-chunk', handleVideoChunk); // Clean up the listener
       ipcRenderer.removeListener('video-end', handleVideoChunk); // Clean up the end listener
@@ -60,7 +67,7 @@ export default function PastSimulation() {
         URL.revokeObjectURL(videoUrl); // Clean up URL on unmount
       }
     };
-  }, [videoBlob, videoUrl]); 
+  }, [videoBlob, videoUrl]);
   const fetchReports = async () => {
     try {
       const data = await ipcRenderer.invoke('fetch-reports-data');
@@ -76,7 +83,7 @@ export default function PastSimulation() {
       // Reset videoBlob and videoUrl before fetching a new video
       setVideoBlob(null);
       setVideoUrl(null);
-  
+
       // Start fetching video data in chunks
       await ipcRenderer.invoke('fetch-video-data', filePath);
     } catch (error) {
@@ -105,6 +112,7 @@ export default function PastSimulation() {
     overflow: 'hidden',
     transition: 'opacity 0.4s ease-in-out',
   };
+  console.log(reports);
 
   return (
     <div
@@ -190,13 +198,20 @@ export default function PastSimulation() {
                 >
                   <div className="past_simulation_tab_table_name_data">
                     <div id="past_simulation_tab_table_name_data_first_phrase">
-                      {data.data.InstructorName} - {data.data.terrain}
+                      {data.data.InstructorName} - {data.data.APC}
                     </div>
                     <div id="past_simulation_tab_table_name_data_second_phrase">
-                      {data.data.terrain} -
-                      <span key={index}>
-                        {data.data.APC} {data.data.Tanks}
-                      </span>
+                      {data.data.Tank.map((tanks, index) =>
+                        index == data.data.Tank.length - 1 ? (
+                          <>
+                            <span key={index}>{tanks}</span>
+                          </>
+                        ) : (
+                          <>
+                            <span key={index}>{tanks}</span> -
+                          </>
+                        ),
+                      )}
                     </div>
                   </div>
                   <div
@@ -209,7 +224,7 @@ export default function PastSimulation() {
                   <div
                     onClick={() =>
                       handleViewClick(
-                        `${process.env.REC_PATH}/${data.data.recordingFileName}`
+                        `${process.env.REC_PATH}/${data.data.recordingFileName}`,
                       )
                     }
                     className="past_simulation_tab_table_data_recording"

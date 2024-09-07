@@ -3,15 +3,18 @@ import { NavLink } from 'react-router-dom';
 import '../../renderer/App.css';
 import { ipcRenderer } from 'electron';
 import { useSelector, useDispatch } from 'react-redux';
-import { setReportData } from '../../redux/CarouselSelectedItemSlice';
+import {
+  setReportData,
+  setContinue,
+} from '../../redux/CarouselSelectedItemSlice';
 import { resetDataArray } from '../../redux/DataArray';
 
 export default function TopBar() {
   const dispatch = useDispatch();
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const reportData = useSelector((state) => state.selectedItem.reportData);
-  console.log(reportData);
   const [recording, setRecording] = useState(false);
+  const simulationData = useSelector((state) => state.dataArray);
   const videoRef = useRef(null);
   const recordedChunksRef = useRef([]);
   const [spStatus, setSpStatus] = useState({
@@ -26,9 +29,9 @@ export default function TopBar() {
       pointx: 27834,
       pointy: 224460,
     },
-    FCCFailure: false, 
-    JoystickFailure: false, 
-    LaserFailure: false, 
+    FCCFailure: false,
+    JoystickFailure: false,
+    LaserFailure: false,
   });
   // Function to fetch the sp.json data
   const fetchSpStatus = async () => {
@@ -79,6 +82,7 @@ export default function TopBar() {
   const handleEndSimulation = () => {
     const updatedStatus = { ...spStatus, end: true };
     updateSpStatus(updatedStatus);
+    dispatch(setContinue(false));
 
     console.log('Simulation ended. Saving report data...', reportData);
 
@@ -105,10 +109,25 @@ export default function TopBar() {
         LaserFailure: false,
         DoAllEnemeySmoke: false,
       };
-      dispatch(resetDataArray())
+      dispatch(resetDataArray());
       updateSpStatus(resetStartStatus);
     }, 2000);
   };
+
+  useEffect(() => {
+    if (simulationData) {
+      dispatch(
+        setReportData({
+          InstructorName: simulationData.ExerciseInfo.instructor.name,
+          terrain: simulationData.ExerciseInfo.terrain,
+          APC: simulationData.ExerciseInfo.totalEnemyAPCs,
+          totalEnemyTanks: simulationData.ExerciseInfo.totalEnemyTanks,
+          Tank: Object.keys(simulationData.Enemy),
+          score: '10',
+        }),
+      );
+    }
+  }, [simulationData]);
 
   const handlePauseSimulation = () => {
     const updatedStatus = { ...spStatus, pause: !spStatus.pause };
@@ -192,11 +211,6 @@ export default function TopBar() {
       dispatch(
         setReportData({
           recordingFileName: fileName,
-          PNoScore: '85',
-          InstructorName: 'John Doe',
-          terrain: 'Mountain',
-          APC: 'APC123',
-          Tanks: 'Tank456',
         }),
       );
 
