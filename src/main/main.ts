@@ -416,6 +416,13 @@ const createWindow = async () => {
     } else {
       mainWindow.show();
     }
+
+    // Set up the interval to send the read trigger every 5 seconds
+    setInterval(() => {
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('trigger-json-read');
+      }
+    }, 200);
   });
 
   mainWindow.on('closed', () => {

@@ -71,7 +71,8 @@ export default function FireControl() {
 
   useEffect(() => {
     const handleReadJsonResponse = (event, response) => {
-      
+      console.log('Response received:', response);
+
       if (response.success) {
 
         console.log("m3: ",response.data);
