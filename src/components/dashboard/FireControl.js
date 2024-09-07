@@ -25,6 +25,7 @@ const { ipcRenderer } = window.require('electron');
 export default function FireControl() {
   const [ammo, setAmmo] = useState('apfsds');
   const [toggleFirstAndLast, setToggleFirstAndLast] = useState('first');
+  const [toggleDayandNight, setToggleDayandNight] = useState('day');
   const [opMode, setOpMode] = useState('test');
   const [RNGmode, setRNGMode] = useState('emerg');
   const [toggleMoveAndFix, setToggleMoveAndFix] = useState('move');
@@ -57,6 +58,10 @@ export default function FireControl() {
   // rated_pre
   const [rated_pre, setRated_pre] = useState(false);
 
+
+  const [mrdState, setMrdState] = useState('released');
+  const [resetState, setResetState] = useState('released');
+
   const mapSuffixToIndex = (suffix) => {
     const mappings = {
       "0.1": 0,
@@ -77,28 +82,39 @@ export default function FireControl() {
 
         // console.log("m3: ",response.data);
         // Destructuring new JSON response keys
-         const newStates = JSON.parse(JSON.stringify(initialSwitchStates));
-
+        const newStates = {
+          APFSDS: { AZ: [], EL: [] },
+          HESH: { AZ: [], EL: [] },
+          HEAT: { AZ: [], EL: [] }
+        };
+  
+        
       Object.keys(response.data).forEach(key => {
-        const [typePrefix, row, valueSuffix] = key.split('_');
-        if (typePrefix === 'm3') {
-          const type = row.toUpperCase();  // 'APFSDS', 'HESH', 'HEAT'
-          const rowType = valueSuffix.slice(0, 2).toUpperCase();  // 'AZ', 'EL'
-          const suffix = valueSuffix.slice(3);  // e.g., '0.1', '0.2', '1.6', '+'
-          const index = mapSuffixToIndex(suffix);
+        const parts = key.split('_');
+        if (parts.length >= 4) {
+          const [, typeRow, rowType, indexPart] = parts; // Ignoring the first part ('m3')
+          
+          // Validate that the parts are not undefined before applying toUpperCase
+          const formattedType = typeRow ? typeRow.toUpperCase() : null; // APFSDS, HESH, HEAT
+          const row = rowType ? rowType.toUpperCase() : null; // AZ, EL
+          const index = indexPart ? mapSuffixToIndex(indexPart) : -1; // Index conversion
 
-          if (newStates[type] && newStates[type][rowType] && index >= 0) {
-            newStates[type][rowType][index] = response.data[key];
+          // Ensure formattedType, row, and index are valid before updating state
+          if (formattedType && row && index >= 0 && newStates[formattedType]) {
+            newStates[formattedType][row][index] = response.data[key];
           }
         }
       });
 
 
-        
+        setBlackSliderSwitchStates(newStates);
         const m1_scd_cpd = response.data['m1_scd/cpd'];
         const m2_move_fix = response.data['m2_move/fix'];
         const m2_first_last = response.data['m2_first/last'];
+        const m2_day_night = response.data['m2_day/night'];
         const m1_rated_pre = response.data['m1_rated/preset'];
+        const { m2_Mrd } = response.data;
+        const { m2_Reset } = response.data;
 
         const {
           m2_ammo,
@@ -127,6 +143,7 @@ export default function FireControl() {
         setRNGMode(m2_rngMode);
         setToggleMoveAndFix(m2_move_fix);
         setToggleFirstAndLast(m2_first_last);
+        setToggleDayandNight(m2_day_night);
         setM2_KM(m2_mrs_km);
         setM2_HM(m2_mrs_hm);
         setM2_DM(m2_mrs_dm);
@@ -141,6 +158,8 @@ export default function FireControl() {
         setCPDandSCD(m1_scd_cpd);
         setRated_pre(m1_rated_pre);
         setBlackSliderSwitchStates(newStates);
+        setMrdState(m2_Mrd);
+        setResetState(m2_Reset);
   
         // Add other states as needed
       } else {
@@ -184,11 +203,14 @@ export default function FireControl() {
   const [blackSliderSwitchStates, setBlackSliderSwitchStates] =
     useState(initialSwitchStates);
 
-  const toggleSwitch = (type, row, index) => {
-    const newStates = { ...blackSliderSwitchStates };
-    newStates[type][row][index] = !newStates[type][row][index];
-    setBlackSliderSwitchStates(newStates);
-  };
+    const toggleSwitch = (type, row, index) => {
+      setBlackSliderSwitchStates(prevStates => {
+        const newStates = { ...prevStates };
+        newStates[type][row][index] = !newStates[type][row][index];
+        return newStates;
+      });
+    };
+    
 
   const toggleSlider = (slider) => {
     setPDR({ ...PDR, [slider]: !PDR[slider] });
@@ -399,31 +421,46 @@ export default function FireControl() {
         </div>
 
         <div className="dashboard_eight_set_red_light">
-          <img src={redBtn} alt="red-light" />
+          {/* <img src={redBtn} alt="red-light" /> */}
+          <img
+              src={metalSliderKnob}
+              alt="metal-slider-knob"
+              className={
+                mrdState === 'pressed' 
+                  ? 'metal_slider_knob_MRD_pressed'  // Apply the pressed state class
+                  : 'metal_slider_knob_MRD'          // Apply the released state class
+              }
+            />
           <div className="dashboard_eight_set_black_light_text">MRD</div>
         </div>
 
         <div className="dashboard_eight_set_joystick">
           <div
             className="dashboard_eight_set_joystick_text"
-            onClick={() => setToggleFirstAndLast('first')}
+            onClick={() => setToggleDayandNight('day')}
           >
-            FIRST
+            DAY
           </div>
           <img
-            src={toggleFirstAndLast === 'last' ? joystickDown : joystickUp}
+            src={toggleDayandNight === 'night' ? joystickDown : joystickUp}
             alt="joystick"
           />
           <div
             className="dashboard_eight_set_joystick_text"
-            onClick={() => setToggleFirstAndLast('last')}
+            onClick={() => setToggleDayandNight('night')}
           >
-            LAST
+            NIGHT
           </div>
         </div>
 
         <div className="dashboard_ninth_set_red_light">
-          <img src={redBtn} alt="red-light" />
+          <img src={redBtn} alt="red-light"
+          className={
+            resetState === 'pressed'
+              ? 'dashboard_ninth_set_red_light_img'  // Pressed state class
+              : ''          // Released state class
+          }
+          />
           <div className="dashboard_ninth_set_black_light_text">RESET</div>
         </div>
 
@@ -864,33 +901,36 @@ export default function FireControl() {
             </div>
           </div>
           {Object.entries(blackSliderSwitchStates).map(([type, rows]) => (
-            <div key={type} className="switch_set">
-              {Object.entries(rows).map(([row, switches]) => (
-                <div key={row} className="switch_row">
-                  {switches.map((isOn, index) => (
-                    <div
-                      key={index}
-                      className="dashboard_sixteenth_set_black_switch"
-                      onClick={() => toggleSwitch(type, row, index)}
-                    >
-                      <img
-                        src={blackSliderTrack}
-                        alt="black_switch_track"
-                        className="black_switch_track"
-                      />
-                      <img
-                        src={blackSliderKnob}
-                        alt="black_switch_thumb"
-                        className={`black_switch_thumb ${
-                          isOn ? '' : 'black_switch_thumb_bottom'
-                        }`}
-                      />
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </div>
-          ))}
+  <div key={type} className="switch_set">
+    <div className="switch_set_title">{type}</div>
+    {Object.entries(rows).map(([row, switches]) => (
+      <div key={row} className="switch_row">
+        <div className="switch_row_title">{row}</div>
+        {switches.map((isOn, index) => (
+          <div
+            key={index}
+            className="dashboard_sixteenth_set_black_switch"
+            onClick={() => toggleSwitch(type, row, index)}
+          >
+            <img
+              src={blackSliderTrack}
+              alt="black_switch_track"
+              className="black_switch_track"
+            />
+            <img
+              src={blackSliderKnob}
+              alt="black_switch_thumb"
+              className={`black_switch_thumb ${
+                isOn ? '' : 'black_switch_thumb_bottom'
+              }`}
+            />
+          </div>
+        ))}
+      </div>
+    ))}
+  </div>
+))}
+
         </div>
       </div>
 
