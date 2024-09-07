@@ -132,4 +132,4 @@ def run_diagnostics():
 if __name__ == "__main__":
     # diagnostics = run_diagnostics()
     # print(json.dumps(diagnostics, indent=4))
-    print (check_headphones())
+    print (check_joystick())

@@ -10,7 +10,7 @@ import { useSelector } from 'react-redux';
 export default function Report() {
   const reportData = data.reportData;
    const dataArrayState = useSelector((state) => state.dataArray);
-   console.log(dataArrayState)
+   console.log("Report Page Log: ",dataArrayState)
   return (
     <div
       className="report_main_class"

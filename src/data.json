@@ -458,7 +458,7 @@
       "key": "boreNight"
     },
     {
-      "title": "Friendly Mode",
+      "title": "Game Modes",
       "detail": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
       "key": "friendlyMode"
     }
@@ -484,7 +484,7 @@
     { "name": "ADD INSTRUCTORS", "link": "/select_student_instructor" },
     { "name": "ADD STUDENTS", "link": "/select_student_instructor" },
     { "name": "PAST SIMULATIONS", "link": "/past_simulation" },
-    { "name": "FRIENDLY MODE", "link": "/basicAdvance" }
+    { "name": "GAME MODE", "link": "/basicAdvance" }
   ],
   "reportData": [
     {

@@ -111,12 +111,12 @@ export default function GridCanvas({ stylingBox }) {
         process.env.ENEMY_DATA_PATH,
       );
 
-      console.log(enemyData);
-     console.log(simulationData)
+      console.log("Enemy Data",enemyData);
+     console.log("Simulation Data",simulationData)
       // Create a copy of simulationData to avoid mutating state directly
       let updatedSimulation = { ...simulationData };
 
-      console.log(updatedSimulation);
+      console.log("Updated Simulation ",updatedSimulation);
       // Update player location
       if (
         playerData &&
@@ -311,7 +311,7 @@ export default function GridCanvas({ stylingBox }) {
         'read-json',
         process.env.SIMULATION_DATA_PATH,
       );
-     console.log(simulationData)
+     console.log("Simulation Data: ",simulationData)
       setSimulationData(simulationData);
 
       // Dispatch actions to update Redux state

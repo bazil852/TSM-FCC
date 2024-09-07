@@ -70,7 +70,7 @@ export default function Status() {
   // Function to handle step updates
   const handleStep = async (stepNumber) => {
     try {
-      const updatedSpData = { ...spData, step: stepNumber }; // Update step value
+      const updatedSpData = { ...spData, BoreSightStepNo: stepNumber }; // Update step value
       await ipcRenderer.invoke('write-json', {
         filePath: process.env.SP_DATA_PATH,
         data: updatedSpData,
