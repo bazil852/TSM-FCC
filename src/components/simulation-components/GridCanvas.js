@@ -3,8 +3,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import data from '../../data.json';
 import dessertTerainSvg from '../../../assets/terrain.svg';
-import semiDessetTerainSvg from '../../../assets/images.jpeg';
-import denseTerainSvg from '../../../assets/terrain.svg';
+import semiDessetTerainSvg from '../../../assets/semidessert.png';
+import denseTerainSvg from '../../../assets/dense.png';
 import DataArray, {
   addEnemy,
   addOwnTank,

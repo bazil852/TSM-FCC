@@ -4,56 +4,37 @@ import mainMenu from '../TSM-img/main_menu.svg';
 import backButton from '../TSM-img/back_button.svg';
 import Footer from '../utility/Footer';
 import ReportGraph from '../utility/ReportGraph';
-import data from '../data.json';
 import { ipcRenderer } from 'electron';
 import { useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
 
 export default function Report() {
-  const reportData = data.reportData;
-  const dataArrayState = useSelector((state) => state.dataArray);
-  const reportInfo = useSelector((state) => state.selectedItem);
-  const [simulationData, setSimulationData] = useState();
-  const [playerData, setPlayerData] = useState();
-  const [enemyData, setEnemyData] = useState();
+  const reportInfo = useSelector((state) => state.selectedItem); // Fetch reportInfo from Redux
+  const [simulationData, setSimulationData] = useState(null);
+  const [playerData, setPlayerData] = useState(null);
+  const [enemyData, setEnemyData] = useState(null);
 
+  // Fetch simulation, player, and enemy data from local files
   const fetchSimulation = async () => {
-    const simulationData = await ipcRenderer.invoke(
-      'read-json',
-      process.env.SIMULATION_DATA_PATH,
-    );
-    const playerData = await ipcRenderer.invoke(
-      'read-json',
-      process.env.PLAYER_DATA_PATH,
-    );
+    const simData = await ipcRenderer.invoke('read-json', process.env.SIMULATION_DATA_PATH);
+    const playerData = await ipcRenderer.invoke('read-json', process.env.PLAYER_DATA_PATH);
+    const enemyData = await ipcRenderer.invoke('read-json', process.env.ENEMY_DATA_PATH);
 
-    const enemyData = await ipcRenderer.invoke(
-      'read-json',
-      process.env.ENEMY_DATA_PATH,
-    );
-
+    setSimulationData(simData);
     setPlayerData(playerData);
     setEnemyData(enemyData);
-    setSimulationData(simulationData);
   };
 
   useEffect(() => {
-    if (!simulationData) {
+    if (!simulationData || !playerData || !enemyData) {
       fetchSimulation();
     }
   }, []);
 
-  console.log(simulationData);
-  console.log(reportInfo);
-  console.log(enemyData);
-  console.log(playerData);
+  if (!simulationData || !playerData || !enemyData || !reportInfo) return <div>Loading...</div>;
 
-  console.log('Report Page Log: ', dataArrayState);
   return (
-    <div
-      className="report_main_class"
-      style={{ backgroundImage: `url(${mainMenu})` }}
-    >
+    <div className="report_main_class" style={{ backgroundImage: `url(${mainMenu})` }}>
       <NavLink className="navigation_button" to="/simulation">
         <span id="first_span_navigation_button">
           <img src={backButton} alt="back" /> SIMULATION /
@@ -64,262 +45,127 @@ export default function Report() {
       <div className="report_main_container">
         <div className="report_content">
           <div className="report_content_main_heading">Examination Report</div>
-          {reportData.map((data, index) => {
-            return (
-              <div className="report_conetnt_input_fields_container">
-                <div className="report_content_input_field_box_1">
-                  <div className="report_conent_input_field_box_1_input_box">
-                    <div className="report_conent_input_field_box_1_input_box_title">
-                      GUNNER NAME :
-                    </div>
-                    <div className="report_conent_input_field_box_1_input_box_value">
-                      {data.gunnerName}
-                    </div>
-                  </div>
 
-                  <div className="report_conent_input_field_box_1_input_box">
-                    <div className="report_conent_input_field_box_1_input_box_title">
-                      ARMY NO. :
-                    </div>
-                    <div className="report_conent_input_field_box_1_input_box_value">
-                      {data.armyNumber}
-                    </div>
-                  </div>
-
-                  <div className="report_conent_input_field_box_1_input_box">
-                    <div className="report_conent_input_field_box_1_input_box_title">
-                      UNIT :
-                    </div>
-                    <div className="report_conent_input_field_box_1_input_box_value">
-                      {data.unit}
-                    </div>
-                  </div>
-
-                  <div className="report_conent_input_field_box_1_input_box">
-                    <div className="report_conent_input_field_box_1_input_box_title">
-                      GROUP NO. :
-                    </div>
-                    <div className="report_conent_input_field_box_1_input_box_value">
-                      {data.groupNumber}
-                    </div>
-                  </div>
-
-                  <div className="report_conent_input_field_box_1_input_box">
-                    <div className="report_conent_input_field_box_1_input_box_title">
-                      DUTY :
-                    </div>
-                    <div className="report_conent_input_field_box_1_input_box_value">
-                      {data.duty}
-                    </div>
-                  </div>
-
-                  <div className="report_conent_input_field_box_1_input_box">
-                    <div className="report_conent_input_field_box_1_input_box_title">
-                      DATE :
-                    </div>
-                    <div className="report_conent_input_field_box_1_input_box_value">
-                      {data.date}
-                    </div>
-                  </div>
-
-                  <div className="report_conent_input_field_box_1_input_box">
-                    <div className="report_conent_input_field_box_1_input_box_title">
-                      EXERCISE TIME :
-                    </div>
-                    <div className="report_conent_input_field_box_1_input_box_value">
-                      {data.exerciseTime}
-                    </div>
-                  </div>
+          {/* Simulation Data */}
+          <div className="report_conetnt_input_fields_container">
+            <div className="report_content_input_field_box_1">
+              <div className="report_conent_input_field_box_1_input_box">
+                <div className="report_conent_input_field_box_1_input_box_title">
+                  GUNNER NAME :
                 </div>
-
-                <div className="report_content_input_field_box_2">
-                  <div className="report_conent_input_field_box_2_input_box_map_info">
-                    <div className="report_conent_input_field_box_2_input_box_title_map_info">
-                      MAP INFORMATION :
-                    </div>
-                    <div className="report_conent_input_field_box_2_input_box_value_map_info">
-                      {data.mapInfo}
-                    </div>
-                  </div>
-
-                  <div className="report_conent_input_field_box_2_input_box">
-                    <div className="report_conent_input_field_box_2_input_box_title">
-                      NO. OF ENEMIES VEHICLES :
-                    </div>
-                    <div className="report_conent_input_field_box_2_input_box_value">
-                      {data.numberOfEnemeyVehicles}
-                    </div>
-                  </div>
-
-                  <div className="report_conent_input_field_box_2_input_box">
-                    <div className="report_conent_input_field_box_2_input_box_title">
-                      TERRAIN TYPE :
-                    </div>
-                    <div className="report_conent_input_field_box_2_input_box_value">
-                      {data.terrainType}
-                    </div>
-                  </div>
-
-                  <div className="report_conent_input_field_box_2_input_box">
-                    <div className="report_conent_input_field_box_2_input_box_title">
-                      NO. OF ENEMIES SOLIDERS :
-                    </div>
-                    <div className="report_conent_input_field_box_2_input_box_value">
-                      {data.numberOfEnemeySoliders}
-                    </div>
-                  </div>
-
-                  <div className="report_conent_input_field_box_2_input_box">
-                    <div className="report_conent_input_field_box_2_input_box_title">
-                      DIFFICULTY LEVEL :
-                    </div>
-                    <div className="report_conent_input_field_box_2_input_box_value">
-                      {data.difficultyLevel}
-                    </div>
-                  </div>
-
-                  <div className="report_conent_input_field_box_2_input_box">
-                    <div className="report_conent_input_field_box_2_input_box_title">
-                      NO. OF ENEMIES APCs :
-                    </div>
-                    <div className="report_conent_input_field_box_2_input_box_value">
-                      {data.numberOfEnemeyAPC}
-                    </div>
-                  </div>
-
-                  <div className="report_conent_input_field_box_2_input_box">
-                    <div className="report_conent_input_field_box_2_input_box_title">
-                      NO. OF ENEMIES TANKS :
-                    </div>
-                    <div className="report_conent_input_field_box_2_input_box_value">
-                      {data.numberOfEnemeyTanks}
-                    </div>
-                  </div>
+                <div className="report_conent_input_field_box_1_input_box_value">
+                  {simulationData.ExerciseInfo.student.name}
                 </div>
+              </div>
 
-                <div className="report_content_input_field_box_4">
-                  <div className="report_content_input_field_box_4_main_heading">
-                    REPORT
+              <div className="report_conent_input_field_box_1_input_box">
+                <div className="report_conent_input_field_box_1_input_box_title">
+                  ARMY NO. :
+                </div>
+                <div className="report_conent_input_field_box_1_input_box_value">
+                  {simulationData.ExerciseInfo.student.pno}
+                </div>
+              </div>
+
+              <div className="report_conent_input_field_box_1_input_box">
+                <div className="report_conent_input_field_box_1_input_box_title">
+                  UNIT :
+                </div>
+                <div className="report_conent_input_field_box_1_input_box_value">
+                  {simulationData.ExerciseInfo.student.unit}
+                </div>
+              </div>
+
+              <div className="report_conent_input_field_box_1_input_box">
+                <div className="report_conent_input_field_box_1_input_box_title">
+                  EXERCISE TIME :
+                </div>
+                <div className="report_conent_input_field_box_1_input_box_value">
+                  {simulationData.ExerciseInfo.exerciseTime || 'N/A'}
+                </div>
+              </div>
+
+              <div className="report_conent_input_field_box_1_input_box">
+                <div className="report_conent_input_field_box_1_input_box_title">
+                  TERRAIN :
+                </div>
+                <div className="report_conent_input_field_box_1_input_box_value">
+                  {simulationData.ExerciseInfo.terrain || 'N/A'}
+                </div>
+              </div>
+            </div>
+
+            {/* Report Data from reportInfo */}
+            <div className="report_content_input_field_box_2">
+              <div className="report_conent_input_field_box_2_input_box">
+                <div className="report_conent_input_field_box_2_input_box_title">SCORE :</div>
+                <div className="report_conent_input_field_box_2_input_box_value">
+                  {reportInfo.reportData.score}
+                </div>
+              </div>
+
+              <div className="report_conent_input_field_box_2_input_box">
+                <div className="report_conent_input_field_box_2_input_box_title">TIME LEFT :</div>
+                <div className="report_conent_input_field_box_2_input_box_value">
+                  {reportInfo.reportData.timeLeft}
+                </div>
+              </div>
+
+              <div className="report_conent_input_field_box_2_input_box">
+                <div className="report_conent_input_field_box_2_input_box_title">TOTAL TIME :</div>
+                <div className="report_conent_input_field_box_2_input_box_value">
+                  {reportInfo.reportData.totalTime}
+                </div>
+              </div>
+
+              <div className="report_conent_input_field_box_2_input_box">
+                <div className="report_conent_input_field_box_2_input_box_title">TANKS:</div>
+                <div className="report_conent_input_field_box_2_input_box_value">
+                  {reportInfo.reportData.Tank.join(', ')}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Player Data */}
+          <div className="report_content_input_field_box_3">
+            <div className="report_conent_input_field_box_3_input_box">
+              <div className="report_conent_input_field_box_3_input_box_title">CURRENT LOCATION :</div>
+              <div className="report_conent_input_field_box_3_input_box_value">
+                {`X: ${playerData.currentLocation.x}, Y: ${playerData.currentLocation.y}, Z: ${playerData.currentLocation.z}`}
+              </div>
+            </div>
+
+            <div className="report_conent_input_field_box_3_input_box">
+              <div className="report_conent_input_field_box_3_input_box_title">AMMO HEAT :</div>
+              <div className="report_conent_input_field_box_3_input_box_value">{playerData.ammo.heat}</div>
+            </div>
+
+            <div className="report_conent_input_field_box_3_input_box">
+              <div className="report_conent_input_field_box_3_input_box_title">AMMO APFSFDS :</div>
+              <div className="report_conent_input_field_box_3_input_box_value">{playerData.ammo.aPFSFDS}</div>
+            </div>
+          </div>
+
+          {/* Enemy Data */}
+          <div className="report_content_input_field_box_4">
+            <div className="report_conent_input_field_box_4_main_heading">Enemy Information</div>
+            {enemyData.Enemy.map((enemy, index) => (
+              <div key={index} className="report_conent_input_field_box_4_main_content_container_box_1">
+                <div className="report_content_input_field_box_4_main_content_container_box_1_value_box">
+                  <div className="report_conent_input_field_box_4_main_content_container_box_1_value_box_value">
+                    Enemy Type: {enemy?.enemyType}
                   </div>
-                  <div className="report_content_input_field_box_4_main_content_container">
-                    <div className="report_content_input_field_box_4_main_content_container_box_1">
-                      <div className="report_content_input_field_box_4_main_content_container_box_1_value_box">
-                        <div className="report_content_input_field_box_4_main_content_container_box_1_value_box_value">
-                          No of Malfunctions during Setup:
-                        </div>
-                        <div className="report_content_input_field_box_4_main_content_container_box_1_value_box_value">
-                          {data.noOfMalfunctionsDuringSetup}
-                        </div>
-                      </div>
-
-                      <div className="report_content_input_field_box_4_main_content_container_box_1_value_box">
-                        <div className="report_content_input_field_box_4_main_content_container_box_1_value_box_value">
-                          No of Malfunctions during movement:
-                        </div>
-                        <div className="report_content_input_field_box_4_main_content_container_box_1_value_box_value">
-                          {data.noOfMalfunctionsDuringMovement}
-                        </div>
-                      </div>
-
-                      <div className="report_content_input_field_box_4_main_content_container_box_1_value_box">
-                        <div className="report_content_input_field_box_4_main_content_container_box_1_value_box_value">
-                          No of Malfunctions During Shooting:
-                        </div>
-                        <div className="report_content_input_field_box_4_main_content_container_box_1_value_box_value">
-                          {data.noOfMalfunctionsDuringShooting}
-                        </div>
-                      </div>
-
-                      <div className="report_content_input_field_box_4_main_content_container_box_1_value_box">
-                        <div className="report_content_input_field_box_4_main_content_container_box_1_value_box_value">
-                          No of Malfunctions During Failures:
-                        </div>
-                        <div className="report_content_input_field_box_4_main_content_container_box_1_value_box_value">
-                          {data.noOfMalfunctionsDuringFailures}
-                        </div>
-                      </div>
-
-                      <div className="report_content_input_field_box_4_main_content_container_box_1_value_box">
-                        <div className="report_content_input_field_box_4_main_content_container_box_1_value_box_value">
-                          Tanks Destroyed:
-                        </div>
-                        <div className="report_content_input_field_box_4_main_content_container_box_1_value_box_value">
-                          {data.tanksDestroyed}
-                        </div>
-                      </div>
-
-                      <div className="report_content_input_field_box_4_main_content_container_box_1_value_box">
-                        <div className="report_content_input_field_box_4_main_content_container_box_1_value_box_value">
-                          APCS Destroyed:
-                        </div>
-                        <div className="report_content_input_field_box_4_main_content_container_box_1_value_box_value">
-                          {data.APCDestroyed}
-                        </div>
-                      </div>
-
-                      <div className="report_content_input_field_box_4_main_content_container_box_1_value_box">
-                        <div className="report_content_input_field_box_4_main_content_container_box_1_value_box_value">
-                          Damage Taken:
-                        </div>
-                        <div className="report_content_input_field_box_4_main_content_container_box_1_value_box_value">
-                          {data.damageTaken}
-                        </div>
-                      </div>
-
-                      <div className="report_content_input_field_box_4_main_content_container_box_1_value_box">
-                        <div className="report_content_input_field_box_4_main_content_container_box_1_value_box_value">
-                          Hits behind obstacles:
-                        </div>
-                        <div className="report_content_input_field_box_4_main_content_container_box_1_value_box_value">
-                          {data.hitsBehindObstacle}
-                        </div>
-                      </div>
-
-                      <div className="report_content_input_field_box_4_main_content_container_box_1_value_box">
-                        <div className="report_content_input_field_box_4_main_content_container_box_1_value_box_value">
-                          Hits on Moving Objects:
-                        </div>
-                        <div className="report_content_input_field_box_4_main_content_container_box_1_value_box_value">
-                          {data.hitsOnMovingObject}
-                        </div>
-                      </div>
-
-                      <div className="report_content_input_field_box_4_main_content_container_box_1_value_box">
-                        <div className="report_content_input_field_box_4_main_content_container_box_1_value_box_value">
-                          Hits On Static Objects:
-                        </div>
-                        <div className="report_content_input_field_box_4_main_content_container_box_1_value_box_value">
-                          {data.hitsOnStaticObject}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="report_content_input_field_box_4_main_content_container_box_2">
-                      <div className="report_content_input_field_box_4_main_content_container_box_2_title">
-                        Percentage of hit targets
-                      </div>
-                      <ReportGraph
-                        hitOnMoviongTank={data.hitOnMovingTanks}
-                        hitOnMovingAPCs={data.hitOnMovingAPCs}
-                        hitOnStaticAPCs={data.hitOnStaticAPCs}
-                        hitOnStaticTanks={data.hitOnStaticTanks}
-                        hitOnSoliders={data.hitOnSoliders}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="report_total_marks_container">
-                    <div className="report_total_marks_title">
-                      TOTAL MARKS :
-                    </div>
-                    <div className="report_total_marks_value">null</div>
+                  <div className="report_conent_input_field_box_4_main_content_container_box_1_value_box_value">
+                    Location: X: {enemy?.location?.x}, Y: {enemy?.location?.y}, Z: {enemy?.location?.z}
                   </div>
                 </div>
               </div>
-            );
-          })}
+            ))}
+          </div>
         </div>
       </div>
+
       <div className="report_print_btn">PRINT</div>
 
       <Footer />
