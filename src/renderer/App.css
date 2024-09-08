@@ -2074,6 +2074,18 @@ input[type='number'] {
   top: 45.7%;
   left: 39%;
   cursor: pointer;
+ 
+  transition: background-color 0.3s ease;
+}
+
+/* Pressed state */
+.dashboard_ninth_set_red_light_img{
+  
+  top: 85.7%;
+  left: 10%;
+  cursor: pointer;
+  background-color: rgb(61, 4, 4);  /* Dark red for pressed state */
+  transition: background-color 0.3s ease;
 }
 .dashboard_eight_set_joystick {
   position: absolute;
@@ -2182,6 +2194,26 @@ input[type='number'] {
   left: 14%;
   transition: top 0.3s ease;
 }
+/* Released state (already defined) */
+.metal_slider_knob_MRD {
+  position: absolute;
+  height: 50px;
+  width: 50px;
+  top: 12%;
+  left: 14%;
+  transition: top 0.3s ease;
+}
+
+/* Pressed state */
+.metal_slider_knob_MRD_pressed {
+  position: absolute;
+  height: 50px;
+  width: 50px;
+  top: 30%;  /* Adjust the top to simulate the pressed state */
+  left: 14%;
+  transition: top 0.3s ease;
+}
+
 
 .metal_slider_knob_PDR_2 {
   position: absolute;

@@ -13,10 +13,10 @@
     "m1_inclns": "on",
     "m1_scd/cpd": "scd",
     "m1_dps": "oec",
-    "m2_ammo": "x",
+    "m2_ammo": "apfsds",
     "m2_rngMode": "man",
-    "m2_opMode": "cbt",
-    "m2_day/night": "day",
+    "m2_opMode": "pre",
+    "m2_day/night": "night",
     "m2_move/fix": "fix",
     "m2_first/last": "last",
     "m2_Mrd": "released",
@@ -24,7 +24,7 @@
     "m2_mrs_km": "6",
     "m2_mrs_hm": "9",
     "m2_mrs_dm": "8",
-    "m3_apfsds_az_0.1": false,
+    "m3_apfsds_az_0.1": true,
     "m3_apfsds_az_0.2": false,
     "m3_apfsds_az_0.4": false,
     "m3_apfsds_az_0.8": false,
@@ -59,7 +59,7 @@
     "m3_heat_el_0.4": false,
     "m3_heat_el_0.8": false,
     "m3_heat_el_1.6": false,
-    "m3_heat_el_+": false,
+    "m3_heat_el_+": true,
     "m3_day_az_1": true,
     "m3_day_az_2": false,
     "m3_day_az_4": false,
@@ -75,5 +75,5 @@
     "m3_night_el_1": true,
     "m3_night_el_2": true,
     "m3_night_el_4": true,
-    "m3_night_el_+": true
+    "m3_night_el_+": false
 }
