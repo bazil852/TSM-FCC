@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { setExerciseTime, setTerrain, setMapName } from '../../redux/DataArray';
@@ -11,23 +11,18 @@ import data from '../../data.json';
 import { ipcRenderer } from 'electron';
 
 export default function CreateMap() {
-  const dispatch = useDispatch();
-  const [mapName, setMapNm] = useState('');
-  const navigate = useNavigate();
   const options1 = data.dropDownOptionsOfSelectTerrain;
-
+  const dispatch = useDispatch();
+  const mapDataRedux = useSelector((state) => state.dataArray.ExerciseInfo.mapName);
+  const [exerciseTime, setExerciseTimes] = useState(2);
+  const [terrain, setTerain] = useState(options1[0]);
+  const navigate = useNavigate();
   const enemy = useSelector((state) => state.dataArray.Enemy);
   const objects = useSelector((state) => state.dataArray.Items);
   const Player = useSelector((state) => state.dataArray.Player);
+  const [fetchOnce, setFetchOnce] = useState(true);
 
-  const [exerciseTime, setExerciseTimes] = useState(2);
-  const [terrain, setTerain] = useState(options1[0]);
 
-  const handleMapNameChange = (value) => {
-    console.log(value);
-    setMapNm(value);
-    dispatch(setMapName(value));
-  };
 
   const handleExerciseTime = (option) => {
     setExerciseTimes(option);
@@ -81,10 +76,9 @@ export default function CreateMap() {
                 <span>Map Name</span>
                 <input
                   type="text"
-                  value={mapName}
+                  value={mapDataRedux}
                   onChange={(e) => {
-                    console.log(e);
-                    handleMapNameChange(e.target.value);
+                    dispatch(setMapName(e.target.value));
                   }}
                 />
               </div>

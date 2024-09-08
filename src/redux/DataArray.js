@@ -120,10 +120,10 @@ export const DataArraySlice = createSlice({
           pointy: point.y,
         }));
         state.Enemy[enemyName][enemyIndex].Ammo = {
-          Heat: initialAmmo.Heat || 40,
-          APFSDS: initialAmmo.APFSDS || 40,
-          HE: initialAmmo.HE || 40,
-          MG: initialAmmo.MG || 40,
+          Heat: initialAmmo.heat || 40,
+          APFSDS: initialAmmo.apfsds || 40,
+          HE: initialAmmo.he || 40,
+          MG: initialAmmo.mg762 || 1000,
         };
         state.Enemy[enemyName][enemyIndex].initialDirection = initialDirection;
       } else {

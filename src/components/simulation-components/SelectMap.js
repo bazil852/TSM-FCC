@@ -37,6 +37,7 @@ import {
   updateTotalEnemies,
   setNewMapCreated,
   resetDataArray,
+  setMapName,
 } from '../../redux/DataArray';
 
 import { useNavigate } from 'react-router-dom';
@@ -188,8 +189,8 @@ export default function SelectMap() {
       })),
     };
 
-    console.log(playerWithLowercaseAmmo);
-
+    console.log(itemData.data.ExerciseInfo.mapName);
+    dispatch(setMapName(itemData.data.ExerciseInfo.mapName));
     dispatch(addOwnTank(playerWithLowercaseAmmo));
     dispatch(updateTotalOwnTanks(itemData.data.totalOwnTanks));
     dispatch(updateTotalEnemies(itemData.data.totalEnemies));

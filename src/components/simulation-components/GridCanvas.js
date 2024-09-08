@@ -43,6 +43,7 @@ import DataArray, {
   deleteRailwayStation,
   deleteJhompri,
   deleteRocks,
+  setMapName,
 } from '../../redux/DataArray';
 import { removeItem, addItem } from '../../redux/CarouselSelectedItemSlice';
 import gridTank from '../../TSM-img/gridTank.svg';
@@ -117,6 +118,7 @@ export default function GridCanvas({ stylingBox }) {
    try {
     
      console.log(simulationData);
+     
     // Prepare player data
     const playerPath = simulationData.Player.Path.map((point) => ({
       x: normalizetoSmall(point.pointx),
@@ -891,18 +893,20 @@ export default function GridCanvas({ stylingBox }) {
       dispatch(
         updateTotalEnemyAPCs(items.filter((item) => item.type === 'car').length),
       );
+      console.log("tanks amoo",tankAmmos);
       console.log(objectStartPoints);
       objectStartPoints.forEach((point) => {
         const ammoForThisTank = tankAmmos[point.id] || {
-          apfsds: 0,
-          he: 0,
-          heat: 0,
-          mg762: 0,
+          apfsds: 40,
+          he: 40,
+          heat: 40,
+          mg762: 1000,
         };
         const directionOfObject = direction[point.id] || 'West';
         // console.log(normalizePathX(point.path[0].x));
         if (point.item.status === 'dangerous') {
           if (point.item.type === 'tank') {
+            console.log("ammo for this tank",ammoForThisTank);
             dispatch(
               addEnemy({
                 unitId: point.id,
